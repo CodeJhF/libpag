@@ -1,14 +1,13 @@
 #ifndef PROFILING_PAG_FILEINFO_MODEL_H_
 #define PROFILING_PAG_FILEINFO_MODEL_H_
 
+#include <pag/pag.h>
+#include <QAbstractListModel>
 #include <QList>
 #include <QString>
-#include <QAbstractListModel>
-#include <pag/pag.h>
 
-class PAGFileInfo
-{
-public:
+class PAGFileInfo {
+ public:
   PAGFileInfo(const QString& name = "", const QString& value = "", const QString& ext = "");
 
   auto getExt() const -> QString;
@@ -19,7 +18,7 @@ public:
   auto setName(const QString& str) -> void;
   auto setValue(const QString& str) -> void;
 
-private:
+ private:
   QString ext;
   QString name;
   QString value;
@@ -28,11 +27,7 @@ private:
 class PAGFileInfoModel : public QAbstractListModel {
   Q_OBJECT
  public:
-  enum PAGFileInfoRoles {
-    NameRole = Qt::UserRole + 1,
-    ValueRole,
-    ExtRole
-  };
+  enum PAGFileInfoRoles { NameRole = Qt::UserRole + 1, ValueRole, ExtRole };
 
   explicit PAGFileInfoModel(QObject* parent = nullptr);
 
@@ -50,4 +45,4 @@ class PAGFileInfoModel : public QAbstractListModel {
   QList<PAGFileInfo> fileInfos;
 };
 
-#endif // PROFILING_PAG_FILEINFO_MODEL_H_
+#endif  // PROFILING_PAG_FILEINFO_MODEL_H_

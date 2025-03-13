@@ -4,18 +4,18 @@
 #include <QObject>
 #include <QQuickWindow>
 
-class PAGWindowHelper: public QObject {
+class PAGWindowHelper : public QObject {
   Q_OBJECT
  public:
   explicit PAGWindowHelper(QObject* parent = nullptr);
   ~PAGWindowHelper() override;
 
-  Q_INVOKABLE void setupWindowStyle(QQuickWindow *window);
+  Q_INVOKABLE void setupWindowStyle(QQuickWindow* window);
 
   static auto SetTopWindow(bool flag) -> void;
 
-private:
+ private:
   static bool TopFlag;
 };
 
-#endif // RENDERING_PAG_WINDOW_HELPER_H_
+#endif  // RENDERING_PAG_WINDOW_HELPER_H_

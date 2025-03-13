@@ -1,9 +1,9 @@
 #include "PAGApplication.h"
-#include <QList>
 #include <QEvent>
+#include <QList>
 #include "common/version.h"
-#include "rendering/PAGWindow.h"
 #include "license/LicenseDialog.h"
+#include "rendering/PAGWindow.h"
 
 PAGApplication::PAGApplication(int& argc, char** argv) : QApplication(argc, argv) {
   std::string version = AppVersion + " (" + UpdateChannel + ")";
@@ -66,10 +66,9 @@ auto PAGApplication::openFile(QString path) -> void {
 
     window->Open();
     PAGWindow::AllWindows.append(window);
-    QObject::connect(window, &PAGWindow::destroyWindow,
-                     this, &PAGApplication::onWindowDestroyed, Qt::UniqueConnection);
-    QObject::connect(window, &PAGWindow::openPAGFile,
-                     this, &PAGApplication::openFile);
+    QObject::connect(window, &PAGWindow::destroyWindow, this, &PAGApplication::onWindowDestroyed,
+                     Qt::UniqueConnection);
+    QObject::connect(window, &PAGWindow::openPAGFile, this, &PAGApplication::openFile);
   }
 
   window->openFile(path);
@@ -89,4 +88,3 @@ auto PAGApplication::applicationMessage(int instanceId, const QByteArray& messag
   }
   openFile(cmd);
 }
-

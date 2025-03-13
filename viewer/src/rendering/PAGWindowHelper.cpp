@@ -3,13 +3,12 @@
 #include "PAGUpdater.h"
 #endif
 
-PAGWindowHelper::PAGWindowHelper (QObject* parent) : QObject(parent) {
-
+PAGWindowHelper::PAGWindowHelper(QObject* parent) : QObject(parent) {
 }
 
 PAGWindowHelper::~PAGWindowHelper() = default;
 
-auto PAGWindowHelper::setupWindowStyle(QQuickWindow *window) -> void {
+auto PAGWindowHelper::setupWindowStyle(QQuickWindow* window) -> void {
   if (TopFlag && (window != nullptr)) {
     window->setFlags(window->flags() | Qt::WindowStaysOnTopHint);
   }

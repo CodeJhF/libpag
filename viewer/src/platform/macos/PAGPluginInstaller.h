@@ -4,7 +4,7 @@
 #include <string>
 
 class PAGPluginInstaller {
-public:
+ public:
   static auto HasUpdate() -> bool;
   static auto copyFileByCmd(char* originPath, char* targetPath) -> int;
   static auto InstallPlugin(std::string pluginName) -> int;
@@ -12,4 +12,4 @@ public:
   static auto UninstallPlugins() -> int;
 };
 
-#endif // PLATFORM_MACOS_PAG_PLUGIN_INSTALLER_H_
+#endif  // PLATFORM_MACOS_PAG_PLUGIN_INSTALLER_H_

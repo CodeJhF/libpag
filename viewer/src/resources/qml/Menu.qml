@@ -304,7 +304,4 @@ MenuBar {
             }
         }
     }
-    // Component.onCompleted: {
-    //     shortcuts.command.connect(command)
-    // }
 }

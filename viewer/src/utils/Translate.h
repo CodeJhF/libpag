@@ -1,13 +1,13 @@
 #ifndef UTILS_TRANSLATE_H_
 #define UTILS_TRANSLATE_H_
 
-#include <string>
-#include <QObject>
 #include <QApplication>
+#include <QObject>
+#include <string>
 
 namespace Utils {
 
-static std::string translate(const char *sourceText, const char *arg = nullptr) {
+static std::string translate(const char* sourceText, const char* arg = nullptr) {
   auto translateWord = QCoreApplication::translate("QObject", sourceText);
   if (arg != nullptr) {
     translateWord = translateWord.arg(arg);
@@ -16,6 +16,6 @@ static std::string translate(const char *sourceText, const char *arg = nullptr) 
   return translateWord.toStdString();
 }
 
-} // namespace Utils
+}  // namespace Utils
 
-#endif // UTILS_TRANSLATE_H_
+#endif  // UTILS_TRANSLATE_H_

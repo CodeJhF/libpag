@@ -1,17 +1,17 @@
-#include <string>
+#include <pag/pag.h>
+#include <QApplication>
 #include <QFont>
 #include <QQuickStyle>
-#include <QApplication>
-#include <pag/pag.h>
+#include <string>
+#include "common/PAGApplication.h"
 #include "common/version.h"
-#include "report/PAGReport.h"
 #include "license/LicenseDialog.h"
-#include "rendering/PAGViewWindow.h"
-#include "rendering/PAGWindowHelper.h"
 #include "profiling/PAGBenchmarkModel.h"
 #include "profiling/PAGRunTimeChartModel.h"
 #include "profiling/PAGRunTimeModelManager.h"
-#include "common/PAGApplication.h"
+#include "rendering/PAGViewWindow.h"
+#include "rendering/PAGWindowHelper.h"
+#include "report/PAGReport.h"
 #if defined(WIN32)
 #include "SingleApplication.h"
 #endif
@@ -27,7 +27,7 @@ void initReportConfig(const std::string& appVersion) {
   PAGReport::getInstance()->setAppBundleId("com.tencent.pagplayer");
 }
 
-int main(int argc, char *argv[]) {
+int main(int argc, char* argv[]) {
   bool cpuMode = false;
   std::string fileToOpen;
 

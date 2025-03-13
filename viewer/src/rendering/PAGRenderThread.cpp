@@ -3,7 +3,6 @@
 #include "utils/Time.h"
 
 PAGRenderThread::PAGRenderThread(PAGViewWindow* item) : pagWindow(item) {
-
 }
 
 PAGRenderThread::~PAGRenderThread() = default;
@@ -81,9 +80,9 @@ void PAGRenderThread::renderNext() {
     bool update = player->flush();
     auto totalFrames = Utils::timeToFrame(pagFile->duration(), pagFile->frameRate()) - 1;
     int frame = static_cast<int>(round(pagFile->getProgress() * static_cast<double>(totalFrames)));
-    Q_EMIT pagWindow->frameMetricsReady(frame,static_cast<int>(player->renderingTime()),
-      static_cast<int>(player->presentingTime()),
-      static_cast<int>(player->imageDecodingTime()));
+    Q_EMIT pagWindow->frameMetricsReady(frame, static_cast<int>(player->renderingTime()),
+                                        static_cast<int>(player->presentingTime()),
+                                        static_cast<int>(player->imageDecodingTime()));
 
     if (update) {
       Q_EMIT textureReady();
@@ -144,7 +143,8 @@ auto PAGRenderThread::tryToReplaceImage() const -> bool {
   int index = pagWindow->replaceImageIndex;
   if (pagWindow->replaceImageAtX >= 0) {
     index = 0;
-    const auto layers = player->getLayersUnderPoint(pagWindow->replaceImageAtX, pagWindow->replaceImageAtY);
+    const auto layers =
+        player->getLayersUnderPoint(pagWindow->replaceImageAtX, pagWindow->replaceImageAtY);
     for (const auto& pagLayer : layers) {
       if (pagLayer->layerType() == pag::LayerType::Image) {
         index = pagLayer->editableIndex();

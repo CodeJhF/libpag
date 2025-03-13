@@ -1,10 +1,10 @@
 #ifndef PROFILING_PAG_RUNTIME_MODEL_MANAGER_H_
 #define PROFILING_PAG_RUNTIME_MODEL_MANAGER_H_
 
-#include <QObject>
 #include <pag/pag.h>
-#include "PAGRunTimeDataModel.h"
+#include <QObject>
 #include "PAGRunTimeChartModel.h"
+#include "PAGRunTimeDataModel.h"
 
 class RunTimeData {
  public:
@@ -23,11 +23,11 @@ class PAGRunTimeModelManager : public QObject {
  public:
   PAGRunTimeModelManager();
 
-  Q_PROPERTY(float                 chartSize    READ getChartSize    WRITE setChartSize)
-  Q_PROPERTY(int                   totalFrame   READ getTotalFrame)
-  Q_PROPERTY(int                   currentFrame READ getCurrentFrame WRITE setCurrentFrame)
-  Q_PROPERTY(PAGRunTimeDataModel*  dataModel    READ getDataModel                             NOTIFY dataModelChange)
-  Q_PROPERTY(PAGRunTimeChartModel* chartModel   READ getChartModel)
+  Q_PROPERTY(float chartSize READ getChartSize WRITE setChartSize)
+  Q_PROPERTY(int totalFrame READ getTotalFrame)
+  Q_PROPERTY(int currentFrame READ getCurrentFrame WRITE setCurrentFrame)
+  Q_PROPERTY(PAGRunTimeDataModel* dataModel READ getDataModel NOTIFY dataModelChange)
+  Q_PROPERTY(PAGRunTimeChartModel* chartModel READ getChartModel)
 
   auto getChartSize() const -> float;
   auto getTotalFrame() const -> int;
@@ -41,7 +41,8 @@ class PAGRunTimeModelManager : public QObject {
   Q_SIGNAL void dataChange();
   Q_SIGNAL void dataModelChange();
 
-  Q_SLOT void updateDisplayData(int frame, int renderingTime, int presentingTime, int imageDecodingTime);
+  Q_SLOT void updateDisplayData(int frame, int renderingTime, int presentingTime,
+                                int imageDecodingTime);
 
   void resetFile(const std::shared_ptr<pag::PAGFile>& pagFile, std::string filePath);
 
@@ -59,4 +60,4 @@ class PAGRunTimeModelManager : public QObject {
   QMap<int, RunTimeData> dataMap;
 };
 
-#endif // PROFILING_PAG_RUNTIME_MODEL_MANAGER_H_
+#endif  // PROFILING_PAG_RUNTIME_MODEL_MANAGER_H_

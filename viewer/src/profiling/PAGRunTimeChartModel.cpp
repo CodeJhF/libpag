@@ -1,7 +1,7 @@
 #include "PAGRunTimeChartModel.h"
 
 PAGChartData::PAGChartData(int imageValue, int renderValue, int presentValue)
-  : imageValue(imageValue), renderValue(renderValue), presentValue(presentValue){
+    : imageValue(imageValue), renderValue(renderValue), presentValue(presentValue) {
   sum = imageValue + renderValue + presentValue;
 }
 
@@ -36,8 +36,12 @@ auto PAGRunTimeChartModel::getIndex() const -> int {
 }
 
 auto PAGRunTimeChartModel::getItems() -> QQmlListProperty<PAGChartData> {
-   return {this, this, &PAGRunTimeChartModel::appendColumnItem, &PAGRunTimeChartModel::getColumnCount,
-     &PAGRunTimeChartModel::getColumnItem,&PAGRunTimeChartModel::clearColumns};
+  return {this,
+          this,
+          &PAGRunTimeChartModel::appendColumnItem,
+          &PAGRunTimeChartModel::getColumnCount,
+          &PAGRunTimeChartModel::getColumnItem,
+          &PAGRunTimeChartModel::clearColumns};
 }
 
 auto PAGRunTimeChartModel::getMaxValue() const -> int {
@@ -48,7 +52,7 @@ auto PAGRunTimeChartModel::getColumnItem(int index) const -> PAGChartData* {
   return items.at(index);
 }
 
-auto PAGRunTimeChartModel::addColumnItem(PAGChartData *data) -> void {
+auto PAGRunTimeChartModel::addColumnItem(PAGChartData* data) -> void {
   auto* tmp = new PAGChartData(data->imageValue, data->renderValue, data->presentValue);
   items.append(tmp);
   maxValue = std::max(tmp->sum, maxValue);
@@ -62,7 +66,7 @@ auto PAGRunTimeChartModel::resetFile(std::shared_ptr<pag::File> file) -> void {
   addColumnItem(&model);
 }
 
-auto PAGRunTimeChartModel::resetColumns(PAGRunTimeChartModel *model) -> void {
+auto PAGRunTimeChartModel::resetColumns(PAGRunTimeChartModel* model) -> void {
   if (this != model) {
     clearColumns(false);
   }
@@ -78,7 +82,7 @@ auto PAGRunTimeChartModel::resetColumns(PAGRunTimeChartModel *model) -> void {
 auto PAGRunTimeChartModel::clearColumns(bool notify) -> void {
   index = 0;
   maxValue = 0;
-  QVector<PAGChartData *> vector;
+  QVector<PAGChartData*> vector;
   vector.swap(items);
   for (int i = 0; i < vector.count(); ++i) {
     delete vector[i];
@@ -90,7 +94,7 @@ auto PAGRunTimeChartModel::clearColumns(bool notify) -> void {
   }
 }
 
-auto PAGRunTimeChartModel::updateColumnItem(PAGChartData *data, int index) -> void {
+auto PAGRunTimeChartModel::updateColumnItem(PAGChartData* data, int index) -> void {
   while (items.size() <= index) {
     auto* tmp = new PAGChartData(0, 0, 0);
     items.append(tmp);
@@ -109,17 +113,19 @@ auto PAGRunTimeChartModel::updateColumnItem(PAGChartData *data, int index) -> vo
 }
 
 auto PAGRunTimeChartModel::clearColumns(QQmlListProperty<PAGChartData>* list) -> void {
-  reinterpret_cast<PAGRunTimeChartModel* >(list->data)->clearColumns();
+  reinterpret_cast<PAGRunTimeChartModel*>(list->data)->clearColumns();
 }
 
-auto PAGRunTimeChartModel::getColumnItem(QQmlListProperty<PAGChartData>* list, qsizetype i) -> PAGChartData* {
-  return reinterpret_cast<PAGRunTimeChartModel* >(list->data)->getColumnItem(static_cast<int>(i));
+auto PAGRunTimeChartModel::getColumnItem(QQmlListProperty<PAGChartData>* list, qsizetype i)
+    -> PAGChartData* {
+  return reinterpret_cast<PAGRunTimeChartModel*>(list->data)->getColumnItem(static_cast<int>(i));
 }
 
 auto PAGRunTimeChartModel::getColumnCount(QQmlListProperty<PAGChartData>* list) -> qsizetype {
-  return reinterpret_cast<PAGRunTimeChartModel* >(list->data)->getSize();
+  return reinterpret_cast<PAGRunTimeChartModel*>(list->data)->getSize();
 }
 
-auto PAGRunTimeChartModel::appendColumnItem(QQmlListProperty<PAGChartData>* list, PAGChartData* m) -> void {
-  reinterpret_cast<PAGRunTimeChartModel* >(list->data)->addColumnItem(m);
+auto PAGRunTimeChartModel::appendColumnItem(QQmlListProperty<PAGChartData>* list, PAGChartData* m)
+    -> void {
+  reinterpret_cast<PAGRunTimeChartModel*>(list->data)->addColumnItem(m);
 }

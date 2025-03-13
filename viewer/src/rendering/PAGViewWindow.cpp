@@ -1,12 +1,12 @@
 #include "PAGViewWindow.h"
-#include <chrono>
-#include <QSettings>
+#include <pag/file.h>
 #include <QJsonArray>
-#include <QQuickWindow>
 #include <QJsonDocument>
 #include <QOpenGLTexture>
+#include <QQuickWindow>
+#include <QSettings>
 #include <QtGui/QOpenGLContext>
-#include <pag/file.h>
+#include <chrono>
 #include "report/PAGReport.h"
 
 int64_t GetPassTime() {
@@ -334,13 +334,14 @@ auto PAGViewWindow::updatePaintNode(QSGNode* oldNode, UpdatePaintNodeData* data)
   auto* node = dynamic_cast<TextureNode*>(oldNode);
 
   if (renderThread->openGlContext == nullptr) {
-    QSGRendererInterface *rendererInterface = window()->rendererInterface();
+    QSGRendererInterface* rendererInterface = window()->rendererInterface();
     if (rendererInterface == nullptr) {
       qDebug() << "Error: Get null QSGRenderInterface";
       return nullptr;
     }
 
-    auto *currentContext = static_cast<QOpenGLContext *>(rendererInterface->getResource(window(), QSGRendererInterface::OpenGLContextResource));
+    auto* currentContext = static_cast<QOpenGLContext*>(
+        rendererInterface->getResource(window(), QSGRendererInterface::OpenGLContextResource));
     if (currentContext == nullptr) {
       qDebug() << "Error: Get null QOpenGLContext" << Qt::endl;
       return nullptr;
@@ -373,9 +374,12 @@ auto PAGViewWindow::updatePaintNode(QSGNode* oldNode, UpdatePaintNodeData* data)
      *
      * This FBO rendering pipeline is throttled by vsync on the scene graph rendering thread.
      */
-    connect(renderThread, &PAGRenderThread::textureReady, this, &PAGViewWindow::update, Qt::QueuedConnection);
-    connect(renderThread, &PAGRenderThread::firstFrameReady, this, &PAGViewWindow::firstFrameReady, Qt::QueuedConnection);
-    connect(window(), &QQuickWindow::afterRendering, renderThread, &PAGRenderThread::renderNext, Qt::QueuedConnection);
+    connect(renderThread, &PAGRenderThread::textureReady, this, &PAGViewWindow::update,
+            Qt::QueuedConnection);
+    connect(renderThread, &PAGRenderThread::firstFrameReady, this, &PAGViewWindow::firstFrameReady,
+            Qt::QueuedConnection);
+    connect(window(), &QQuickWindow::afterRendering, renderThread, &PAGRenderThread::renderNext,
+            Qt::QueuedConnection);
 
     QMetaObject::invokeMethod(renderThread, "renderNext", Qt::QueuedConnection);
 

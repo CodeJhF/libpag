@@ -1,9 +1,9 @@
 #ifndef PROFILING_PAG_RUNTIME_DATA_MODEL_H_
 #define PROFILING_PAG_RUNTIME_DATA_MODEL_H_
 
-#include <QString>
-#include <QObject>
 #include <QAbstractListModel>
+#include <QObject>
+#include <QString>
 
 class PAGRunTimeData {
  public:
@@ -38,7 +38,8 @@ class PAGRunTimeDataModel : public QAbstractListModel {
 
   auto data(const QModelIndex& index, int role) const -> QVariant override;
   auto rowCount(const QModelIndex& parent) const -> int override;
-  auto updateRunTimeData(const PAGRunTimeData &render, const PAGRunTimeData &present, const PAGRunTimeData &decode) -> void;
+  auto updateRunTimeData(const PAGRunTimeData& render, const PAGRunTimeData& present,
+                         const PAGRunTimeData& decode) -> void;
 
  protected:
   auto roleNames() const -> QHash<int, QByteArray> override;
@@ -47,4 +48,4 @@ class PAGRunTimeDataModel : public QAbstractListModel {
   QList<PAGRunTimeData> items;
 };
 
-#endif // PROFILING_PAG_RUNTIME_DATA_MODEL_H_
+#endif  // PROFILING_PAG_RUNTIME_DATA_MODEL_H_

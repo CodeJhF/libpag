@@ -11,8 +11,7 @@ static auto UpdateDidFindCallBack() -> void {
 #if defined(PAG_DEBUG)
   return;
 #else
-  for (int i = 0; i < PAGWindow::AllWindows.count(); i++)
-  {
+  for (int i = 0; i < PAGWindow::AllWindows.count(); i++) {
     auto window = PAGWindow::AllWindows[i];
     auto root = window->getEngine()->rootObjects().first();
     if (root) {
@@ -39,7 +38,6 @@ auto PAGUpdater::checkUpdates(bool showUI, std::string feedUrl) -> void {
 #else
   ShowUI = showUI;
   win_sparkle_set_did_find_update_callback(UpdateDidFindCallBack);
-  // win_sparkle_set_did_find_update_callback2(UpdateDidFFindCallBack);
   win_sparkle_set_appcast_url(feedUrl.data());
   if (showUI) {
     win_sparkle_check_update_with_ui();

@@ -1,9 +1,9 @@
-#ifndef RENDERING_PAGQUICKITEM_TYPES_H_
-#define RENDERING_PAGQUICKITEM_TYPES_H_
+#ifndef RENDERING_PAG_QUICKITEM_TYPES_H_
+#define RENDERING_PAG_QUICKITEM_TYPES_H_
 
-#include <QSize>
 #include <QQuickWindow>
 #include <QSGSimpleTextureNode>
+#include <QSize>
 #include <QtGui/QOpenGLFunctions>
 
 class PAGQuickItemProtocol {
@@ -24,4 +24,4 @@ class TextureNode : public QObject, public QSGSimpleTextureNode {
   QQuickWindow* window{nullptr};
 };
 
-#endif // RENDERING_PAGQUICKITEM_TYPES_H_
+#endif  // RENDERING_PAG_QUICKITEM_TYPES_H_

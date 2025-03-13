@@ -1,4 +1,4 @@
-// import PAG
+import PAG
 import QtQuick
 import QtQuick.Layouts
 import QtQuick.Controls

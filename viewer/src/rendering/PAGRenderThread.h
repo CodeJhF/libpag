@@ -1,10 +1,10 @@
-#ifndef RENDERING_RENDERTHREAD_H_
-#define RENDERING_RENDERTHREAD_H_
+#ifndef RENDERING_RENDER_THREAD_H_
+#define RENDERING_RENDER_THREAD_H_
 
-#include <QThread>
-#include <QtGui/QOpenGLContext>
 #include <pag/pag.h>
 #include <platform/qt/GPUDrawable.h>
+#include <QThread>
+#include <QtGui/QOpenGLContext>
 
 class PAGViewWindow;
 
@@ -45,4 +45,4 @@ class PAGRenderThread : public QThread {
   std::shared_ptr<pag::PAGSurface> pagSurface;
 };
 
-#endif // RENDERING_RENDERTHREAD_H_
+#endif  // RENDERING_RENDER_THREAD_H_

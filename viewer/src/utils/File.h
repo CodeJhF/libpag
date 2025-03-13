@@ -39,6 +39,7 @@ class FileIO {
     fclose(fp);
     return static_cast<int>(size);
   }
+
  private:
   static int WriteTextFileInternal(const char* filename, const char* text, const char* mode) {
     int len = 0;

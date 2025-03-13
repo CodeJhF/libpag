@@ -1,11 +1,10 @@
 #include "PAGWindow.h"
+#include <QCoreApplication>
 #include <QFileInfo>
 #include <QQmlContext>
-#include <QCoreApplication>
 #include "license/LicenseDialog.h"
 
 PAGWindow::PAGWindow(QObject* parent) : QObject(parent) {
-
 }
 
 PAGWindow::~PAGWindow() {
@@ -22,6 +21,7 @@ auto PAGWindow::Open() -> void {
   languageModel = new PAGLanguageModel();
   fileInfoModel = new PAGFileInfoModel();
   benchmarkModel = new PAGBenchmarkModel();
+  checkUpdateModel = new PAGCheckUpdateModel();
   // TODO Implement the functions
 
   auto context = qmlEngine->rootContext();
@@ -30,25 +30,27 @@ auto PAGWindow::Open() -> void {
   context->setContextProperty("languageModel", languageModel);
   context->setContextProperty("fileInfoModel", fileInfoModel);
   context->setContextProperty("benchmarkModel", benchmarkModel);
+  context->setContextProperty("checkUpdateModel", checkUpdateModel);
   context->setContextProperty("licenseUrl", LicenseDialog::licenseUrl);
   context->setContextProperty("privacyUrl", LicenseDialog::privacyUrl);
 #if defined(__APPLE__)
   context->setContextProperty("DefaultFontFamily", QString("PingFang SC"));
 #elif defined(WIN32)
   context->setContextProperty("DefaultFontFamily", QString("Microsoft YaHei"));
-#endif
+#endif  // __APPLE__
 
 #if defined(QT_DEBUG)
 #if defined(__APPLE__)
-  QString qmlPath = QCoreApplication::applicationDirPath() + "/../../../../src/resources/qml/MainWindow.qml";
+  QString qmlPath =
+      QCoreApplication::applicationDirPath() + "/../../../../src/resources/qml/MainWindow.qml";
 #elif defined(WIN32)
   QString qmlPath = QCoreApplication::applicationDirPath() + "/../src/resources/qml/MainWindow.qml";
-#endif
+#endif  // __APPLE__
   qmlEngine->load(QUrl::fromLocalFile(QFileInfo(qmlPath).absoluteFilePath()));
 #else
   qmlEngine->load(QUrl(QStringLiteral("qrc:/qml/MainWindow.qml")));
-#endif
-  quickWindow = dynamic_cast<QQuickWindow* >(qmlEngine->rootObjects().at(0));
+#endif  // QT_DEBUG
+  quickWindow = dynamic_cast<QQuickWindow*>(qmlEngine->rootObjects().at(0));
   quickWindow->setPersistentGraphics(true);
   quickWindow->setPersistentSceneGraph(true);
   quickWindow->setTextRenderType(QQuickWindow::TextRenderType::NativeTextRendering);
@@ -56,11 +58,16 @@ auto PAGWindow::Open() -> void {
   viewWindow = quickWindow->findChild<PAGViewWindow*>("pagViewer");
   runTimeModelManager = quickWindow->findChild<PAGRunTimeModelManager*>("runTimeModelManager");
 
-  connect(viewWindow, &PAGViewWindow::fileChanged, fileInfoModel, &PAGFileInfoModel::updateFileInfo);
-  connect(viewWindow, &PAGViewWindow::fileChanged, runTimeModelManager, &PAGRunTimeModelManager::resetFile);
-  connect(viewWindow, &PAGViewWindow::frameMetricsReady, runTimeModelManager, &PAGRunTimeModelManager::updateDisplayData);
-  connect(viewWindow, &PAGViewWindow::showVideoFramesChanged, this, &PAGWindow::onShowVideoFramesChanged);
-  connect(quickWindow, SIGNAL(closing(QQuickCloseEvent*)), this, SLOT(onPAGViewerDestroyed()), Qt::QueuedConnection);
+  connect(viewWindow, &PAGViewWindow::fileChanged, fileInfoModel,
+          &PAGFileInfoModel::updateFileInfo);
+  connect(viewWindow, &PAGViewWindow::fileChanged, runTimeModelManager,
+          &PAGRunTimeModelManager::resetFile);
+  connect(viewWindow, &PAGViewWindow::frameMetricsReady, runTimeModelManager,
+          &PAGRunTimeModelManager::updateDisplayData);
+  connect(viewWindow, &PAGViewWindow::showVideoFramesChanged, this,
+          &PAGWindow::onShowVideoFramesChanged);
+  connect(quickWindow, SIGNAL(closing(QQuickCloseEvent*)), this, SLOT(onPAGViewerDestroyed()),
+          Qt::QueuedConnection);
 }
 
 auto PAGWindow::getFilePath() -> QString {
@@ -75,7 +82,7 @@ auto PAGWindow::close() -> void {
   if (!PAGWindow::AllWindows.contains(this)) {
     return;
   }
-  
+
   if (!windowHelper) {
     return;
   }
@@ -107,4 +114,4 @@ auto PAGWindow::openProject(const QString& path) -> void {
   Q_EMIT openPAGFile(QString(""));
 }
 
-QList<PAGWindow* > PAGWindow::AllWindows;
+QList<PAGWindow*> PAGWindow::AllWindows;

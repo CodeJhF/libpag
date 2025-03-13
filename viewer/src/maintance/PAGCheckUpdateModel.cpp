@@ -1,21 +1,27 @@
 #include "PAGCheckUpdateModel.h"
+#include <QCoreApplication>
+#include <QDebug>
 #include <QDir>
 #include <QFile>
-#include <QDebug>
 #include <QFileInfo>
-#include <QStandardPaths>
-#include <QCoreApplication>
 #include <QRegularExpression>
-#include "common/version.h"
-#include "PAGUpdater.h"
+#include <QStandardPaths>
 #include "PAGPluginInstaller.h"
+#include "PAGUpdater.h"
+#include "common/version.h"
 
-const std::string MAC_REPO_URL_TEST = "aHR0cDovL2RsZGlyMS5xcS5jb20vcXFtaS9saWJwYWcvdGVzdC9wbGF5ZXJfbWFj";
-const std::string MAC_REPO_URL_RELEASE = "aHR0cDovL2RsZGlyMS5xcS5jb20vcXFtaS9saWJwYWcvcGxheWVyX21hYw==";
-const std::string WINDOWS_REPO_URL_TEST = "HaHR0cDovL2RsZGlyMS5xcS5jb20vcXFtaS9saWJwYWcvYmV0YS92aWV3ZXJfd2luZG93cw==";
-const std::string WINDOWS_REPO_URL_RELEASE = "@aHR0cDovL2RsZGlyMS5xcS5jb20vcXFtaS9saWJwYWcvdmlld2VyX3dpbmRvd3M=";
-const std::string WINDOWS_REPO_URL_TEST_PLAYER = "HaHR0cDovL2RsZGlyMS5xcS5jb20vcXFtaS9saWJwYWcvdGVzdC9wbGF5ZXJfd2luZG93cw==";
-const std::string WINDOWS_REPO_URL_RELEASE_PLAYER = "@aHR0cDovL2RsZGlyMS5xcS5jb20vcXFtaS9saWJwYWcvcGxheWVyX3dpbmRvd3M=";
+const std::string MAC_REPO_URL_TEST =
+    "aHR0cDovL2RsZGlyMS5xcS5jb20vcXFtaS9saWJwYWcvdGVzdC9wbGF5ZXJfbWFj";
+const std::string MAC_REPO_URL_RELEASE =
+    "aHR0cDovL2RsZGlyMS5xcS5jb20vcXFtaS9saWJwYWcvcGxheWVyX21hYw==";
+const std::string WINDOWS_REPO_URL_TEST =
+    "HaHR0cDovL2RsZGlyMS5xcS5jb20vcXFtaS9saWJwYWcvYmV0YS92aWV3ZXJfd2luZG93cw==";
+const std::string WINDOWS_REPO_URL_RELEASE =
+    "@aHR0cDovL2RsZGlyMS5xcS5jb20vcXFtaS9saWJwYWcvdmlld2VyX3dpbmRvd3M=";
+const std::string WINDOWS_REPO_URL_TEST_PLAYER =
+    "HaHR0cDovL2RsZGlyMS5xcS5jb20vcXFtaS9saWJwYWcvdGVzdC9wbGF5ZXJfd2luZG93cw==";
+const std::string WINDOWS_REPO_URL_RELEASE_PLAYER =
+    "@aHR0cDovL2RsZGlyMS5xcS5jb20vcXFtaS9saWJwYWcvcGxheWVyX3dpbmRvd3M=";
 
 auto PAGCheckUpdateModel::onToolProcessEnd(int exitCode, QProcess::ExitStatus exitStatus) -> void {
   auto result = false;
@@ -42,7 +48,8 @@ auto PAGCheckUpdateModel::isBetaVersion() -> bool {
   return UpdateChannel == "beta";
 }
 
-auto PAGCheckUpdateModel::copyFileToPath(const QString& sourceDir, QString toDir, bool coverFileIfExist) -> bool {
+auto PAGCheckUpdateModel::copyFileToPath(const QString& sourceDir, QString toDir,
+                                         bool coverFileIfExist) -> bool {
   toDir.replace("\\", "/");
   if (sourceDir == toDir) {
     return true;
@@ -50,7 +57,7 @@ auto PAGCheckUpdateModel::copyFileToPath(const QString& sourceDir, QString toDir
   if (!QFile::exists(sourceDir)) {
     return false;
   }
-  QDir *createfile = new QDir;
+  QDir* createfile = new QDir;
   if (createfile->exists(toDir)) {
     if (coverFileIfExist) {
       createfile->remove(toDir);
@@ -60,10 +67,6 @@ auto PAGCheckUpdateModel::copyFileToPath(const QString& sourceDir, QString toDir
   if (!QFile::copy(sourceDir, toDir)) {
     return false;
   }
-  return true;
-}
-
-auto PAGCheckUpdateModel::setIsBetaVersion(bool isBetaVersion) -> bool {
   return true;
 }
 
@@ -87,12 +90,12 @@ auto PAGCheckUpdateModel::updatePreviousVersion() -> bool {
 #elif defined(WIN32)
   // TODO Improve the code
   QString currentPath = qApp->applicationDirPath();
-  if(currentPath.indexOf("PAGPlayer")<1){
-      return true;
+  if (currentPath.indexOf("PAGPlayer") < 1) {
+    return true;
   }
   qDebug() << "CurrentPath: " << currentPath;
 
-  QString toolPath =  currentPath +"/maintenancetool.ini";
+  QString toolPath = currentPath + "/maintenancetool.ini";
   QFile data(toolPath);
   data.setPermissions(QFileDevice::ReadOwner | QFileDevice::WriteOwner);
   data.open(QIODevice::Text | QIODevice::ReadOnly);
@@ -105,20 +108,20 @@ auto PAGCheckUpdateModel::updatePreviousVersion() -> bool {
   while (iter.hasNext()) {
     QRegularExpressionMatch match = iter.next();
     dataText.replace(match.capturedStart(0), match.capturedLength(0), replacementText);
-	  replaced = true;
+    replaced = true;
   }
 
   regular = QRegularExpression(WINDOWS_REPO_URL_TEST_PLAYER.c_str());
   replacementText = QString(WINDOWS_REPO_URL_TEST.c_str());
   iter = regular.globalMatch(dataText);
-  while(iter.hasNext()) {
+  while (iter.hasNext()) {
     QRegularExpressionMatch match = iter.next();
     dataText.replace(match.capturedStart(0), match.capturedLength(0), replacementText);
-	  replaced = true;
+    replaced = true;
   }
 
   if (!replaced) {
-	  return true;
+    return true;
   }
 
   QString toolPathBak = QStandardPaths::writableLocation(QStandardPaths::TempLocation);
@@ -126,31 +129,31 @@ auto PAGCheckUpdateModel::updatePreviousVersion() -> bool {
   QFile newData(toolPathBak);
   newData.setPermissions(QFileDevice::ReadOwner | QFileDevice::WriteOwner);
   if (newData.open(QFile::WriteOnly | QFile::Truncate)) {
-      QTextStream out(&newData);
-      out << dataText;
+    QTextStream out(&newData);
+    out << dataText;
   }
   newData.close();
 
   QProcess process;
   process.setWorkingDirectory(currentPath);
   QString command = currentPath + "/copy.bat";
-	command = QDir::toNativeSeparators(command);
-	toolPathBak = QDir::toNativeSeparators(toolPathBak);
-	process.start(command, QStringList() << toolPathBak);
-	bool result = process.waitForFinished();
+  command = QDir::toNativeSeparators(command);
+  toolPathBak = QDir::toNativeSeparators(toolPathBak);
+  process.start(command, QStringList() << toolPathBak);
+  bool result = process.waitForFinished();
 
-  qDebug()<< "Progress.error():" <<process.error();
+  qDebug() << "Progress.error():" << process.error();
 
-	QByteArray outputData = process.readAllStandardOutput();
-	QByteArray errorData = process.readAllStandardError();
-	qDebug() << "OutputData: " << outputData;
-	qDebug() << "ErrorData: " << errorData;
+  QByteArray outputData = process.readAllStandardOutput();
+  QByteArray errorData = process.readAllStandardError();
+  qDebug() << "OutputData: " << outputData;
+  qDebug() << "ErrorData: " << errorData;
 
   return result;
 #endif
 }
 
-auto PAGCheckUpdateModel::installAEPlugin(bool bForce) -> int{
+auto PAGCheckUpdateModel::installAEPlugin(bool bForce) -> int {
   return PAGPluginInstaller::InstallPlugins(bForce);
 }
 
@@ -158,7 +161,8 @@ auto PAGCheckUpdateModel::uninstallAEPlugin() -> int {
   return PAGPluginInstaller::UninstallPlugins();
 }
 
-auto PAGCheckUpdateModel::revealInFinder(const QString &path) -> void {
+auto PAGCheckUpdateModel::revealInFinder(const QString& path) -> void {
+  // TODO change from cmd to api
 #if defined(__APPLE__)
   QFileInfo file(path);
   QStringList args;

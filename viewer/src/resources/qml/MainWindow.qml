@@ -45,8 +45,6 @@ PApplicationWindow {
         property int uiFirstFrameRenderingTime: 60000
         property int templateAvgRenderingTime: 30000
         property int templateFirstFrameRenderingTime: 60000
-        // TODO
-        // property int currentBenchmarkSceneType: PAGBenchmarkModel.BENCHMARK_SCENE_TYPE_TEMPLATE
         property double lastX: 0
         property double lastY: 0
         property double lastCheckUpdateTime: 0
@@ -354,16 +352,9 @@ PApplicationWindow {
                 return
             }
 
-            // TODO
-            // let ok = checkUpdateModel.setIsBetaVersion(settingsWindow.useBeta)
-            if (ok) {
-                settings.isUseBeta = settingsWindow.useBeta
-                if(settingsWindow.useBeta) {
-                    checkUpdate(false)
-                }
-            } else {
-                settingsWindow.useBeta = !settingsWindow.useBeta
-                console.log("Set Use Beta Error")
+            settings.isUseBeta = settingsWindow.useBeta
+            if (settingsWindow.useBeta) {
+                checkUpdate(false)
             }
             console.log("Set settings.isUseBeta: ", settings.isUseBeta)
         }
@@ -403,15 +394,14 @@ PApplicationWindow {
 
         width: 500
         height: 160 + mainWindow.windowTitleBarHeight
-        title: qsTr("heck Update Information")
+        title: qsTr("Check Update Information")
         message: qsTr("Finding new version for Adobe After Effects plug-in, updating it now or not?")
         visible: false
         showCancel: true
 
         onAccepted: {
             console.log("User confirm to update")
-            // TODO
-            // checkUpdateModel.startUpdatePlayer()
+            checkUpdateModel.startUpdatePlayer()
         }
         onCanceled: {
             console.log("canceled")
@@ -661,18 +651,16 @@ PApplicationWindow {
             }
             case 'performance-benchmark': {
                 mainForm.pagViewer.isPlaying = false
-                // TODO
-                // busyLoading.visible = true
-                // busyLoading.running = true
+                // TODO add busy indicator
                 benchmarkModel.startBenchmarkFromQRC(false)
                 break
             }
             case 'install-ae-plugin': {
-                // let ret = checkUpdateModel.installAEPlugin(true)
+                let ret = checkUpdateModel.installAEPlugin(true)
                 break
             }
             case 'unInstall-ae-plugin': {
-                // let ret = checkUpdateModel.uninstallAEPlugin()
+                let ret = checkUpdateModel.uninstallAEPlugin()
                 break
             }
             case 'open-about': {
@@ -854,7 +842,6 @@ PApplicationWindow {
 
         resizePAGViewer()
 
-        // todo: merge menu to single file
         let isMacOS = Qt.platform.os === "osx"
         let menu = Qt.createComponent("Menu.qml")
         let bar = menu.createObject(mainWindow)

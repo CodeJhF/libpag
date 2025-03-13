@@ -1,8 +1,8 @@
 #include "PAGRunTimeDataModel.h"
 
-PAGRunTimeData::PAGRunTimeData(int avg, int max, int current, const QString& name, const QString& colorCode)
-  : avg(avg), max(max), current(current), name(name), colorCode(colorCode) {
-
+PAGRunTimeData::PAGRunTimeData(int avg, int max, int current, const QString& name,
+                               const QString& colorCode)
+    : avg(avg), max(max), current(current), name(name), colorCode(colorCode) {
 }
 
 auto PAGRunTimeData::getAvg() const -> int {
@@ -26,7 +26,6 @@ auto PAGRunTimeData::getColorCode() const -> QString {
 }
 
 PAGRunTimeDataModel::PAGRunTimeDataModel(QObject* parent) : QAbstractListModel(parent) {
-
 }
 
 auto PAGRunTimeDataModel::data(const QModelIndex& index, int role) const -> QVariant {
@@ -34,7 +33,7 @@ auto PAGRunTimeDataModel::data(const QModelIndex& index, int role) const -> QVar
     return {};
   }
 
-  const auto &item = items.at(index.row());
+  const auto& item = items.at(index.row());
   switch (role) {
     case NameRole: {
       return item.getName();
@@ -60,7 +59,9 @@ auto PAGRunTimeDataModel::rowCount(const QModelIndex& parent) const -> int {
   return static_cast<int>(items.count());
 }
 
-auto PAGRunTimeDataModel::updateRunTimeData(const PAGRunTimeData &render, const PAGRunTimeData &present, const PAGRunTimeData &decode) -> void {
+auto PAGRunTimeDataModel::updateRunTimeData(const PAGRunTimeData& render,
+                                            const PAGRunTimeData& present,
+                                            const PAGRunTimeData& decode) -> void {
   beginResetModel();
   items.clear();
   items << render;

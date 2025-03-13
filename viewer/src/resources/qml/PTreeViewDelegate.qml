@@ -1,4 +1,4 @@
-// import PAG
+import PAG
 import QtQuick
 import QtQml.Models
 import QtQuick.Layouts

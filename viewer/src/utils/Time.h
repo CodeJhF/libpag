@@ -37,6 +37,6 @@ inline double frameToProgress(pag::Frame currentFrame, pag::Frame totalFrames) {
   return (currentFrame * 1.0 + 0.1) / totalFrames;
 }
 
-} // namespace Utils
+}  // namespace Utils
 
-#endif // UTILS_TIME_H_
+#endif  // UTILS_TIME_H_

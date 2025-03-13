@@ -2,19 +2,19 @@
 #include <pag/file.h>
 #include "utils/StringTransform.h"
 
-PAGFileInfo::PAGFileInfo(const QString& name, const QString& value, const QString& ext) : name(name), value(value), ext(ext) {
-
+PAGFileInfo::PAGFileInfo(const QString& name, const QString& value, const QString& ext)
+    : name(name), value(value), ext(ext) {
 }
 
-auto PAGFileInfo::getExt() const -> QString  {
+auto PAGFileInfo::getExt() const -> QString {
   return ext;
 }
 
-auto PAGFileInfo::getName() const -> QString  {
+auto PAGFileInfo::getName() const -> QString {
   return name;
 }
 
-auto PAGFileInfo::getValue() const -> QString  {
+auto PAGFileInfo::getValue() const -> QString {
   return value;
 }
 
@@ -43,7 +43,8 @@ PAGFileInfoModel::PAGFileInfoModel(QObject* parent) : QAbstractListModel(parent)
   endInsertRows();
 }
 
-auto PAGFileInfoModel::updateFileInfo(const std::shared_ptr<pag::PAGFile>& pagFile, std::string filePath) -> void {
+auto PAGFileInfoModel::updateFileInfo(const std::shared_ptr<pag::PAGFile>& pagFile,
+                                      std::string filePath) -> void {
   const auto& file = pagFile;
   beginResetModel();
   updateDisplayFileInfo(PAGFileInfo("Duration", Utils::toQString(file->duration() / 1000000.0)));
@@ -51,7 +52,8 @@ auto PAGFileInfoModel::updateFileInfo(const std::shared_ptr<pag::PAGFile>& pagFi
   updateDisplayFileInfo(PAGFileInfo("Width", Utils::toQString(file->width())));
   updateDisplayFileInfo(PAGFileInfo("Height", Utils::toQString(file->height())));
   auto memorySize = pag::CalculateGraphicsMemory(file->getFile());
-  updateDisplayFileInfo(PAGFileInfo("Graphics", Utils::getMemorySizeNumString(memorySize), Utils::getMemorySizeUnit(memorySize)));
+  updateDisplayFileInfo(PAGFileInfo("Graphics", Utils::getMemorySizeNumString(memorySize),
+                                    Utils::getMemorySizeUnit(memorySize)));
   updateDisplayFileInfo(PAGFileInfo("Videos", Utils::toQString(file->numVideos())));
   updateDisplayFileInfo(PAGFileInfo("Layers", Utils::toQString(file->getFile()->numLayers())));
   auto version = Utils::tagCodeToVersion(file->tagLevel());
@@ -64,7 +66,7 @@ auto PAGFileInfoModel::data(const QModelIndex& index, int role) const -> QVarian
     return {};
   }
 
-  const PAGFileInfo &fileInfo = fileInfos[index.row()];
+  const PAGFileInfo& fileInfo = fileInfos[index.row()];
   if (role == NameRole) {
     return fileInfo.getName();
   } else if (role == ValueRole) {

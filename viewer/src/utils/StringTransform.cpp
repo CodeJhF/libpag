@@ -50,13 +50,9 @@ auto getMemorySizeNumString(int64_t size) -> QString {
 }
 
 static const std::vector<std::pair<pag::TagCode, std::string>> TagCodeVersionList = {
-  {pag::TagCode::FileAttributes, "1.0"},
-  {pag::TagCode::LayerAttributesExtra, "2.0"},
-  {pag::TagCode::MosaicEffect, "3.2"},
-  {pag::TagCode::GradientOverlayStyle, "4.1"},
-  {pag::TagCode::CameraOption, "4.2"},
-  {pag::TagCode::ImageScaleModes, "4.3"}
-};
+    {pag::TagCode::FileAttributes, "1.0"}, {pag::TagCode::LayerAttributesExtra, "2.0"},
+    {pag::TagCode::MosaicEffect, "3.2"},   {pag::TagCode::GradientOverlayStyle, "4.1"},
+    {pag::TagCode::CameraOption, "4.2"},   {pag::TagCode::ImageScaleModes, "4.3"}};
 
 auto tagCodeToVersion(uint16_t tagCode) -> std::string {
   for (auto node : TagCodeVersionList) {
@@ -67,4 +63,4 @@ auto tagCodeToVersion(uint16_t tagCode) -> std::string {
   return "Unknown";
 }
 
-} // namespace Utils
+}  // namespace Utils

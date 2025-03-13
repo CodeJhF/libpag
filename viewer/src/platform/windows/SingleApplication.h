@@ -27,7 +27,7 @@
 #include <QtNetwork/QLocalSocket>
 
 #ifndef QAPPLICATION_CLASS
-  #define QAPPLICATION_CLASS PAGApplication
+#define QAPPLICATION_CLASS PAGApplication
 #endif
 
 #include "common/PAGApplication.h"
@@ -39,14 +39,13 @@ class SingleApplicationPrivate;
  * Application
  * @see QCoreApplication
  */
-class SingleApplication : public QAPPLICATION_CLASS
-{
-    Q_OBJECT
+class SingleApplication : public QAPPLICATION_CLASS {
+  Q_OBJECT
 
-    using app_t = QAPPLICATION_CLASS;
+  using app_t = QAPPLICATION_CLASS;
 
-public:
-    /**
+ public:
+  /**
      * @brief Mode of operation of SingleApplication.
      * Whether the block should be user-wide or system-wide and whether the
      * primary instance should be notified when a secondary instance had been
@@ -56,16 +55,16 @@ public:
      * block will be user wide.
      * @enum
      */
-    enum Mode {
-        User                    = 1 << 0,
-        System                  = 1 << 1,
-        SecondaryNotification   = 1 << 2,
-        ExcludeAppVersion       = 1 << 3,
-        ExcludeAppPath          = 1 << 4
-    };
-    Q_DECLARE_FLAGS(Options, Mode)
+  enum Mode {
+    User = 1 << 0,
+    System = 1 << 1,
+    SecondaryNotification = 1 << 2,
+    ExcludeAppVersion = 1 << 3,
+    ExcludeAppPath = 1 << 4
+  };
+  Q_DECLARE_FLAGS(Options, Mode)
 
-    /**
+  /**
      * @brief Intitializes a SingleApplication instance with argc command line
      * arguments in argv
      * @arg {int &} argc - Number of arguments in argv
@@ -85,70 +84,72 @@ public:
      * Usually 4*timeout would be the worst case (fail) scenario.
      * @see See the corresponding QAPPLICATION_CLASS constructor for reference
      */
-    explicit SingleApplication( int &argc, char *argv[], bool allowSecondary = false, Options options = Mode::User, int timeout = 1000, const QString &userData = {} );
-    ~SingleApplication() override;
+  explicit SingleApplication(int& argc, char* argv[], bool allowSecondary = false,
+                             Options options = Mode::User, int timeout = 1000,
+                             const QString& userData = {});
+  ~SingleApplication() override;
 
-    /**
+  /**
      * @brief Returns if the instance is the primary instance
      * @returns {bool}
      */
-    bool isPrimary() const;
+  bool isPrimary() const;
 
-    /**
+  /**
      * @brief Returns if the instance is a secondary instance
      * @returns {bool}
      */
-    bool isSecondary() const;
+  bool isSecondary() const;
 
-    /**
+  /**
      * @brief Returns a unique identifier for the current instance
      * @returns {qint32}
      */
-    quint32 instanceId() const;
+  quint32 instanceId() const;
 
-    /**
+  /**
      * @brief Returns the process ID (PID) of the primary instance
      * @returns {qint64}
      */
-    qint64 primaryPid() const;
+  qint64 primaryPid() const;
 
-    /**
+  /**
      * @brief Returns the username of the user running the primary instance
      * @returns {QString}
      */
-    QString primaryUser() const;
+  QString primaryUser() const;
 
-    /**
+  /**
      * @brief Returns the username of the current user
      * @returns {QString}
      */
-    QString currentUser() const;
+  QString currentUser() const;
 
-    /**
+  /**
      * @brief Sends a message to the primary instance. Returns true on success.
      * @param {int} timeout - Timeout for connecting
      * @returns {bool}
      * @note sendMessage() will return false if invoked from the primary
      * instance.
      */
-    bool sendMessage( const QByteArray &message, int timeout = 100 );
+  bool sendMessage(const QByteArray& message, int timeout = 100);
 
-    /**
+  /**
      * @brief Get the set user data.
      * @returns {QStringList}
      */
-    QStringList userData() const;
+  QStringList userData() const;
 
-Q_SIGNALS:
-    void instanceStarted();
-    void receivedMessage( quint32 instanceId, QByteArray message );
+ Q_SIGNALS:
+  void instanceStarted();
+  void receivedMessage(quint32 instanceId, QByteArray message);
 
-private:
-    SingleApplicationPrivate *d_ptr;
-    Q_DECLARE_PRIVATE(SingleApplication)
-    void abortSafely();
+ private:
+  SingleApplicationPrivate* d_ptr;
+  Q_DECLARE_PRIVATE(SingleApplication)
+  void abortSafely();
 };
 
 Q_DECLARE_OPERATORS_FOR_FLAGS(SingleApplication::Options)
 
-#endif // SINGLE_APPLICATION_H
+#endif  // SINGLE_APPLICATION_H

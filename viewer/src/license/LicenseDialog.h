@@ -6,8 +6,8 @@
 
 class LicenseDialog : public QDialog {
   Q_OBJECT
-public:
-  explicit LicenseDialog(QWidget *parent = nullptr);
+ public:
+  explicit LicenseDialog(QWidget* parent = nullptr);
   ~LicenseDialog() override;
 
   auto init() -> void;
@@ -19,7 +19,7 @@ public:
   static QString licenseUrl;
   static QString privacyUrl;
 
-private:
+ private:
 };
 
-#endif // LICENSEDIALOG_H
+#endif  // LICENSEDIALOG_H

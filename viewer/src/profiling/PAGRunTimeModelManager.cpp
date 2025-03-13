@@ -10,8 +10,8 @@ RunTimeData::RunTimeData(const RunTimeData& data) {
 }
 
 RunTimeData::RunTimeData(int renderingTime, int presentingTime, int imageDecodingTime)
- : renderingTime(renderingTime), presentingTime(presentingTime), imageDecodingTime(imageDecodingTime){
-
+    : renderingTime(renderingTime), presentingTime(presentingTime),
+      imageDecodingTime(imageDecodingTime) {
 }
 
 PAGRunTimeModelManager::PAGRunTimeModelManager() = default;
@@ -29,7 +29,7 @@ auto PAGRunTimeModelManager::getCurrentFrame() const -> int {
 }
 
 auto PAGRunTimeModelManager::getDataModel() const -> PAGRunTimeDataModel* {
-  return const_cast<PAGRunTimeDataModel *>(&dataModel);
+  return const_cast<PAGRunTimeDataModel*>(&dataModel);
 }
 
 auto PAGRunTimeModelManager::getChartModel() const -> PAGRunTimeChartModel* {
@@ -54,7 +54,8 @@ auto PAGRunTimeModelManager::setCurrentFrame(int currentFrame) -> void {
   Q_EMIT dataChange();
 }
 
-void PAGRunTimeModelManager::updateDisplayData(int frame, int renderingTime, int presentingTime, int imageDecodingTime) {
+void PAGRunTimeModelManager::updateDisplayData(int frame, int renderingTime, int presentingTime,
+                                               int imageDecodingTime) {
   if (currentFrame == frame) {
     return;
   }
@@ -65,7 +66,8 @@ void PAGRunTimeModelManager::updateDisplayData(int frame, int renderingTime, int
   Q_EMIT dataChange();
 }
 
-void PAGRunTimeModelManager::resetFile(const std::shared_ptr<pag::PAGFile>& pagFile, std::string filePath) {
+void PAGRunTimeModelManager::resetFile(const std::shared_ptr<pag::PAGFile>& pagFile,
+                                       std::string filePath) {
   totalFrame = Utils::timeToFrame(pagFile->duration(), pagFile->frameRate());
   dataMap.clear();
   chartModel.resetFile(pagFile->getFile());
@@ -94,13 +96,13 @@ auto PAGRunTimeModelManager::updateChartModel() -> void {
       render += item.renderingTime;
       decode += item.imageDecodingTime;
       present += item.presentingTime;
-      count ++;
+      count++;
     }
   }
   if (count > 0) {
     PAGChartData data(decode / count, render / count, present / count);
     int endIndex = end * chartSize / totalFrame;
-    for (int i = index ; i < endIndex; i ++) {
+    for (int i = index; i < endIndex; i++) {
       chartModel.updateColumnItem(&data, i);
     }
   }
@@ -112,8 +114,8 @@ auto PAGRunTimeModelManager::refreshChartModel() -> void {
   }
   int maxKey = 0;
   auto keys = dataMap.keys();
-  for (int & key : keys) {
-      maxKey = maxKey > key ? maxKey : key;
+  for (int& key : keys) {
+    maxKey = maxKey > key ? maxKey : key;
   }
 
   int count = 0;
@@ -128,8 +130,8 @@ auto PAGRunTimeModelManager::refreshChartModel() -> void {
       if (count > 0) {
         PAGChartData data(decode / count, render / count, present / count);
         while (lastChartIndex != currentChartIndex) {
-            newModel.updateColumnItem(&data, lastChartIndex);
-            lastChartIndex++;
+          newModel.updateColumnItem(&data, lastChartIndex);
+          lastChartIndex++;
         }
         count = 0;
         decode = 0;
@@ -139,7 +141,7 @@ auto PAGRunTimeModelManager::refreshChartModel() -> void {
     }
     if (dataMap.contains(i)) {
       auto item = dataMap[i];
-      count ++;
+      count++;
       decode += item.imageDecodingTime;
       render += item.renderingTime;
       present += item.presentingTime;
@@ -164,14 +166,15 @@ auto PAGRunTimeModelManager::refreshChartModel() -> void {
   int start = index * totalFrame / chartSize;
   int end = static_cast<int>(std::ceil((index + 1) * totalFrame / chartSize));
   if (end < start + 1) {
-      end = start + 1;
+    end = start + 1;
   }
   int endIndex = end * chartSize / totalFrame;
   newModel.setIndex(endIndex);
   chartModel.resetColumns(&newModel);
 }
 
-auto PAGRunTimeModelManager::updateRunTimeDataModel(int renderingTime, int presentingTime, int imageDecodingTime) -> void {
+auto PAGRunTimeModelManager::updateRunTimeDataModel(int renderingTime, int presentingTime,
+                                                    int imageDecodingTime) -> void {
   int size = static_cast<int>(dataMap.size());
   int pTotal = 0, rTotal = 0, dTotal = 0;
   int pMax = 0, rMax = 0, dMax = 0;

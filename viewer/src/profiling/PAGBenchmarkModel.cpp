@@ -5,8 +5,7 @@
 #include <QStandardPaths>
 #include "utils/Time.h"
 
-PAGBenchmarkModel::PAGBenchmarkModel(QObject *parent) : QObject(parent){
-
+PAGBenchmarkModel::PAGBenchmarkModel(QObject* parent) : QObject(parent) {
 }
 
 PAGBenchmarkModel::~PAGBenchmarkModel() {
@@ -37,7 +36,7 @@ auto PAGBenchmarkModel::getAllPAGFiles(std::string path) -> std::vector<std::str
   std::vector<std::string> files;
 
 #if defined(__APPLE__)
-  struct dirent *dirp;
+  struct dirent* dirp;
   DIR* dir = opendir(path.c_str());
   std::string p;
 
@@ -52,10 +51,10 @@ auto PAGBenchmarkModel::getAllPAGFiles(std::string path) -> std::vector<std::str
 
     if (dirp->d_type == DT_DIR) {
       std::string str(dirp->d_name);
-      if(str == "." || str == "..") {
+      if (str == "." || str == "..") {
         continue;
       }
-      std::string dirString = path+"/"+str;
+      std::string dirString = path + "/" + str;
       auto results = getAllPAGFiles(dirString.c_str());
       files.insert(files.end(), results.begin(), results.end());
     }
@@ -72,13 +71,13 @@ auto PAGBenchmarkModel::clearBenchmarkData() -> void {
   avgRenderingTimes.clear();
   firstFrameRenderingTimes.clear();
   pagFiles.clear();
-  // taskMap.clear();
   avgRenderingTimeMap.clear();
   callbackCount = 0;
   isAuto = false;
 
 #if defined QT_DEBUG
-  QString filePath = QStandardPaths::writableLocation(QStandardPaths::DesktopLocation) + "/performanceData.csv";
+  QString filePath =
+      QStandardPaths::writableLocation(QStandardPaths::DesktopLocation) + "/performanceData.csv";
   outFile.open(filePath.toStdString(), std::ios::trunc);
   outFile.close();
 #endif

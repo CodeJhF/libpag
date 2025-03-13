@@ -7,10 +7,10 @@ class PAGWindow;
 
 class PAGApplication : public QApplication {
   Q_OBJECT
-public:
+ public:
   PAGApplication(int& argc, char** argv);
 
-  auto event(QEvent* event) -> bool override ;
+  auto event(QEvent* event) -> bool override;
   auto openFile(QString path) -> void;
 
   Q_SLOT void onWindowDestroyed(PAGWindow* window);
@@ -20,4 +20,4 @@ public:
   QString waitToOpenFile;
 };
 
-#endif // COMMON_PAGAPPLICATION_H_
+#endif  // COMMON_PAGAPPLICATION_H_

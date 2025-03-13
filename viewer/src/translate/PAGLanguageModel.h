@@ -1,15 +1,11 @@
-#ifndef TRANSLATE_PAGLANGUAGEMODEL_H
-#define TRANSLATE_PAGLANGUAGEMODEL_H
+#ifndef TRANSLATE_PAG_LANGUAGE_MODEL_H
+#define TRANSLATE_PAG_LANGUAGE_MODEL_H
 
+#include <QApplication>
 #include <QObject>
 #include <QTranslator>
-#include <QApplication>
 
-enum Language : int8_t {
-  Unknown = -1,
-  Chinese = 0,
-  English = 1
-};
+enum Language : int8_t { Unknown = -1, Chinese = 0, English = 1 };
 
 class PAGLanguageModel : public QObject {
   Q_OBJECT
@@ -22,11 +18,11 @@ class PAGLanguageModel : public QObject {
   Q_INVOKABLE void setLanguage(bool isEnglish);
   Q_INVOKABLE bool getSystemLanguage();
 
-private:
+ private:
   static bool IsEnglish;
   static Language SystemLanguage;
   static QTranslator Translator;
   static QCoreApplication* App;
 };
 
-#endif // TRANSLATE_PAGLANGUAGEMODEL_H
+#endif  // TRANSLATE_PAG_LANGUAGE_MODEL_H

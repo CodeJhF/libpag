@@ -1,15 +1,14 @@
 #include "LicenseDialog.h"
-
+#include <QCheckBox>
 #include <QDir>
 #include <QFile>
 #include <QLabel>
-#include <QTextEdit>
-#include <QSettings>
-#include <QCheckBox>
 #include <QMessageBox>
-#include <QVBoxLayout>
 #include <QPushButton>
+#include <QSettings>
 #include <QStandardPaths>
+#include <QTextEdit>
+#include <QVBoxLayout>
 
 QString LicenseDialog::licenseUrl = "http://rule.tencent.com/rule/202501170003";
 QString LicenseDialog::privacyUrl = "http://rule.tencent.com/rule/202501170004";
@@ -24,38 +23,46 @@ auto LicenseDialog::init() -> void {
   QFont font;
   font.setPixelSize(16);
   this->setFont(font);
-  QVBoxLayout *mainLayout = new QVBoxLayout(this);
+  QVBoxLayout* mainLayout = new QVBoxLayout(this);
 
-  QString text = QString(tr("<p style='margin-bottom: 10px;'>Welcome to PAGViewer! To better protect your rights and interests, please carefully read the <a href=\"%1\">\"%2\"</a> and <a href=\"%3\">\"%4\"</a> terms before using the application. If you have read and agree to these terms, please check the option below and click the \"%5\" button to start using PAGViewer.</p>"));
-  text = text.arg(LicenseDialog::licenseUrl).arg(tr("Software License and Service Agreement")).arg(LicenseDialog::privacyUrl).arg(tr("Privacy Protection Statement")).arg(tr("Confirm"));
+  QString text =
+      QString(tr("<p style='margin-bottom: 10px;'>Welcome to PAGViewer! To better protect your "
+                 "rights and interests, please carefully read the <a href=\"%1\">\"%2\"</a> and <a "
+                 "href=\"%3\">\"%4\"</a> terms before using the application. If you have read and "
+                 "agree to these terms, please check the option below and click the \"%5\" button "
+                 "to start using PAGViewer.</p>"));
+  text = text.arg(LicenseDialog::licenseUrl)
+             .arg(tr("Software License and Service Agreement"))
+             .arg(LicenseDialog::privacyUrl)
+             .arg(tr("Privacy Protection Statement"))
+             .arg(tr("Confirm"));
 
-  QLabel *textLabel = new QLabel(this);
+  QLabel* textLabel = new QLabel(this);
   textLabel->setWordWrap(true);
   textLabel->setTextFormat(Qt::RichText);
   textLabel->setOpenExternalLinks(true);
   textLabel->setStyleSheet(
-    "QLabel {"
-    "    line-height: 1.5;"
-    "    color: #333333;"
-    "}"
-    "QLabel a {"
-    "    color: #0066cc;"
-    "    text-decoration: none;"
-    "}"
-    "QLabel a:hover {"
-    "    text-decoration: underline;"
-    "}"
-  );
+      "QLabel {"
+      "    line-height: 1.5;"
+      "    color: #333333;"
+      "}"
+      "QLabel a {"
+      "    color: #0066cc;"
+      "    text-decoration: none;"
+      "}"
+      "QLabel a:hover {"
+      "    text-decoration: underline;"
+      "}");
   textLabel->setText(text);
   textLabel->setFont(font);
   mainLayout->addWidget(textLabel);
 
-  QCheckBox *agreeCheckBox = new QCheckBox(tr("I have read and agree to the above terms"), this);
+  QCheckBox* agreeCheckBox = new QCheckBox(tr("I have read and agree to the above terms"), this);
   agreeCheckBox->setFont(font);
   mainLayout->addWidget(agreeCheckBox);
 
-  QHBoxLayout *buttonLayout = new QHBoxLayout();
-  QPushButton *agreeButton = new QPushButton(tr("Confirm"), this);
+  QHBoxLayout* buttonLayout = new QHBoxLayout();
+  QPushButton* agreeButton = new QPushButton(tr("Confirm"), this);
   agreeButton->setStyleSheet(R"(
     QPushButton {
         color: white;
@@ -101,7 +108,7 @@ auto LicenseDialog::init() -> void {
   agreeButton->setFont(font);
   agreeButton->setEnabled(false);
   agreeButton->setDefault(true);
-  QPushButton *disagreeButton = new QPushButton(tr("Close"), this);
+  QPushButton* disagreeButton = new QPushButton(tr("Close"), this);
   disagreeButton->setStyleSheet(R"(
     QPushButton {
         color: #000000;
@@ -146,9 +153,8 @@ auto LicenseDialog::init() -> void {
   buttonLayout->addWidget(disagreeButton);
   mainLayout->addLayout(buttonLayout);
 
-  connect(agreeCheckBox, &QCheckBox::checkStateChanged, [=] (int state) {
-    agreeButton->setEnabled(state == Qt::Checked);
-  });
+  connect(agreeCheckBox, &QCheckBox::checkStateChanged,
+          [=](int state) { agreeButton->setEnabled(state == Qt::Checked); });
   connect(agreeButton, &QPushButton::clicked, this, &QDialog::accept);
   connect(disagreeButton, &QPushButton::clicked, this, &QDialog::reject);
 
@@ -164,7 +170,8 @@ auto LicenseDialog::init() -> void {
 }
 
 auto LicenseDialog::isUserAgreeWithLicense() -> bool {
-  QString settingPath = QDir(QStandardPaths::writableLocation(QStandardPaths::AppDataLocation)).filePath("setting.ini");
+  QString settingPath = QDir(QStandardPaths::writableLocation(QStandardPaths::AppDataLocation))
+                            .filePath("setting.ini");
   QSettings settings(settingPath, QSettings::IniFormat);
   return settings.value("UserAgreeWithLicense", false).toBool();
 }
@@ -173,7 +180,8 @@ auto LicenseDialog::requestUserAgreement() -> bool {
   LicenseDialog dialog;
 
   if (dialog.exec() == QDialog::Accepted) {
-    QString settingPath = QDir(QStandardPaths::writableLocation(QStandardPaths::AppDataLocation)).filePath("setting.ini");
+    QString settingPath = QDir(QStandardPaths::writableLocation(QStandardPaths::AppDataLocation))
+                              .filePath("setting.ini");
     QSettings settings(settingPath, QSettings::IniFormat);
     settings.setValue("UserAgreeWithLicense", true);
     return true;
@@ -183,7 +191,8 @@ auto LicenseDialog::requestUserAgreement() -> bool {
 }
 
 auto LicenseDialog::setUserDisagreeWithLicense() -> void {
-  QString settingPath = QDir(QStandardPaths::writableLocation(QStandardPaths::AppDataLocation)).filePath("setting.ini");
+  QString settingPath = QDir(QStandardPaths::writableLocation(QStandardPaths::AppDataLocation))
+                            .filePath("setting.ini");
   QSettings settings(settingPath, QSettings::IniFormat);
   settings.setValue("UserAgreeWithLicense", false);
 }

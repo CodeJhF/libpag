@@ -1,25 +1,24 @@
 #ifndef PROFILING_PAG_BENCHMARK_MODEL_H_
 #define PROFILING_PAG_BENCHMARK_MODEL_H_
 
-#include <fstream>
+#include <pag/pag.h>
 #include <QFile>
 #include <QObject>
 #include <QSettings>
-#include <pag/pag.h>
+#include <fstream>
 
 class PAGBenchmarkModel : public QObject {
   Q_OBJECT
  public:
-  enum BENCHMARK_SCENE_TYPE{
-    BENCHMARK_SCENE_TYPE_TEMPLATE,
-    BENCHMARK_SCENE_TYPE_UI
-  };
+  enum BENCHMARK_SCENE_TYPE { BENCHMARK_SCENE_TYPE_TEMPLATE, BENCHMARK_SCENE_TYPE_UI };
   Q_ENUMS(BENCHMARK_SCENE_TYPE)
 
-  explicit PAGBenchmarkModel(QObject *parent = nullptr);
+  explicit PAGBenchmarkModel(QObject* parent = nullptr);
   ~PAGBenchmarkModel() override;
 
-  Q_SIGNAL void benchmarkComplete(int templateAvgRenderingTime, int templateFirstFrameRenderingTime, int uiAvgRenderingTime, int uiFirstFrameRenderingTime, bool isAuto);
+  Q_SIGNAL void benchmarkComplete(int templateAvgRenderingTime, int templateFirstFrameRenderingTime,
+                                  int uiAvgRenderingTime, int uiFirstFrameRenderingTime,
+                                  bool isAuto);
 
   Q_SLOT void onBenchmarkTaskComplete(QString filePath, int result);
   Q_SLOT void onBenchmarkFromQRCTaskComplete(QString filePath, int result);
@@ -44,4 +43,4 @@ class PAGBenchmarkModel : public QObject {
   std::map<std::string, int> avgRenderingTimeMap;
 };
 
-#endif // PROFILING_PAG_BENCHMARK_MODEL_H_
+#endif  // PROFILING_PAG_BENCHMARK_MODEL_H_

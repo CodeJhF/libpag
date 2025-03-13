@@ -40,7 +40,6 @@ ProfilerForm {
                 let renderColor = Qt.rgba(0, 150 / 255, 216 / 255, alpha);
                 let imageColor = Qt.rgba(116 / 255, 173 / 255, 89 / 255, alpha);
                 let presentColor = Qt.rgba(221 / 255, 178 / 255, 89 / 255, alpha);
-                //draw last line
                 let item = chartModel.items[i];
 
                 let benchmarkTime = 0;
@@ -53,7 +52,7 @@ ProfilerForm {
                     benchmarkTime = settings.uiAvgRenderingTime;
                     benchmarkFirstFrameTime = settings.uiFirstFrameRenderingTime;
                 }
-                if ((posX === 0) && (item.renderValue > benchmarkFirstFrameTime)) { //画首帧
+                if ((posX === 0) && (item.renderValue > benchmarkFirstFrameTime)) {
                     renderColor = Qt.rgba(chartCanvas.warnRenderColor[0]/255, chartCanvas.warnRenderColor[1]/255, chartCanvas.warnRenderColor[2]/255,alpha);
                     imageColor = renderColor;
                     presentColor = renderColor;
