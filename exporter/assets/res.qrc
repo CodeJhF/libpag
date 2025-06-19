@@ -1,0 +1,26 @@
+<RCC>
+    <qresource prefix="/">
+        <!-- image -->
+        <file>images/close-dark.png</file>
+        <file>images/maximize-dark.png</file>
+        <file>images/minimize-dark.png</file>
+        <file>images/restore-dark.png</file>
+        <file>images/window-icon-32x.png</file>
+        <file>images/checkbox-on.png</file>
+        <file>images/checkbox-off.png</file>
+        <file>images/export-search.png</file>
+        <file>images/folder-fold.png</file>
+        <file>images/folder-unfold.png</file>
+        <file>images/folder.png</file>
+        <file>images/bmp.png</file>
+        <file>images/setting.png</file>
+        <file>images/preview.png</file>
+
+        <!-- qml -->
+        <file>qml/CompositionListView.qml</file>
+        <file>qml/ExportConfigWindow.qml</file>
+        <file>qml/ExportSettingPanel.qml</file>
+        <file>qml/PAGRectangle.qml</file>
+        <file>qml/PAGWindow.qml</file>
+    </qresource>
+</RCC>

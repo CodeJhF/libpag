@@ -17,6 +17,7 @@
 /////////////////////////////////////////////////////////////////////////////////////////////////
 
 #include "AEHelper.h"
+#include "StringUtils.h"
 
 namespace AEHelper {
 
@@ -54,6 +55,30 @@ AEGP_PluginID GetPluginID() {
 
 std::shared_ptr<AEGP_SuiteHandler> GetSuites() {
   return Suites;
+}
+
+std::string GetItemName(const AEGP_ItemH& item) {
+  AEGP_MemHandle nameMemory = nullptr;
+  Suites->ItemSuite8()->AEGP_GetItemName(PluginID, item, &nameMemory);
+  std::string itemName = exporter::AEMemoryToString(nameMemory);
+  Suites->MemorySuite1()->AEGP_FreeMemHandle(nameMemory);
+  return itemName;
+}
+
+A_long GetItemID(const AEGP_ItemH& item) {
+  A_long id = -1;
+  Suites->ItemSuite6()->AEGP_GetItemID(item, &id);
+  return id;
+}
+
+A_long GetItemParentID(const AEGP_ItemH& item) {
+  A_long id = -1;
+  AEGP_ItemH parentItem = nullptr;
+  Suites->ItemSuite6()->AEGP_GetItemParentFolder(item, &parentItem);
+  if (parentItem != nullptr) {
+    id = GetItemID(parentItem);
+  }
+  return id;
 }
 
 }  // namespace AEHelper

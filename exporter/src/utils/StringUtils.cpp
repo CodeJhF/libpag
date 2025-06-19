@@ -16,26 +16,8 @@
 //
 /////////////////////////////////////////////////////////////////////////////////////////////////
 
-#pragma once
-#include <memory>
-#include <string>
-#include "AEGP_SuiteHandler.h"
-#include "AE_GeneralPlug.h"
+#include "StringUtils.h"
 
-namespace AEHelper {
+namespace pag {
 
-AEGP_ItemH GetActiveCompositionItem();
-
-void SetSuitesAndPluginID(SPBasicSuite* basicSuite, AEGP_PluginID id);
-
-std::shared_ptr<AEGP_SuiteHandler> GetSuites();
-
-AEGP_PluginID GetPluginID();
-
-std::string GetItemName(const AEGP_ItemH& item);
-
-A_long GetItemID(const AEGP_ItemH& item);
-
-A_long GetItemParentID(const AEGP_ItemH& item);
-
-}  // namespace AEHelper
+}  // namespace pag

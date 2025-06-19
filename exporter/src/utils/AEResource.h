@@ -18,10 +18,33 @@
 
 #pragma once
 
+#include <AEGP_SuiteHandler.h>
+#include <AE_GeneralPlug.h>
+#include <string>
+#include <vector>
+
 namespace exporter {
 
 enum class AEResourceType { Unknown, Folder, Composition, Image };
 
+class AEResource {
+ public:
+  static std::shared_ptr<AEResource> BuildResourceTree();
+  static std::shared_ptr<AEResource> GetResourceByID(const std::shared_ptr<AEResource>& node,
+                                                     A_long id);
+  static void RemoveEmptyFolder(const std::shared_ptr<AEResource>& node);
+
+  bool isExport = false;
+  AEResourceType type = AEResourceType::Unknown;
+  A_long id = -1;
+  std::string name = "";
+  AEGP_ItemH itemHandle = nullptr;
+  AEResource* parent = nullptr;
+  std::vector<std::shared_ptr<AEResource>> children = {};
+};
+
 bool HasCompositionResource();
+
+AEResourceType GetAEItemResourceType(const AEGP_SuiteHandler& suites, const AEGP_ItemH& item);
 
 }  // namespace exporter

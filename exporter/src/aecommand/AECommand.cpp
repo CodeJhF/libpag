@@ -17,6 +17,7 @@
 /////////////////////////////////////////////////////////////////////////////////////////////////
 
 #include "AECommand.h"
+#include "ui/config/ExportConfigWindow.h"
 #include "utils/AEHelper.h"
 #include "utils/AEResource.h"
 

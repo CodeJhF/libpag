@@ -17,25 +17,30 @@
 /////////////////////////////////////////////////////////////////////////////////////////////////
 
 #pragma once
+
+#include <QObject>
+#include <QQmlApplicationEngine>
+#include <QQuickWindow>
 #include <memory>
-#include <string>
-#include "AEGP_SuiteHandler.h"
-#include "AE_GeneralPlug.h"
+#include "ui/config/ExportCompositionModel.h"
 
-namespace AEHelper {
+namespace exporter {
 
-AEGP_ItemH GetActiveCompositionItem();
+class ExportConfigWindow : public QObject {
+  Q_OBJECT
+ public:
+  explicit ExportConfigWindow(QObject* parent = nullptr);
 
-void SetSuitesAndPluginID(SPBasicSuite* basicSuite, AEGP_PluginID id);
+  static void setupQt();
 
-std::shared_ptr<AEGP_SuiteHandler> GetSuites();
+  static QApplication* app;
 
-AEGP_PluginID GetPluginID();
+  void show();
 
-std::string GetItemName(const AEGP_ItemH& item);
+ private:
+  QQuickWindow* window = nullptr;
+  std::unique_ptr<QQmlApplicationEngine> engine = nullptr;
+  std::unique_ptr<ExportCompositionModel> compositionModel = nullptr;
+};
 
-A_long GetItemID(const AEGP_ItemH& item);
-
-A_long GetItemParentID(const AEGP_ItemH& item);
-
-}  // namespace AEHelper
+}  // namespace exporter

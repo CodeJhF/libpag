@@ -44,6 +44,15 @@ endif ()
 
 add_definitions(-DQT_NO_KEYWORDS)
 
+set(CMAKE_AUTOMOC ON)
+set(CMAKE_AUTOUIC ON)
+set(CMAKE_AUTORCC ON)
+
+find_package(QT NAMES Qt6 REQUIRED COMPONENTS Core)
+find_package(Qt6 REQUIRED COMPONENTS Core Qml Quick OpenGL QuickControls2)
+list(APPEND libs Qt6::Core Qt6::Qml Qt6::Quick Qt6::OpenGL Qt6::QuickControls2)
+qt_add_resources(QT_RESOURCES assets/res.qrc)
+
 list(APPEND PAG_EXPORTER_INCLUDES ./ src ../ ../include ../src ../third_party/tgfx/include)
 file(GLOB_RECURSE PAG_EXPORTER_SOURCE_FILES src/*.*)
 file(GLOB_RECURSE AE_SDK_SOURCE_FILES ${AE_SDK_PATH}/Util/*.cpp)
@@ -101,7 +110,7 @@ set(PAG_BUILD_TESTS OFF)
 set(CMAKE_POLICY_DEFAULT_CMP0077 NEW)
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../ ./libpag)
 
-add_library(PAGExporter MODULE ${PAG_EXPORTER_SOURCE_FILES} ${AE_SDK_SOURCE_FILES})
+add_library(PAGExporter MODULE ${PAG_EXPORTER_SOURCE_FILES} ${AE_SDK_SOURCE_FILES} ${QT_RESOURCES})
 
 target_include_directories(PAGExporter SYSTEM PRIVATE ${PAG_EXPORTER_THIRD_PARTY_INCLUDES})
 target_include_directories(PAGExporter PUBLIC ${PAG_EXPORTER_INCLUDES})
