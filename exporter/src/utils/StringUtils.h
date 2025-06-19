@@ -18,8 +18,11 @@
 
 #pragma once
 
-namespace pag {
-class StringUtils {
- public:
-};
-}  // namespace pag
+#include <string>
+#include "AEHelper.h"
+
+namespace exporter {
+
+std::string AEMemoryToString(const AEGP_MemHandle& handle);
+
+}  // namespace exporter

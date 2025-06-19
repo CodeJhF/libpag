@@ -82,6 +82,8 @@ A_long GetItemParentID(const AEGP_ItemH& item) {
     id = GetItemID(parentItem);
   }
   return id;
+}
+
 std::string RunScript(std::shared_ptr<AEGP_SuiteHandler> suites, AEGP_PluginID pluginID,
                       const std::string& scriptText) {
   AEGP_MemHandle scriptResult;

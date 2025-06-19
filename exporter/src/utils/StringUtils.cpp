@@ -17,7 +17,45 @@
 /////////////////////////////////////////////////////////////////////////////////////////////////
 
 #include "StringUtils.h"
+#include <codecvt>
+#include <iostream>
+#include <locale>
 
-namespace pag {
+namespace exporter {
 
-}  // namespace pag
+std::string AEMemoryToString(const AEGP_MemHandle& handle) {
+  const auto& suites = AEHelper::GetSuites();
+  char16_t* str = nullptr;
+  suites->MemorySuite1()->AEGP_LockMemHandle(handle, reinterpret_cast<void**>(&str));
+
+  std::string u8str;
+  const char16_t* p = str;
+  while (*p) {
+    char32_t codePoint = *p++;
+    if (codePoint >= 0xD800 && codePoint <= 0xDBFF && *p) {
+      char32_t lowSurrogate = *p++;
+      codePoint = 0x10000 + ((codePoint - 0xD800) << 10) + (lowSurrogate - 0xDC00);
+    }
+
+    if (codePoint <= 0x7F) {
+      u8str.push_back(static_cast<char>(codePoint));
+    } else if (codePoint <= 0x7FF) {
+      u8str.push_back(static_cast<char>(0xC0 | (codePoint >> 6)));
+      u8str.push_back(static_cast<char>(0x80 | (codePoint & 0x3F)));
+    } else if (codePoint <= 0xFFFF) {
+      u8str.push_back(static_cast<char>(0xE0 | (codePoint >> 12)));
+      u8str.push_back(static_cast<char>(0x80 | ((codePoint >> 6) & 0x3F)));
+      u8str.push_back(static_cast<char>(0x80 | (codePoint & 0x3F)));
+    } else {
+      u8str.push_back(static_cast<char>(0xF0 | (codePoint >> 18)));
+      u8str.push_back(static_cast<char>(0x80 | ((codePoint >> 12) & 0x3F)));
+      u8str.push_back(static_cast<char>(0x80 | ((codePoint >> 6) & 0x3F)));
+      u8str.push_back(static_cast<char>(0x80 | (codePoint & 0x3F)));
+    }
+  }
+
+  suites->MemorySuite1()->AEGP_UnlockMemHandle(handle);
+  return u8str;
+}
+
+}  // namespace exporter
