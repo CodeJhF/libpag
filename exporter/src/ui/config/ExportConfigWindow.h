@@ -21,7 +21,7 @@
 #include <QObject>
 #include <QQmlApplicationEngine>
 #include <QQuickWindow>
-#include <memory>
+#include <QApplication>
 #include "ui/config/ExportCompositionModel.h"
 
 namespace exporter {
@@ -31,14 +31,13 @@ class ExportConfigWindow : public QObject {
  public:
   explicit ExportConfigWindow(QObject* parent = nullptr);
 
-  static void setupQt();
-
-  static QApplication* app;
-
   void show();
 
  private:
+  void init();
+
   QQuickWindow* window = nullptr;
+  std::unique_ptr<QApplication> app = nullptr;
   std::unique_ptr<QQmlApplicationEngine> engine = nullptr;
   std::unique_ptr<ExportCompositionModel> compositionModel = nullptr;
 };

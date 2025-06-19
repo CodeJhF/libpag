@@ -32,14 +32,6 @@ if (NOT CMAKE_PREFIX_PATH)
     include("./QTCMAKE.cfg")
 endif ()
 
-set(CMAKE_AUTOMOC ON)
-set(CMAKE_AUTOUIC ON)
-set(CMAKE_AUTORCC ON)
-
-find_package(Qt6 COMPONENTS Widgets Core Gui OpenGL Qml Quick  REQUIRED)
-add_definitions(${Qt6Widgets_DEFINITIONS} ${QtQml_DEFINITIONS} ${${Qt6Quick_DEFINITIONS}})
-qt6_add_resources(QT_RESOURCES assets/res.qrc)
-
 if (MSVC)
     add_compile_options("/utf-8")
     add_compile_options(/GR-)
@@ -122,7 +114,7 @@ add_library(PAGExporter MODULE ${PAG_EXPORTER_SOURCE_FILES} ${AE_SDK_SOURCE_FILE
 
 target_include_directories(PAGExporter SYSTEM PRIVATE ${PAG_EXPORTER_THIRD_PARTY_INCLUDES})
 target_include_directories(PAGExporter PUBLIC ${PAG_EXPORTER_INCLUDES})
-target_link_libraries(PAGExporter  pag ${libs} Qt6::Widgets Qt6::OpenGL Qt6::Core Qt6::Gui Qt6::Qml Qt6::Quick)
+target_link_libraries(PAGExporter pag ${libs})
 
 if (APPLE)
     target_link_libraries(PAGExporter "-framework AppKit" compression)

@@ -18,6 +18,8 @@
 
 #pragma once
 
+#include "config/ExportConfigWindow.h"
+
 namespace exporter {
 class WindowManager {
  public:
@@ -38,6 +40,7 @@ class WindowManager {
   WindowManager& operator=(WindowManager&&) = delete;
 
  private:
+  std::unique_ptr<ExportConfigWindow> configWindow = nullptr;
   WindowManager();
   ~WindowManager() = default;
 };

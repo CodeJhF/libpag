@@ -17,9 +17,9 @@
 /////////////////////////////////////////////////////////////////////////////////////////////////
 
 #include "AECommand.h"
-#include "ui/config/ExportConfigWindow.h"
 #include "utils/AEHelper.h"
 #include "utils/AEResource.h"
+#include "ui/WindowManager.h"
 
 namespace exporter {
 
@@ -74,6 +74,7 @@ A_Err AECommand::OnClickPanel(AEGP_GlobalRefcon /*globalRefcon*/,
     return err;
   }
   *handled = TRUE;
+  WindowManager::getInstance().showPanelExporterWindow();
   return err;
 }
 

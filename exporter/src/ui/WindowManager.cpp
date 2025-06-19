@@ -36,6 +36,10 @@ WindowManager::WindowManager() {
 }
 
 void WindowManager::showPanelExporterWindow() {
+  if (configWindow == nullptr) {
+    configWindow = std::make_unique<ExportConfigWindow>();
+  }
+  configWindow->show();
 }
 
 void WindowManager::showPAGConfigWindow() {

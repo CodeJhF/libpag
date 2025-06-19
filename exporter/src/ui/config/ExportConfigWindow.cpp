@@ -18,57 +18,23 @@
 
 #include "ExportConfigWindow.h"
 #include <QApplication>
-#include <QFont>
 #include <QQmlContext>
 #include <QThread>
 #include "utils/AEResource.h"
 
 namespace exporter {
 
-QApplication* ExportConfigWindow::app = nullptr;
-
 ExportConfigWindow::ExportConfigWindow(QObject* parent) : QObject(parent) {
-  setupQt();
-  engine = std::make_unique<QQmlApplicationEngine>(app);
-}
-
-void ExportConfigWindow::setupQt() {
-  if (app != nullptr) {
-    return;
-  }
-  QApplication::setAttribute(Qt::AA_PluginApplication, true);
-
-  QSurfaceFormat defaultFormat = QSurfaceFormat();
-  defaultFormat.setRenderableType(QSurfaceFormat::RenderableType::OpenGL);
-  defaultFormat.setVersion(3, 2);
-  defaultFormat.setProfile(QSurfaceFormat::CoreProfile);
-  QSurfaceFormat::setDefaultFormat(defaultFormat);
-  std::vector<std::string> fallbackList;
-#ifdef WIN32
-  QFont defaultFonts("Microsoft Yahei");
-  defaultFonts.setStyleHint(QFont::SansSerif);
-  QApplication::setFont(defaultFonts);
-  fallbackList = {"Microsoft YaHei"};
-#else
-  QFont defaultFonts("Helvetica Neue,PingFang SC");
-  QQuickWindow::setTextRenderType(QQuickWindow::NativeTextRendering);
-  defaultFonts.setStyleHint(QFont::SansSerif);
-  QApplication::setFont(defaultFonts);
-  fallbackList = {"PingFang SC", "Apple Color Emoji"};
-#endif
-
   int argc = 0;
-  auto* app = new QApplication(argc, nullptr);
-  QQuickWindow::setGraphicsApi(QSGRendererInterface::OpenGL);
-  QString appName("PAG-Exporter");
-  app->setObjectName(appName);
-  ExportConfigWindow::app = app;
-  printf("SetupQT objectName: %s\n", appName.toStdString().c_str());
+  app = std::make_unique<QApplication>(argc, nullptr);
+  app->setObjectName("PAG-Exporter");
+  engine = std::make_unique<QQmlApplicationEngine>(app.get());
+  init();
 }
 
-void ExportConfigWindow::show() {
+void ExportConfigWindow::init() {
   if (QThread::currentThread() != qApp->thread()) {
-    qCritical() << "Must call show() in main thread";
+    qCritical() << "Must call init() in main thread";
     return;
   }
 
@@ -79,16 +45,21 @@ void ExportConfigWindow::show() {
 
   engine->load(QUrl(QStringLiteral("qrc:/qml/ExportConfigWindow.qml")));
 
-  window = static_cast<QQuickWindow*>(engine->rootObjects().at(0));
+  window = qobject_cast<QQuickWindow*>(engine->rootObjects().first());
   window->setPersistentGraphics(true);
   window->setPersistentSceneGraph(true);
-  window->setPersistentSceneGraph(true);
   window->setTextRenderType(QQuickWindow::TextRenderType::NativeTextRendering);
-  window->show();
 
   auto root = AEResource::BuildResourceTree();
   compositionModel->setAEResource(root);
+}
 
+void ExportConfigWindow::show() {
+  if (window == nullptr) {
+    return;
+  }
+
+  window->show();
   app->exec();
 }
 
