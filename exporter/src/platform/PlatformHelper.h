@@ -18,6 +18,7 @@
 
 #pragma once
 #include <string>
+#include "utils/FileHelper.h"
 
 namespace exporter {
 

@@ -17,38 +17,31 @@
 /////////////////////////////////////////////////////////////////////////////////////////////////
 
 #pragma once
-
+#include <filesystem>
 #include <string>
-#include <vector>
-#include "config/ExportConfigWindow.h"
+namespace FileHelper {
 
-namespace exporter {
-class WindowManager {
+std::string ReadTextFile(const std::string& filename);
+
+int WriteTextFile(const std::string& fileName, const char* text);
+
+int WriteTextFile(const std::string& fileName, const std::string& text);
+
+size_t GetFileSize(const std::string& fileName);
+
+bool CopyFile(const std::string& src, const std::string& dst);
+
+bool FileIsExist(const std::string& fileName);
+
+class ScopedTempFile {
  public:
-  static WindowManager& GetInstance();
+  ScopedTempFile() = default;
+  ~ScopedTempFile();
 
-  void initializeQtEnvironment();
-
-  void showPanelExporterWindow();
-
-  void showPAGConfigWindow();
-
-  void showExportPreviewWindow();
-
-  bool showWarnings(std::vector<std::string>& infos);
-
-  bool showErrors(std::vector<std::string>& infos);
-
-  WindowManager(const WindowManager&) = delete;
-  WindowManager& operator=(const WindowManager&) = delete;
-
-  WindowManager(WindowManager&&) = delete;
-  WindowManager& operator=(WindowManager&&) = delete;
+  void setFilePath(const std::string& path);
 
  private:
-  std::unique_ptr<QApplication> app = nullptr;
-  std::unique_ptr<ExportConfigWindow> configWindow = nullptr;
-  WindowManager();
-  ~WindowManager() = default;
+  std::string tempFilePath = "";
 };
-}  // namespace exporter
+
+}  // namespace FileHelper

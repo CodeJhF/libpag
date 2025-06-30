@@ -17,38 +17,47 @@
 /////////////////////////////////////////////////////////////////////////////////////////////////
 
 #pragma once
-
-#include <string>
 #include <vector>
-#include "config/ExportConfigWindow.h"
+#include "ByteArray.h"
+using namespace exporter;
 
-namespace exporter {
-class WindowManager {
- public:
-  static WindowManager& GetInstance();
+namespace AEPReader {
 
-  void initializeQtEnvironment();
-
-  void showPanelExporterWindow();
-
-  void showPAGConfigWindow();
-
-  void showExportPreviewWindow();
-
-  bool showWarnings(std::vector<std::string>& infos);
-
-  bool showErrors(std::vector<std::string>& infos);
-
-  WindowManager(const WindowManager&) = delete;
-  WindowManager& operator=(const WindowManager&) = delete;
-
-  WindowManager(WindowManager&&) = delete;
-  WindowManager& operator=(WindowManager&&) = delete;
-
- private:
-  std::unique_ptr<QApplication> app = nullptr;
-  std::unique_ptr<ExportConfigWindow> configWindow = nullptr;
-  WindowManager();
-  ~WindowManager() = default;
+struct Tag {
+  std::string name;
+  ByteArray bytes;
 };
-}  // namespace exporter
+
+struct Composition {
+  std::string name;
+  int32_t id;
+  ByteArray bytes;
+};
+
+struct Layer {
+  int32_t id;
+  uint16_t flags;
+  std::string name;
+  int32_t type;
+  ByteArray bytes;
+};
+
+std::string ReadKeyName(ByteArray* bytes);
+
+Tag ReadTag(ByteArray* bytes);
+
+ByteArray ReadBody(ByteArray* bytes);
+
+Tag ReadFirstTagByName(ByteArray* bytes, const std::string& tagName);
+
+Tag ReadFirstTagByNames(ByteArray* bytes, const std::vector<std::string>& tagNames);
+
+Tag ReadFirstGroupByMatchName(ByteArray* bytes, const std::string& matchName);
+
+Tag ReadFirstGroupByMatchNames(ByteArray* bytes, const std::vector<std::string>& matchNames);
+
+std::vector<Composition> ReadCompositions(ByteArray* bytes);
+
+std::vector<Layer> ReadLayers(ByteArray* bytes);
+
+}  // namespace AEPReader
