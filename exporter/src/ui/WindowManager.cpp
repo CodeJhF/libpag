@@ -18,6 +18,7 @@
 
 #include "WindowManager.h"
 #include <QFile>
+#include <QQuickStyle>
 #include <QtGui/QFont>
 #include <QtQuick/QQuickWindow>
 #include <QtWidgets/QApplication>
@@ -36,10 +37,23 @@ WindowManager::WindowManager() {
 }
 
 void WindowManager::showPanelExporterWindow() {
+  if (app == nullptr) {
+    int argc = 0;
+    app = std::make_unique<QApplication>(argc, nullptr);
+    app->setObjectName("PAG-Exporter");
+    QApplication::setQuitOnLastWindowClosed(false);
+  }
+
+  if (configWindow != nullptr && configWindow->isWaitToDestory()) {
+    qDebug() << "reset configWindow";
+    configWindow.reset();
+  }
+
   if (configWindow == nullptr) {
-    configWindow = std::make_unique<ExportConfigWindow>();
+    configWindow = std::make_unique<ExportConfigWindow>(app.get());
   }
   configWindow->show();
+  app->exec();
 }
 
 void WindowManager::showPAGConfigWindow() {
@@ -67,6 +81,7 @@ void WindowManager::initializeQtEnvironment() {
   QApplication::setFont(defaultFonts);
 #endif
   QQuickWindow::setGraphicsApi(QSGRendererInterface::OpenGL);
+  QQuickStyle::setStyle("Universal");
 }
 
 }  // namespace exporter

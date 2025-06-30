@@ -1,4 +1,3 @@
-
 import QtQuick
 import QtQuick.Controls
 
@@ -16,18 +15,18 @@ TabButton {
             text: tabButton.text
             font.pixelSize: 15
             font.family: "PingFang SC"
-            elide: Text.ElideMiddle
+            elide: Text.ElideRight
             color: "#FFFFFF"
             anchors.verticalCenter: parent.verticalCenter
             anchors.horizontalCenter: parent.horizontalCenter
         }
 
-        Rectangle{
+        Rectangle {
             id: undlerLine
             anchors.bottom: parent.bottom
             width: parent.width
             height: 2
-            color:"#1982EB"
+            color: "#1982EB"
             visible: tabButton.checked
         }
     }

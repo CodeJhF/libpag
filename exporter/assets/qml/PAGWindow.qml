@@ -165,20 +165,20 @@ Window {
                     Text {
                         id: windowsTitleText
                         visible: true
-                        y: 8
-                        width: 100
-                        height: 16
                         color: window.titleColor
                         text: window.title
-                        verticalAlignment: Text.AlignVCenter
+                        font.pixelSize: window.titleFontSize
+                        font.family: "PingFang SC"
                         font.weight: Font.Bold
                         renderType: Text.NativeRendering
                         elide: Text.ElideRight
-                        anchors.left: parent.left
-                        anchors.right: parent.right
                         horizontalAlignment: Text.AlignHCenter
-                        font.pixelSize: window.titleFontSize
-                        font.family: "PingFang SC"
+                        verticalAlignment: Text.AlignVCenter
+                        anchors.left: parent.left
+                        anchors.leftMargin: 40
+                        anchors.right: parent.right
+                        anchors.rightMargin: 40
+                        anchors.verticalCenter: parent.verticalCenter
                     }
 
                     Image {

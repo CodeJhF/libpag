@@ -63,7 +63,13 @@ PAGWindow {
                         width: 20
                         height: 20
                         anchors.verticalCenter: parent.verticalCenter
-                        source: compositionModel.allSelected ? "qrc:/images/checkbox-on.png" : "qrc:/images/checkbox-off.png"
+                        source: {
+                            if (compositionModel === null) {
+                                return "";
+                            }
+
+                            return compositionModel.allSelected ? "qrc:/images/checkbox-on.png" : "qrc:/images/checkbox-off.png";
+                        }
 
                         MouseArea {
                             anchors.fill: parent
@@ -235,6 +241,7 @@ PAGWindow {
                 width: parent.width
                 height: parent.height - header.height - headerDivider.height
                 model: compositionModel === null ? null : compositionModel
+                mainWindow: window
             }
         }
     }
@@ -296,21 +303,23 @@ PAGWindow {
         Image {
             id: audioExportIcon
 
-            property bool isExportAudio: false
-
             width: 20
             height: 20
             anchors.left: parent.left
             anchors.verticalCenter: parent.verticalCenter
-            source: isExportAudio ? "qrc:/images/checkbox-on.png" : "qrc:/images/checkbox-off.png"
+            source: {
+                if (compositionModel === null) {
+                    return "";
+                }
+                return compositionModel.exportAudio ? "qrc:/images/checkbox-on.png" : "qrc:/images/checkbox-off.png";
+            }
 
             MouseArea {
                 anchors.fill: parent
                 acceptedButtons: Qt.LeftButton
                 cursorShape: Qt.PointingHandCursor
                 onPressed: {
-                    // modify later
-                    audioExportIcon.isExportAudio = !audioExportIcon.isExportAudio;
+                    compositionModel.exportAudio = !compositionModel.exportAudio;
                 }
             }
         }
@@ -369,7 +378,6 @@ PAGWindow {
                 cursorShape: Qt.PointingHandCursor
                 onPressed: {
                     window.hide();
-                    window.close();
                 }
             }
         }
@@ -377,13 +385,13 @@ PAGWindow {
         Rectangle {
             id: exportButton
 
-            property bool isEnable: true
-
             width: 120
             height: parent.height
-            color: isEnable ? "#1982EB" : "#365B8D"
+            enabled: compositionModel.canExport
+            color: "#1982EB"
             radius: 2
             anchors.right: parent.right
+            opacity: enabled ? 1.0 : 0.3
 
             Text {
                 text: qsTr("Export")
@@ -399,12 +407,15 @@ PAGWindow {
                 acceptedButtons: Qt.LeftButton
                 cursorShape: Qt.PointingHandCursor
                 onPressed: {
-                    if (!isEnable) {
-                        return;
-                    }
-                    // todo: export
+                    compositionModel.exportSelectedCompositions();
+                    window.close();
                 }
             }
         }
+    }
+
+    onClosing: function (closeEvent) {
+        closeEvent.accepted = true;
+        configWindow.onWindowClosing();
     }
 }

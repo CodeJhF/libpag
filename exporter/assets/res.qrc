@@ -15,12 +15,22 @@
         <file>images/bmp.png</file>
         <file>images/setting.png</file>
         <file>images/preview.png</file>
+        <file>images/tip.png</file>
+        <file>images/down-arrow.png</file>
+        <file>images/warning.png</file>
 
         <!-- qml -->
         <file>qml/CompositionListView.qml</file>
         <file>qml/ExportConfigWindow.qml</file>
         <file>qml/ExportSettingPanel.qml</file>
+        <file>qml/PAGComboBox.qml</file>
         <file>qml/PAGRectangle.qml</file>
+        <file>qml/PAGTabButton.qml</file>
+        <file>qml/PAGTextInput.qml</file>
         <file>qml/PAGWindow.qml</file>
+        <file>qml/PlaceholderImageItem.qml</file>
+        <file>qml/PreCompositionItem.qml</file>
+        <file>qml/TextLayerItem.qml</file>
+        <file>qml/TimeStretchItem.qml</file>
     </qresource>
 </RCC>

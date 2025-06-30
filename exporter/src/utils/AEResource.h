@@ -20,8 +20,10 @@
 
 #include <AEGP_SuiteHandler.h>
 #include <AE_GeneralPlug.h>
+#include <map>
 #include <string>
 #include <vector>
+#include "codec/tags/ImageFillRule.h"
 
 namespace exporter {
 
@@ -29,22 +31,54 @@ enum class AEResourceType { Unknown, Folder, Composition, Image };
 
 class AEResource {
  public:
-  static std::shared_ptr<AEResource> BuildResourceTree();
-  static std::shared_ptr<AEResource> GetResourceByID(const std::shared_ptr<AEResource>& node,
-                                                     A_long id);
-  static void RemoveEmptyFolder(const std::shared_ptr<AEResource>& node);
+  static std::vector<std::shared_ptr<AEResource>> getAEResourceList();
+
+  struct FileStructureRelationship {
+    AEResource* parent = nullptr;
+    std::vector<std::shared_ptr<AEResource>> children = {};
+  };
+
+  struct PlaceholderImageFlags {
+    bool isEditable = true;
+    pag::PAGScaleMode scaleMode = pag::PAGScaleMode::None;
+  };
+
+  struct TextLayerFlags {
+    bool isEditable = true;
+  };
+
+  struct Layer {
+    A_long layerID = 0;
+    std::string name = "";
+    AEGP_LayerH layerH = nullptr;
+  };
+
+  struct CompositionRelationship {
+    std::map<A_long, bool> exportAsBmpMap = {};
+    std::map<A_long, TextLayerFlags> textLayerFlagMap = {};
+    std::map<A_long, PlaceholderImageFlags> imagesLayerFlagMap = {};
+
+    // Only save the current object's own resources, not the children's resources
+    std::vector<Layer> textLayers = {};
+    std::vector<Layer> imageLayers = {};
+    std::vector<std::shared_ptr<AEResource>> children = {};
+  };
 
   bool isExport = false;
+  bool isExportAsBmp = false;
+  pag::PAGTimeStretchMode stretchMode = pag::PAGTimeStretchMode::Repeat;
+  pag::Frame stretchStartTime = 0;
+  pag::Frame stretchDuration = 0;
   AEResourceType type = AEResourceType::Unknown;
-  A_long id = -1;
+  A_long ID = -1;
   std::string name = "";
-  AEGP_ItemH itemHandle = nullptr;
-  AEResource* parent = nullptr;
-  std::vector<std::shared_ptr<AEResource>> children = {};
+  AEGP_ItemH itemH = nullptr;
+  FileStructureRelationship file = {};
+  CompositionRelationship composition = {};
 };
 
 bool HasCompositionResource();
 
-AEResourceType GetAEItemResourceType(const AEGP_SuiteHandler& suites, const AEGP_ItemH& item);
+AEResourceType GetAEItemResourceType(const AEGP_ItemH& item);
 
 }  // namespace exporter

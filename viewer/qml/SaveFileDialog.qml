@@ -96,7 +96,7 @@ PAGWindow {
                         anchors.margins: 5
                         color: filePath === "" ? "#E0E0E0" : "#707070"
                         text: filePath
-                        elide: Text.ElideMiddle
+                        elide: Text.ElideRight
                         font.pixelSize: 14
                         verticalAlignment: Text.AlignVCenter
                         clip: true

@@ -19,37 +19,41 @@
 #include "ExportCompositionModel.h"
 #include <QStandardPaths>
 #include <QUrl>
+#include <unordered_set>
+#include "ExportConfigWindow.h"
 
 namespace exporter {
 
-ExportCompositionModel::ExportCompositionModel(QObject* parent) : QAbstractListModel(parent){};
+ExportCompositionModel::ExportCompositionModel(QObject* parent) : QAbstractListModel(parent) {
+}
 
-void ExportCompositionModel::setAEResource(const std::shared_ptr<AEResource>& root) {
-  this->root = root;
+void ExportCompositionModel::setAEResources(
+    const std::vector<std::shared_ptr<AEResource>>& resources) {
+  this->resources = resources;
   compositions.clear();
-  updateData(root);
+  for (const auto& resource : resources) {
+    auto composition = std::make_shared<ExportCompositionData>();
+    composition->resource = resource;
+    composition->isFolder = resource->type == AEResourceType::Folder;
+    composition->savePath = QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation);
+    compositions.push_back(composition);
+  }
   updateCompositionLevel();
   updateAllSelectedNum();
   beginResetModel();
   endResetModel();
 }
 
-void ExportCompositionModel::updateData(const std::shared_ptr<AEResource>& node) {
-  if (node->id != 0) {
-    auto composition = std::make_shared<ExportCompositionData>();
-    composition->resource = node;
-    composition->isFolder = node->type == AEResourceType::Folder;
-    composition->savePath = QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation);
-    compositions.push_back(composition);
-  }
-
-  for (const auto& child : node->children) {
-    updateData(child);
-  }
-}
-
 bool ExportCompositionModel::getAllSelected() const {
   return selectedNum == allSelectedNum;
+}
+
+bool ExportCompositionModel::getCanExport() const {
+  return selectedNum > 0;
+}
+
+bool ExportCompositionModel::getExportAudio() const {
+  return exportAudio;
 }
 
 void ExportCompositionModel::setIsSelected(int index, bool isSelected) {
@@ -64,6 +68,8 @@ void ExportCompositionModel::setIsSelected(int index, bool isSelected) {
   QModelIndex modelIndex = this->index(index);
   Q_EMIT dataChanged(modelIndex, modelIndex,
                      {static_cast<int>(ExportCompositionModelRoles::IsSelectedRole)});
+  Q_EMIT allSelectedChanged(getAllSelected());
+  Q_EMIT canExportChanged(getCanExport());
 }
 
 void ExportCompositionModel::setIsUnfold(int index, bool isUnfold) {
@@ -72,29 +78,34 @@ void ExportCompositionModel::setIsUnfold(int index, bool isUnfold) {
   }
   const std::shared_ptr<ExportCompositionData>& composition = compositions[index];
   composition->isUnfold = isUnfold;
+  std::unordered_set<A_long> idSet = {};
+  idSet.emplace(composition->resource->ID);
   if (isUnfold) {
-    std::vector<std::shared_ptr<ExportCompositionData>> newCompositions(
+    std::vector<std::shared_ptr<ExportCompositionData>> tmpCompositions(
         compositions.begin() + index + 1, compositions.end());
     compositions.resize(index + 1);
-    for (const auto& child : composition->resource->children) {
-      updateData(child);
+    for (const auto& resource : resources) {
+      if (idSet.find(resource->file.parent->ID) == idSet.end()) {
+        continue;
+      }
+      auto newComposition = std::make_shared<ExportCompositionData>();
+      newComposition->resource = resource;
+      newComposition->isFolder = resource->type == AEResourceType::Folder;
+      newComposition->savePath =
+          QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation);
+      compositions.push_back(newComposition);
+      idSet.emplace(resource->ID);
     }
-    compositions.insert(compositions.end(), newCompositions.begin(), newCompositions.end());
+    compositions.insert(compositions.end(), tmpCompositions.begin(), tmpCompositions.end());
   } else {
-    auto parent = composition->resource->parent;
-    auto iter1 = std::find_if(
-        parent->children.begin(), parent->children.end(),
-        [&](const std::shared_ptr<AEResource>& node) { return composition->resource == node; });
-    auto iter2 = iter1 + 1;
-    if (iter2 == parent->children.end()) {
-      compositions.resize(index + 1);
-    } else {
-      auto brotherIter = std::find_if(compositions.begin(), compositions.end(),
-                                      [&](const std::shared_ptr<ExportCompositionData>& node) {
-                                        return (*iter2) == node->resource;
-                                      });
-      auto iter = compositions.begin() + index;
-      compositions.erase(iter + 1, brotherIter);
+    auto iter = compositions.begin();
+    while (iter != compositions.end()) {
+      if (idSet.find((*iter)->resource->file.parent->ID) == idSet.end()) {
+        ++iter;
+        continue;
+      }
+      idSet.emplace((*iter)->resource->ID);
+      iter = compositions.erase(iter);
     }
   }
   updateCompositionLevel();
@@ -118,26 +129,41 @@ void ExportCompositionModel::setSavePath(int index, const QString& savePath) {
 }
 
 void ExportCompositionModel::setAllSelected(bool allSelected) {
-  for (size_t i = 0; i < compositions.size(); i++) {
-    setIsSelected(static_cast<int>(i), allSelected);
+  for (size_t index = 0; index < compositions.size(); index++) {
+    setIsSelected(static_cast<int>(index), allSelected);
   }
-  Q_EMIT allSelectedChanged(allSelected);
 }
 
 void ExportCompositionModel::setSerachText(const QString& searchText) {
   compositions.clear();
-  updateData(root);
-  for (auto iter = compositions.begin(); iter != compositions.end();) {
-    if ((*iter)->resource->name.find(searchText.toStdString()) == std::string::npos) {
-      iter = compositions.erase(iter);
-    } else {
-      ++iter;
+  for (const auto& resource : resources) {
+    if (resource->name.find(searchText.toStdString()) == std::string::npos) {
+      continue;
     }
+    auto composition = std::make_shared<ExportCompositionData>();
+    composition->resource = resource;
+    composition->isFolder = resource->type == AEResourceType::Folder;
+    composition->savePath = QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation);
+    compositions.push_back(composition);
   }
   updateCompositionLevel();
   updateAllSelectedNum();
   beginResetModel();
   endResetModel();
+}
+
+void ExportCompositionModel::setExportAudio(bool exportAudio) {
+  this->exportAudio = exportAudio;
+  Q_EMIT exportAudioChanged(exportAudio);
+}
+
+void ExportCompositionModel::exportSelectedCompositions() {
+  // todo: add export code here
+}
+
+void ExportCompositionModel::previewComposition(int row) {
+  Q_UNUSED(row);
+  // todo: add preview code here
 }
 
 int ExportCompositionModel::rowCount(const QModelIndex& parent) const {
@@ -184,10 +210,10 @@ QVariant ExportCompositionModel::data(const QModelIndex& index, int role) const 
 void ExportCompositionModel::updateCompositionLevel() {
   for (const auto& composition : compositions) {
     int level = 0;
-    auto* parent = composition->resource->parent;
-    while (parent->id != 0) {
+    auto* parent = composition->resource->file.parent;
+    while (parent != nullptr && parent->ID != 0) {
       ++level;
-      parent = parent->parent;
+      parent = parent->file.parent;
     }
     composition->level = level;
   }
@@ -204,7 +230,7 @@ void ExportCompositionModel::updateAllSelectedNum() {
       allSelectedNum++;
     }
   }
-  allSelectedChanged(getAllSelected());
+  Q_EMIT allSelectedChanged(getAllSelected());
 }
 
 QHash<int, QByteArray> ExportCompositionModel::roleNames() const {

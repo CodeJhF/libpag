@@ -17,12 +17,14 @@
 /////////////////////////////////////////////////////////////////////////////////////////////////
 
 #include "AEResource.h"
+#include <map>
 #include "AEHelper.h"
 
 namespace exporter {
 
-static AEResourceType GetResourceType(const std::shared_ptr<AEGP_SuiteHandler>& suites,
-                                      AEGP_ItemH& item) {
+AEResourceType GetAEItemResourceType(AEGP_ItemH& item) {
+  const std::shared_ptr<AEGP_SuiteHandler>& suites = AEHelper::GetSuites();
+
   AEGP_ItemType itemType = AEGP_ItemType_NONE;
   suites->ItemSuite8()->AEGP_GetItemType(item, &itemType);
   if (itemType == AEGP_ItemType_FOLDER) {
@@ -59,7 +61,7 @@ bool HasCompositionResource() {
     AEGP_ItemH item;
     suites->ItemSuite6()->AEGP_GetFirstProjItem(projectHandle, &item);
     while (item != nullptr) {
-      auto type = GetResourceType(suites, item);
+      auto type = GetAEItemResourceType(item);
       if (type == AEResourceType::Composition) {
         return true;
       }
@@ -71,38 +73,13 @@ bool HasCompositionResource() {
   return false;
 }
 
-AEResourceType GetAEItemResourceType(const AEGP_SuiteHandler& suites, const AEGP_ItemH& item) {
-  AEGP_ItemType itemType = AEGP_ItemType_NONE;
-  suites.ItemSuite6()->AEGP_GetItemType(item, &itemType);
-  if (itemType == AEGP_ItemType_FOLDER) {
-    return AEResourceType::Folder;
-  }
-  if (itemType == AEGP_ItemType_COMP) {
-    return AEResourceType::Composition;
-  }
-  if (itemType == AEGP_ItemType_FOOTAGE) {
-    AEGP_ItemFlags itemFlags;
-    suites.ItemSuite6()->AEGP_GetItemFlags(item, &itemFlags);
-    if (itemFlags & AEGP_ItemFlag_STILL) {
-      AEGP_FootageH footageHandle;
-      suites.FootageSuite5()->AEGP_GetMainFootageFromItem(item, &footageHandle);
-      AEGP_FootageSignature signature;
-      suites.FootageSuite5()->AEGP_GetFootageSignature(footageHandle, &signature);
-      if (signature != AEGP_FootageSignature_SOLID && signature != AEGP_FootageSignature_MISSING &&
-          signature != AEGP_FootageSignature_NONE) {
-        return AEResourceType::Image;
-      }
-    }
-  }
-  return AEResourceType::Unknown;
-}
+std::vector<std::shared_ptr<AEResource>> AEResource::getAEResourceList() {
+  std::vector<std::shared_ptr<AEResource>> resources;
+  std::map<A_long, std::shared_ptr<AEResource>> resourceMap;
 
-std::shared_ptr<AEResource> AEResource::BuildResourceTree() {
   const auto& suites = AEHelper::GetSuites();
   A_long projectsNum = 0;
   suites->ProjSuite6()->AEGP_GetNumProjects(&projectsNum);
-  std::shared_ptr<AEResource> root = nullptr;
-
   for (A_long index = 0; index < projectsNum; index++) {
     AEGP_ProjectH projectHandle = nullptr;
     suites->ProjSuite6()->AEGP_GetProjectByIndex(index, &projectHandle);
@@ -111,21 +88,22 @@ std::shared_ptr<AEResource> AEResource::BuildResourceTree() {
     AEGP_ItemH itemHandle = nullptr;
     suites->ItemSuite6()->AEGP_GetFirstProjItem(projectHandle, &itemHandle);
     while (itemHandle != nullptr) {
-      auto item = std::make_shared<AEResource>();
-      auto type = GetAEItemResourceType(*suites, itemHandle);
-      if (type != AEResourceType::Unknown) {
-        item->type = type;
-        item->id = AEHelper::GetItemID(itemHandle);
-        item->name = AEHelper::GetItemName(itemHandle);
-        item->itemHandle = itemHandle;
-        if (item->id == 0) {
-          root = item;
-        } else {
+      A_long id = AEHelper::GetItemID(itemHandle);
+      if (id != 0) {
+        auto item = std::make_shared<AEResource>();
+        auto type = GetAEItemResourceType(itemHandle);
+        if (type != AEResourceType::Unknown) {
+          item->type = type;
+          item->ID = id;
+          item->name = AEHelper::GetItemName(itemHandle);
+          item->itemH = itemHandle;
+          resources.push_back(item);
+          resourceMap[id] = item;
           auto parentID = AEHelper::GetItemParentID(itemHandle);
-          auto parentItem = AEResource::GetResourceByID(root, parentID);
-          if (parentItem != nullptr) {
-            parentItem->children.push_back(item);
-            item->parent = parentItem.get();
+          auto parentIter = resourceMap.find(parentID);
+          if (parentIter != resourceMap.end()) {
+            parentIter->second->file.children.push_back(item);
+            item->file.parent = parentIter->second.get();
           }
         }
       }
@@ -136,38 +114,26 @@ std::shared_ptr<AEResource> AEResource::BuildResourceTree() {
     }
   }
 
-  RemoveEmptyFolder(root);
-
-  return root;
-}
-
-std::shared_ptr<AEResource> AEResource::GetResourceByID(const std::shared_ptr<AEResource>& node,
-                                                        A_long id) {
-  if (node->id == id) {
-    return node;
-  }
-
-  for (const auto& child : node->children) {
-    auto result = GetResourceByID(child, id);
-    if (result != nullptr) {
-      return result;
+  auto iter = resources.begin();
+  while (iter != resources.end()) {
+    if ((*iter)->type != AEResourceType::Folder && (*iter)->type != AEResourceType::Composition) {
+      iter = resources.erase(iter);
+      continue;
     }
-  }
-
-  return nullptr;
-}
-
-void AEResource::RemoveEmptyFolder(const std::shared_ptr<AEResource>& node) {
-  auto iter = node->children.begin();
-  while (iter != node->children.end()) {
-    const auto& child = *iter;
-    if (child->type == AEResourceType::Folder && child->children.empty()) {
-      iter = node->children.erase(iter);
-    } else {
-      RemoveEmptyFolder(child);
-      ++iter;
+    if ((*iter)->type == AEResourceType::Folder && (*iter)->file.children.empty()) {
+      auto parent = (*iter)->file.parent;
+      if (parent != nullptr) {
+        parent->file.children.erase(
+            std::find(parent->file.children.begin(), parent->file.children.end(), *iter));
+      }
+      iter = resources.erase(iter);
+      continue;
     }
+
+    ++iter;
   }
+
+  return resources;
 }
 
 }  // namespace exporter

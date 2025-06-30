@@ -9,9 +9,19 @@ PAGWindow {
 
     property int windowHeight: 700
 
+    property string compositionName: ""
+
+    required property var textLayerModel
+
+    required property var imageLayerModel
+
+    required property var timeStretchModel
+
+    required property var compositionInfoModel
+
     property alias tabBar: tabBar
 
-    title: "Setting Panel"
+    title: "Setting Panel" + " - " + compositionName
     width: windowWidth
     height: windowHeight
     minimumWidth: windowWidth
@@ -100,20 +110,20 @@ PAGWindow {
             anchors.fill: parent
             currentIndex: tabBar.currentIndex
 
-            Rectangle {
-                color: "black"
+            PreCompositionItem {
+                model: compositionInfoModel
             }
 
-            Rectangle {
-                color: "white"
+            TextLayerItem {
+                model: textLayerModel
             }
 
-            Rectangle {
-                color: "blue"
+            PlaceholderImageItem {
+                model: imageLayerModel
             }
 
-            Rectangle {
-                color: "red"
+            TimeStretchItem {
+                model: timeStretchModel
             }
         }
     }
@@ -159,7 +169,7 @@ PAGWindow {
                 acceptedButtons: Qt.LeftButton
                 cursorShape: Qt.PointingHandCursor
                 onPressed: {
-
+                    window.close();
                 }
             }
         }

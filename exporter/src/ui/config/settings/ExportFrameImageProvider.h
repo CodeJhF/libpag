@@ -18,18 +18,25 @@
 
 #pragma once
 
-#include <string>
-#include "AEHelper.h"
+#include <QQuickImageProvider>
+#include "utils/AEResource.h"
 
 namespace exporter {
 
-std::string AEMemoryToString(const AEGP_MemHandle& handle);
+class ExportFrameImageProvider : public QQuickImageProvider {
+  Q_OBJECT
+ public:
+  explicit ExportFrameImageProvider();
 
-std::string U16strToU8str(const std::u16string& str);
+  void setAEResource(const std::shared_ptr<AEResource>& resource);
+  void updateFrameImage(pag::Frame frame);
+  QString getName();
+  QImage requestImage(const QString& id, QSize* size, const QSize& requestedSize) override;
 
-std::u16string U8strToU16str(const std::string& str);
-
-void ConvertARGBToRGBA(const uint8_t* argb, int width, int height, int srcStride, uint8* rgba,
-                       int dstStride);
+ private:
+  pag::Frame currentFrame = 0;
+  std::shared_ptr<AEResource> resource = nullptr;
+  std::map<pag::Frame, QImage> frameImages = {};
+};
 
 }  // namespace exporter

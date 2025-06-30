@@ -32,6 +32,91 @@ void SetSuitesAndPluginID(SPBasicSuite* basicSuite, AEGP_PluginID id) {
   PluginID = id;
 }
 
+ExportLayerType GetLayerType(const AEGP_LayerH& layerH) {
+  const auto& suites = GetSuites();
+  AEGP_LayerFlags layerFlags;
+  suites->LayerSuite6()->AEGP_GetLayerFlags(layerH, &layerFlags);
+  if (layerFlags &
+      (AEGP_LayerFlag_NULL_LAYER | AEGP_LayerFlag_GUIDE_LAYER | AEGP_LayerFlag_ADJUSTMENT_LAYER)) {
+    return ExportLayerType::Null;
+  }
+  AEGP_ObjectType objectType;
+  suites->LayerSuite6()->AEGP_GetLayerObjectType(layerH, &objectType);
+  if (objectType == AEGP_ObjectType_VECTOR) {
+    return ExportLayerType::Shape;
+  }
+  if (objectType == AEGP_ObjectType_TEXT) {
+    return ExportLayerType::Text;
+  }
+  if (objectType == AEGP_ObjectType_CAMERA) {
+    return ExportLayerType::Camera;
+  }
+  if (objectType == AEGP_ObjectType_AV) {
+    AEGP_ItemH itemH;
+    suites->LayerSuite6()->AEGP_GetLayerSourceItem(layerH, &itemH);
+    AEGP_ItemType itemType;
+    suites->ItemSuite6()->AEGP_GetItemType(itemH, &itemType);
+    if (itemType == AEGP_ItemType_COMP) {
+      return ExportLayerType::PreCompose;
+    }
+    if (itemType == AEGP_ItemType_FOOTAGE) {
+      AEGP_ItemFlags itemFlags;
+      suites->ItemSuite6()->AEGP_GetItemFlags(itemH, &itemFlags);
+      if (itemFlags & AEGP_ItemFlag_STILL) {
+        AEGP_FootageH footageH;
+        suites->FootageSuite5()->AEGP_GetMainFootageFromItem(itemH, &footageH);
+        AEGP_FootageSignature signature;
+        suites->FootageSuite5()->AEGP_GetFootageSignature(footageH, &signature);
+        if (signature == AEGP_FootageSignature_SOLID) {
+          return ExportLayerType::Solid;
+        }
+        if (signature != AEGP_FootageSignature_MISSING && signature != AEGP_FootageSignature_NONE) {
+          return ExportLayerType::Image;
+        }
+      }
+      if (itemFlags & AEGP_ItemFlag_HAS_VIDEO) {
+        return ExportLayerType::Video;
+      }
+      if (itemFlags & AEGP_ItemFlag_HAS_AUDIO && !(itemFlags & AEGP_ItemFlag_HAS_VIDEO)) {
+        return ExportLayerType::Audio;
+      }
+      if (itemFlags & AEGP_ItemFlag_MISSING) {
+        return ExportLayerType::Unknown;
+      }
+    }
+    return ExportLayerType::Null;
+  }
+  return ExportLayerType::Unknown;
+}
+
+std::string GetLayerName(const AEGP_LayerH& layerH) {
+  const auto& suites = GetSuites();
+  AEGP_MemHandle layerNameHandle;
+  AEGP_MemHandle sourceNameHandle;
+  suites->LayerSuite6()->AEGP_GetLayerName(PluginID, layerH, &layerNameHandle, &sourceNameHandle);
+  auto name = exporter::AEMemoryToString(layerNameHandle);
+  if (name.empty()) {
+    name = exporter::AEMemoryToString(sourceNameHandle);
+  }
+  suites->MemorySuite1()->AEGP_FreeMemHandle(layerNameHandle);
+  suites->MemorySuite1()->AEGP_FreeMemHandle(sourceNameHandle);
+  return name;
+}
+
+AEGP_ItemH GetLayerItemH(const AEGP_LayerH& layerH) {
+  const auto& suites = GetSuites();
+  AEGP_ItemH itemH;
+  suites->LayerSuite6()->AEGP_GetLayerSourceItem(layerH, &itemH);
+  return itemH;
+}
+
+A_long GetLayerID(const AEGP_LayerH& layerH) {
+  const auto& suites = GetSuites();
+  A_long id;
+  suites->LayerSuite6()->AEGP_GetLayerID(layerH, &id);
+  return id;
+}
+
 AEGP_ItemH GetActiveCompositionItem() {
   const auto& suites = GetSuites();
   AEGP_ItemH activeItemH = nullptr;
@@ -82,6 +167,103 @@ A_long GetItemParentID(const AEGP_ItemH& item) {
     id = GetItemID(parentItem);
   }
   return id;
+}
+
+AEGP_CompH GetItemCompH(const AEGP_ItemH& item) {
+  AEGP_CompH compH = nullptr;
+  Suites->CompSuite6()->AEGP_GetCompFromItem(item, &compH);
+  return compH;
+}
+
+float GetItemFrameRate(const AEGP_ItemH& item) {
+  auto compH = GetItemCompH(item);
+  A_FpLong frameRate = 0;
+  Suites->CompSuite6()->AEGP_GetCompFramerate(compH, &frameRate);
+  return static_cast<float>(frameRate);
+}
+
+pag::Frame GetItemDuration(const AEGP_ItemH& item) {
+  A_Time time = {};
+  Suites->ItemSuite6()->AEGP_GetItemDuration(item, &time);
+  A_FpLong frameRate = GetItemFrameRate(item);
+  return static_cast<pag::Frame>(std::round(time.value * frameRate / time.scale));
+}
+
+QImage GetCompositionFrameImage(const AEGP_ItemH& itemH, pag::Frame frame) {
+  AEGP_RenderOptionsH renderOptions = nullptr;
+  float frameRate = GetItemFrameRate(itemH);
+  A_Time getTime = {};
+  A_Time currentTime = {};
+  currentTime.value = static_cast<A_long>(1000 * frame);
+  currentTime.scale = static_cast<A_u_long>(std::lround(1000 * frameRate));
+  Suites->RenderOptionsSuite3()->AEGP_NewFromItem(PluginID, itemH, &renderOptions);
+  if (renderOptions == nullptr) {
+    printf("GetCompositionFrameImage: NewFromItem failed.\n");
+    return {};
+  }
+  Suites->RenderOptionsSuite3()->AEGP_SetWorldType(renderOptions, AEGP_WorldType_8);
+  Suites->RenderOptionsSuite3()->AEGP_SetTime(renderOptions, currentTime);
+  Suites->RenderOptionsSuite3()->AEGP_GetTime(renderOptions, &getTime);
+  if (getTime.value != currentTime.value || getTime.scale != currentTime.scale) {
+    printf("GetCompositionFrameImage: GetTime failed.\n");
+    return {};
+  }
+
+  uint8_t* rgbaBytes = nullptr;
+  A_u_long stride = 0;
+  A_long width = 0;
+  A_long height = 0;
+  GetRenderFrame(rgbaBytes, stride, width, height, *Suites, renderOptions);
+  if (width > 0 && height > 0 && rgbaBytes != nullptr) {
+    QImage image(rgbaBytes, width, height, stride, QImage::Format_RGBA8888);
+    delete[] rgbaBytes;
+    return image;
+  }
+  return {};
+}
+
+QSize GetItemDimensions(const AEGP_ItemH& itemH) {
+  A_long width = 0;
+  A_long height = 0;
+  Suites->ItemSuite8()->AEGP_GetItemDimensions(itemH, &width, &height);
+  return {width, height};
+}
+
+void GetRenderFrame(uint8*& rgbaBytes, A_u_long& stride, A_long& width, A_long& height,
+                    const AEGP_SuiteHandler& suites, AEGP_RenderOptionsH& renderOptions) {
+  suites.RenderOptionsSuite3()->AEGP_SetWorldType(renderOptions, AEGP_WorldType_8);
+  suites.RenderOptionsSuite3()->AEGP_SetDownsampleFactor(renderOptions, 1, 1);
+
+  AEGP_FrameReceiptH frameReceipt;
+  suites.RenderSuite5()->AEGP_RenderAndCheckoutFrame(renderOptions, nullptr, nullptr,
+                                                     &frameReceipt);
+
+  AEGP_WorldH imageWorld;
+  suites.RenderSuite5()->AEGP_GetReceiptWorld(frameReceipt, &imageWorld);
+  suites.WorldSuite3()->AEGP_GetSize(imageWorld, &width, &height);
+
+  AEGP_WorldType worldType;
+  suites.WorldSuite3()->AEGP_GetType(imageWorld, &worldType);
+
+  PF_Pixel* pixels;
+  suites.WorldSuite3()->AEGP_GetBaseAddr8(imageWorld, &pixels);
+
+  A_u_long rowBytes;
+  suites.WorldSuite3()->AEGP_GetRowBytes(imageWorld, &rowBytes);
+
+  if (width > 0 && height > 0 && rowBytes > 0) {
+    if (rgbaBytes == nullptr) {
+      stride = rowBytes;
+      rgbaBytes = new uint8_t[stride * height + stride * 2];
+    }
+    exporter::ConvertARGBToRGBA(&(pixels->alpha), width, height, rowBytes, rgbaBytes, stride);
+  }
+  suites.RenderSuite5()->AEGP_CheckinFrame(frameReceipt);
+}
+
+void SetItemName(const AEGP_ItemH& item, const std::string& name) {
+  std::u16string u16str = exporter::U8strToU16str(name);
+  Suites->ItemSuite8()->AEGP_SetItemName(item, reinterpret_cast<const A_UTF16Char*>(u16str.data()));
 }
 
 std::string RunScript(std::shared_ptr<AEGP_SuiteHandler> suites, AEGP_PluginID pluginID,

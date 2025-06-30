@@ -5,11 +5,13 @@ import Qt.labs.platform as Platform
 ListView {
     id: compositionTableView
 
+    property var mainWindow: null
+
     clip: true
     boundsBehavior: Flickable.StopAtBounds
 
     ScrollBar.vertical: ScrollBar {
-        policy: ScrollBar.AlwaysOn
+        policy: ScrollBar.AsNeeded
         anchors.right: parent.right
         anchors.rightMargin: 2
 
@@ -34,7 +36,7 @@ ListView {
     }
 
     ScrollBar.horizontal: ScrollBar {
-        policy: ScrollBar.AlwaysOn
+        policy: ScrollBar.AsNeeded
         anchors.bottom: parent.bottom
         anchors.bottomMargin: 2
 
@@ -135,9 +137,10 @@ ListView {
                         text: name
                         font.pixelSize: 14
                         font.family: "PingFang SC"
-                        elide: Text.ElideMiddle
+                        elide: Text.ElideRight
                         anchors.left: icon.right
                         anchors.leftMargin: 8
+                        anchors.right: parent.right
                         anchors.verticalCenter: parent.verticalCenter
                         color: "#FFFFFF"
                     }
@@ -176,8 +179,8 @@ ListView {
                             cursorShape: Qt.PointingHandCursor
                             onClicked: {
                                 openFolderDialog.row = row;
-                                openFolderDialog.currentFolder = savePath;
-                                openFolderDialog.visible = true;
+                                openFolderDialog.folder = pathToFileUrl(savePath);
+                                openFolderDialog.open();
                             }
                         }
                     }
@@ -185,6 +188,9 @@ ListView {
 
                 Rectangle {
                     id: settingColumn
+
+                    property var subWindow: null
+
                     width: 72
                     anchors.top: parent.top
                     anchors.bottom: parent.bottom
@@ -201,8 +207,34 @@ ListView {
                             anchors.fill: parent
                             acceptedButtons: Qt.LeftButton
                             cursorShape: Qt.PointingHandCursor
+
                             onClicked: {
-                                // todo
+                                let component = Qt.createComponent("qrc:/qml/ExportSettingPanel.qml");
+                                if (component.status === Component.Ready) {
+                                    configWindow.updateCompositionSetting(row);
+                                    let textLayerModel = configWindow.getTextLayerModel(row);
+                                    let imageLayerModel = configWindow.getImageLayerModel(row);
+                                    let timeStretchModel = configWindow.getTimeStretchModel(row);
+                                    let compositionInfoModel = configWindow.getCompositionInfoModel(row);
+                                    settingColumn.subWindow = component.createObject(mainWindow, {
+                                        "compositionName": name,
+                                        "textLayerModel": textLayerModel,
+                                        "imageLayerModel": imageLayerModel,
+                                        "timeStretchModel": timeStretchModel,
+                                        "compositionInfoModel": compositionInfoModel
+                                    });
+                                    if (settingColumn.subWindow) {
+                                        settingColumn.subWindow.closing.connect(function () {
+                                            if (settingColumn.subWindow) {
+                                                settingColumn.subWindow.destroy();
+                                                settingColumn.subWindow = null;
+                                            }
+                                            mainWindow.visible = true;
+                                        });
+                                        settingColumn.subWindow.show();
+                                        mainWindow.visible = false;
+                                    }
+                                }
                             }
                         }
                     }
@@ -227,7 +259,7 @@ ListView {
                             acceptedButtons: Qt.LeftButton
                             cursorShape: Qt.PointingHandCursor
                             onClicked: {
-                                // todo
+                                compositionModel.previewComposition(row);
                             }
                         }
                     }
@@ -245,6 +277,18 @@ ListView {
         title: qsTr("Select Save Path")
         onAccepted: {
             compositionTableView.model.setSavePath(row, openFolderDialog.folder);
+        }
+    }
+
+    function pathToFileUrl(path) {
+        let url = path;
+        if (url.startsWith("file://")) {
+            return url;
+        }
+        if (Qt.platform.os === "windows") {
+            return "file:///" + url.replace(/\\/g, "/");
+        } else {
+            return "file://" + url;
         }
     }
 }

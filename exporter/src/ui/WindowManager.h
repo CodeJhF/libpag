@@ -40,6 +40,7 @@ class WindowManager {
   WindowManager& operator=(WindowManager&&) = delete;
 
  private:
+  std::unique_ptr<QApplication> app = nullptr;
   std::unique_ptr<ExportConfigWindow> configWindow = nullptr;
   WindowManager();
   ~WindowManager() = default;

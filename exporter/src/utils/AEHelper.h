@@ -17,12 +17,42 @@
 /////////////////////////////////////////////////////////////////////////////////////////////////
 
 #pragma once
+#include <QImage>
 #include <memory>
 #include <string>
 #include "AEGP_SuiteHandler.h"
 #include "AE_GeneralPlug.h"
+#include "rendering/caches/FrameCache.h"
 
 namespace AEHelper {
+
+enum class ExportLayerType {
+  Unknown,
+  Null,
+  Solid,
+  Text,
+  Shape,
+  Image,
+  PreCompose,
+  Video,
+  Audio,
+  Camera
+};
+
+enum class ImageFillMode {
+  None = 0,
+  Stretch,
+  LetterBox,
+  Zoom,
+};
+
+ExportLayerType GetLayerType(const AEGP_LayerH& layerH);
+
+std::string GetLayerName(const AEGP_LayerH& layerH);
+
+AEGP_ItemH GetLayerItemH(const AEGP_LayerH& layerH);
+
+A_long GetLayerID(const AEGP_LayerH& layerH);
 
 AEGP_ItemH GetActiveCompositionItem();
 
@@ -37,6 +67,21 @@ std::string GetItemName(const AEGP_ItemH& item);
 A_long GetItemID(const AEGP_ItemH& item);
 
 A_long GetItemParentID(const AEGP_ItemH& item);
+
+AEGP_CompH GetItemCompH(const AEGP_ItemH& item);
+
+float GetItemFrameRate(const AEGP_ItemH& item);
+
+pag::Frame GetItemDuration(const AEGP_ItemH& item);
+
+QImage GetCompositionFrameImage(const AEGP_ItemH& itemH, pag::Frame frame);
+
+QSize GetItemDimensions(const AEGP_ItemH& itemH);
+
+void GetRenderFrame(uint8*& rgbaBytes, A_u_long& stride, A_long& width, A_long& height,
+                    const AEGP_SuiteHandler& suites, AEGP_RenderOptionsH& renderOptions);
+
+void SetItemName(const AEGP_ItemH& item, const std::string& name);
 
 std::string RunScript(std::shared_ptr<AEGP_SuiteHandler> suites, AEGP_PluginID pluginID,
                       const std::string& scriptText);

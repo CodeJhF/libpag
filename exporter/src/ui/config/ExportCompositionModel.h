@@ -19,6 +19,7 @@
 #pragma once
 
 #include <QAbstractListModel>
+#include <QQmlEngine>
 #include "utils/AEResource.h"
 
 namespace exporter {
@@ -47,21 +48,29 @@ class ExportCompositionModel : public QAbstractListModel {
   explicit ExportCompositionModel(QObject* parent = nullptr);
 
   Q_PROPERTY(bool allSelected READ getAllSelected NOTIFY allSelectedChanged)
+  Q_PROPERTY(bool canExport READ getCanExport NOTIFY canExportChanged)
+  Q_PROPERTY(bool exportAudio READ getExportAudio WRITE setExportAudio NOTIFY exportAudioChanged)
 
-  void setAEResource(const std::shared_ptr<AEResource>& root);
-  void updateData(const std::shared_ptr<AEResource>& node);
+  void setAEResources(const std::vector<std::shared_ptr<AEResource>>& resources);
   Q_INVOKABLE bool getAllSelected() const;
+  Q_INVOKABLE bool getCanExport() const;
+  Q_INVOKABLE bool getExportAudio() const;
   Q_INVOKABLE void setIsSelected(int index, bool isSelected);
   Q_INVOKABLE void setIsUnfold(int index, bool isUnfold);
   Q_INVOKABLE void setSavePath(int index, const QString& savePath);
   Q_INVOKABLE void setAllSelected(bool allSelected);
   Q_INVOKABLE void setSerachText(const QString& searchText);
+  Q_INVOKABLE void setExportAudio(bool exportAudio);
+  Q_INVOKABLE void exportSelectedCompositions();
+  Q_INVOKABLE void previewComposition(int row);
 
   int rowCount(const QModelIndex& parent) const override;
   int columnCount(const QModelIndex& parent) const override;
   QVariant data(const QModelIndex& index, int role) const override;
 
   Q_SIGNAL void allSelectedChanged(bool allSelected);
+  Q_SIGNAL void canExportChanged(bool canExport);
+  Q_SIGNAL void exportAudioChanged(bool exportAudio);
 
  protected:
   void updateCompositionLevel();
@@ -69,9 +78,10 @@ class ExportCompositionModel : public QAbstractListModel {
   QHash<int, QByteArray> roleNames() const override;
 
  private:
-  int selectedNum = 0;
-  int allSelectedNum = 0;
-  std::shared_ptr<AEResource> root = nullptr;
+  bool exportAudio = false;
+  size_t selectedNum = 0;
+  size_t allSelectedNum = 0;
+  std::vector<std::shared_ptr<AEResource>> resources = {};
   std::vector<std::shared_ptr<ExportCompositionData>> compositions = {};
 };
 
