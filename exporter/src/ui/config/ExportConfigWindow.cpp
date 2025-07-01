@@ -146,6 +146,10 @@ void ExportConfigWindow::updateCompositionSetting(int row) {
   }
   frameImageProviderMap[resource->ID] = frameImageProvider;
   engine->addImageProvider(frameImageProvider->getName(), frameImageProvider);
+  connect(compositionInfoModelMap[resource->ID].get(), &ExportCompositionInfoModel::compositionExportAsBmpChanged,
+    imageLayerModelMap[resource->ID].get(), &ExportImageLayerModel::onCompositionExportAsBmpChanged);
+  connect(compositionInfoModelMap[resource->ID].get(), &ExportCompositionInfoModel::compositionExportAsBmpChanged,
+    textLayerModelMap[resource->ID].get(), &ExportTextLayerModel::onCompositionExportAsBmpChanged);
 }
 
 void ExportConfigWindow::viewLayers(const std::shared_ptr<AEResource>& resource) {

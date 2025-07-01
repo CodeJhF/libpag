@@ -24,6 +24,7 @@ PAGWindow {
     windowBackgroundColor: "#14141E"
     titlebarBackgroundColor: "#14141E"
     titleFontSize: 14
+    modality: Qt.ApplicationModal
 
     Rectangle {
         id: compositionsContainer
@@ -241,7 +242,7 @@ PAGWindow {
                 width: parent.width
                 height: parent.height - header.height - headerDivider.height
                 model: compositionModel === null ? null : compositionModel
-                mainWindow: window
+                parentWindow: window
             }
         }
     }
@@ -411,6 +412,16 @@ PAGWindow {
                     window.close();
                 }
             }
+        }
+    }
+
+    Item {
+        anchors.fill: parent
+        focus: true
+
+        Keys.onEscapePressed: function(event) {
+            window.close();
+            event.accepted = true;
         }
     }
 

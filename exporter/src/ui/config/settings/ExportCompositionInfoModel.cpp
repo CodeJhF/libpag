@@ -17,6 +17,7 @@
 /////////////////////////////////////////////////////////////////////////////////////////////////
 
 #include "ExportCompositionInfoModel.h"
+#include <future>
 #include "utils/AEHelper.h"
 
 namespace exporter {
@@ -166,6 +167,27 @@ void ExportCompositionInfoModel::setExportAsBmp(int row, bool exportAsBmp) {
                      {static_cast<int>(ExportCompositionInfoModelRoles::ExportAsBmpRole),
                       static_cast<int>(ExportCompositionInfoModelRoles::NameRole),
                       static_cast<int>(ExportCompositionInfoModelRoles::EnableRole)});
+  Q_EMIT compositionExportAsBmpChanged();
+}
+
+bool ExportCompositionInfoModel::isCompositionHasEditableLayer(int row) {
+  if (row < 0 || row >= static_cast<int>(items.size())) {
+    return false;
+  }
+  Data& item = items[row];
+  return isCompositionHasEditableLayer(item.resource);
+}
+
+bool ExportCompositionInfoModel::isCompositionHasEditableLayer(const std::shared_ptr<AEResource>& resource) {
+  if (!resource->composition.imageLayers.empty() || !resource->composition.textLayers.empty()) {
+    return true;
+  }
+  for (const auto& child : resource->composition.children) {
+    if (isCompositionHasEditableLayer(child)) {
+      return true;
+    }
+  }
+  return false;
 }
 
 int ExportCompositionInfoModel::rowCount(const QModelIndex& parent) const {

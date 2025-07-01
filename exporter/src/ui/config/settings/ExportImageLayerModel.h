@@ -51,6 +51,8 @@ class ExportImageLayerModel : public QAbstractListModel {
 
   Q_SIGNAL void allEditableChanged(bool allEditable);
 
+  Q_SLOT void onCompositionExportAsBmpChanged();
+
  protected:
   QHash<int, QByteArray> roleNames() const override;
 

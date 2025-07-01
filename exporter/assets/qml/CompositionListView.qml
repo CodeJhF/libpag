@@ -5,7 +5,7 @@ import Qt.labs.platform as Platform
 ListView {
     id: compositionTableView
 
-    property var mainWindow: null
+    property var parentWindow: null
 
     clip: true
     boundsBehavior: Flickable.StopAtBounds
@@ -216,7 +216,7 @@ ListView {
                                     let imageLayerModel = configWindow.getImageLayerModel(row);
                                     let timeStretchModel = configWindow.getTimeStretchModel(row);
                                     let compositionInfoModel = configWindow.getCompositionInfoModel(row);
-                                    settingColumn.subWindow = component.createObject(mainWindow, {
+                                    settingColumn.subWindow = component.createObject(parentWindow, {
                                         "compositionName": name,
                                         "textLayerModel": textLayerModel,
                                         "imageLayerModel": imageLayerModel,
@@ -229,10 +229,8 @@ ListView {
                                                 settingColumn.subWindow.destroy();
                                                 settingColumn.subWindow = null;
                                             }
-                                            mainWindow.visible = true;
                                         });
                                         settingColumn.subWindow.show();
-                                        mainWindow.visible = false;
                                     }
                                 }
                             }

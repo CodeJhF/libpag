@@ -65,6 +65,9 @@ void ExportImageLayerModel::setAEResource(const std::shared_ptr<AEResource>& res
 }
 
 void ExportImageLayerModel::refreshData(const std::shared_ptr<AEResource>& resource) {
+  if (resource->isExportAsBmp) {
+    return;
+  }
   for (const auto& layer : resource->composition.imageLayers) {
     auto iter = std::find_if(items.begin(), items.end(), [&](const AEResource::Layer& item) {
       return AEHelper::GetLayerItemH(layer.layerH) == AEHelper::GetLayerItemH(item.layerH);
@@ -156,6 +159,19 @@ QVariant ExportImageLayerModel::data(const QModelIndex& index, int role) const {
     default:
       return {};
   }
+}
+
+void ExportImageLayerModel::onCompositionExportAsBmpChanged() {
+  items.clear();
+  editableItemNum = 0;
+  refreshData(resource);
+  for (const auto& item : items) {
+    if (this->resource->composition.imagesLayerFlagMap[item.layerID].isEditable) {
+      editableItemNum++;
+    }
+  }
+  beginResetModel();
+  endResetModel();
 }
 
 QHash<int, QByteArray> ExportImageLayerModel::roleNames() const {

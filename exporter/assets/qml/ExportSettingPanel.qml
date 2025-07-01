@@ -37,6 +37,7 @@ PAGWindow {
     windowBackgroundColor: "#14141E"
     titlebarBackgroundColor: "#14141E"
     titleFontSize: 14
+    modality: Qt.WindowModal
 
     Rectangle {
         id: tabBarContainer
@@ -112,6 +113,7 @@ PAGWindow {
 
             PreCompositionItem {
                 model: compositionInfoModel
+                parentWindow: window
             }
 
             TextLayerItem {
@@ -172,6 +174,16 @@ PAGWindow {
                     window.close();
                 }
             }
+        }
+    }
+
+    Item {
+        anchors.fill: parent
+        focus: true
+
+        Keys.onEscapePressed: function(event) {
+            window.close();
+            event.accepted = true;
         }
     }
 }

@@ -62,6 +62,8 @@ class ExportCompositionInfoModel : public QAbstractListModel {
   Q_INVOKABLE QString getImageProviderName() const;
   Q_INVOKABLE void setCurrentFrame(const QString& currentFrame);
   Q_INVOKABLE void setExportAsBmp(int row, bool exportAsBmp);
+  Q_INVOKABLE bool isCompositionHasEditableLayer(int row);
+  bool isCompositionHasEditableLayer(const std::shared_ptr<AEResource>& resource);
 
   int rowCount(const QModelIndex& parent) const override;
   QVariant data(const QModelIndex& index, int role) const override;
@@ -72,6 +74,7 @@ class ExportCompositionInfoModel : public QAbstractListModel {
   Q_SIGNAL void durationChanged(const QString& duration);
   Q_SIGNAL void currentFrameChanged(const QString& currentFrame);
   Q_SIGNAL void imageProviderNameChanged(const QString& imageProviderName);
+  Q_SIGNAL void compositionExportAsBmpChanged();
 
  protected:
   QHash<int, QByteArray> roleNames() const override;

@@ -35,6 +35,9 @@ void ExportTextLayerModel::setAEResource(const std::shared_ptr<AEResource>& reso
 }
 
 void ExportTextLayerModel::refreshData(const std::shared_ptr<AEResource>& resource) {
+  if (resource->isExportAsBmp) {
+    return;
+  }
   for (const auto& layer : resource->composition.textLayers) {
     Data item = {layer.layerID, layer.name.data()};
     items.push_back(item);
@@ -97,6 +100,19 @@ QVariant ExportTextLayerModel::data(const QModelIndex& index, int role) const {
     default:
       return {};
   }
+}
+
+void ExportTextLayerModel::onCompositionExportAsBmpChanged() {
+  items.clear();
+  editableItemNum = 0;
+  refreshData(resource);
+  for (const auto& item : items) {
+    if (this->resource->composition.textLayerFlagMap[item.layerID].isEditable) {
+      editableItemNum++;
+    }
+  }
+  beginResetModel();
+  endResetModel();
 }
 
 QHash<int, QByteArray> ExportTextLayerModel::roleNames() const {

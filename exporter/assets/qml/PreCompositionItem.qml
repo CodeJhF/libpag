@@ -6,6 +6,8 @@ Rectangle {
 
     required property var model
 
+    required property var parentWindow
+
     color: "transparent"
 
     Rectangle {
@@ -145,6 +147,9 @@ Rectangle {
 
                         Image {
                             id: bmpCheckBox
+
+                            property var alertDialog: null
+
                             width: 20
                             height: 20
                             anchors.right: parent.right
@@ -157,7 +162,28 @@ Rectangle {
                                 anchors.fill: parent
                                 cursorShape: Qt.PointingHandCursor
                                 onClicked: {
-                                    if (isEnable) {
+                                    if (!isEnable) {
+                                        return;
+                                    }
+                                    if (!isExportAsBmp && model.isCompositionHasEditableLayer(row)) {
+                                        let component = Qt.createComponent("qrc:/qml/AlertDialog.qml");
+                                        if (component.status === Component.Ready) {
+                                            let dialog = component.createObject(parentWindow, {
+                                                modality: Qt.WindowModal
+                                            });
+                                            bmpCheckBox.alertDialog = dialog;
+                                            if (dialog) {
+                                                dialog.accepted.connect(function () {
+                                                    model.setExportAsBmp(row, true);
+                                                    if (bmpCheckBox.alertDialog) {
+                                                        bmpCheckBox.alertDialog.destroy();
+                                                        bmpCheckBox.alertDialog = null;
+                                                    }
+                                                });
+                                                dialog.show();
+                                            }
+                                        }
+                                    } else {
                                         model.setExportAsBmp(row, !isExportAsBmp);
                                     }
                                 }

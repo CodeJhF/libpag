@@ -20,6 +20,7 @@
         <file>images/warning.png</file>
 
         <!-- qml -->
+        <file>qml/AlertDialog.qml</file>
         <file>qml/CompositionListView.qml</file>
         <file>qml/ExportConfigWindow.qml</file>
         <file>qml/ExportSettingPanel.qml</file>
