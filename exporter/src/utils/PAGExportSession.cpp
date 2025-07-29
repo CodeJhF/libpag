@@ -106,7 +106,6 @@ void PAGExportSession::pushWarning(AlertInfoType type, const std::string& addInf
   alertInfoManager.pushWarning(itemH, layerH, type, addInfo);
 }
 
-
 pag::GradientColorHandle PAGExportSession::GetGradientColorsFromFileBytes(
     const std::vector<std::string>& matchNames, int index) {
   if (fileBytes.empty()) {

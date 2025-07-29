@@ -17,13 +17,13 @@
 /////////////////////////////////////////////////////////////////////////////////////////////////
 
 #include "ExportCompositionModel.h"
-#include "platform/PlatformHelper.h"
 #include <QQmlContext>
 #include <QStandardPaths>
 #include <QUrl>
 #include <unordered_set>
 #include "ExportConfigWindow.h"
 #include "export/PAGExport.h"
+#include "platform/PlatformHelper.h"
 #include "utils/FileHelper.h"
 
 namespace exporter {

@@ -120,7 +120,7 @@ static bool IsLayerBeReferenced(pag::ID id, const std::vector<pag::Layer*>& laye
 }
 
 static pag::Layer* ExportLayer(const std::shared_ptr<PAGExportSession>& session,
-                        const AEGP_LayerH& layerH);
+                               const AEGP_LayerH& layerH);
 
 static void ModifyTransform3DForCameraLayer(pag::Layer* layer, AEGP_LayerFlags layerFlags) {
   if (layer->type() != pag::LayerType::Camera) {
@@ -164,14 +164,14 @@ static void ModifyTransform3DForCameraLayer(pag::Layer* layer, AEGP_LayerFlags l
         dstKeyframe->spatialOut = srcKeyFrame->spatialOut;
         dstKeyframe->spatialIn = srcKeyFrame->spatialIn;
         anchorPointKeyframes.push_back(dstKeyframe);
-           }
+      }
       transform3D->anchorPoint = new pag::AnimatableProperty<pag::Point3D>(anchorPointKeyframes);
     }
   }
 }
 
 static void InitLayer(const std::shared_ptr<PAGExportSession>& session, const AEGP_LayerH& layerH,
-               pag::Layer* layer, ExportLayerType layerType) {
+                      pag::Layer* layer, ExportLayerType layerType) {
   layer->id = AEHelper::GetLayerID(layerH);
   layer->name = AEHelper::GetLayerName(layerH);
   AEGP_LayerH parentLayerH = AEHelper::GetLayerParentLayerH(layerH);
@@ -252,7 +252,7 @@ static pag::SolidLayer* CreateSolidLayer(const AEGP_LayerH& layerH) {
 }
 
 static pag::TextLayer* CreateTextLayer(const std::shared_ptr<PAGExportSession>& session,
-                                const AEGP_LayerH& layerH) {
+                                       const AEGP_LayerH& layerH) {
   auto layer = new pag::TextLayer();
   GetTextProperties(session, layerH, layer);
   return layer;
@@ -265,7 +265,7 @@ static pag::ShapeLayer* CreateShapeLayer(const AEGP_LayerH& layerH) {
 }
 
 static pag::ImageLayer* CreateImageLayer(const AEGP_LayerH& layerH,
-                                  const std::shared_ptr<PAGExportSession>& session) {
+                                         const std::shared_ptr<PAGExportSession>& session) {
   auto layer = new pag::ImageLayer();
   AEGP_ItemH itemH = AEHelper::GetLayerItemH(layerH);
   pag::ID imageID = AEHelper::GetItemID(itemH);
@@ -286,7 +286,7 @@ static pag::ImageLayer* CreateImageLayer(const AEGP_LayerH& layerH,
 }
 
 static pag::ImageLayer* CreateVideoLayer(const AEGP_LayerH& layerH,
-                                  const std::shared_ptr<PAGExportSession>& session) {
+                                         const std::shared_ptr<PAGExportSession>& session) {
   auto layer = new pag::ImageLayer();
   AEGP_ItemH itemH = AEHelper::GetLayerItemH(layerH);
   pag::ID imageID = AEHelper::GetItemID(itemH);
@@ -306,8 +306,8 @@ static pag::ImageLayer* CreateVideoLayer(const AEGP_LayerH& layerH,
   return layer;
 }
 
-static pag::PreComposeLayer* CreatePreComposeLayer(const AEGP_LayerH& layerH,
-                                            const std::shared_ptr<PAGExportSession>& session) {
+static pag::PreComposeLayer* CreatePreComposeLayer(
+    const AEGP_LayerH& layerH, const std::shared_ptr<PAGExportSession>& session) {
   const auto& Suites = AEHelper::GetSuites();
   auto layer = new pag::PreComposeLayer();
 
@@ -337,37 +337,37 @@ static pag::CameraLayer* CreateCameraLayer(const AEGP_LayerH& layerH) {
 }
 
 static pag::Layer* ExportLayer(const std::shared_ptr<PAGExportSession>& session,
-                        const AEGP_LayerH& layerH) {
+                               const AEGP_LayerH& layerH) {
   ExportLayerType layerType = GetLayerType(layerH);
   pag::Layer* layer = nullptr;
   switch (layerType) {
     case ExportLayerType::Solid:
       layer = CreateSolidLayer(layerH);
-    break;
+      break;
     case ExportLayerType::Text:
       layer = CreateTextLayer(session, layerH);
-    break;
+      break;
     case ExportLayerType::Shape:
       layer = CreateShapeLayer(layerH);
-    break;
+      break;
     case ExportLayerType::Image:
       layer = CreateImageLayer(layerH, session);
-    break;
+      break;
     case ExportLayerType::Video:
       layer = CreateVideoLayer(layerH, session);
-    break;
+      break;
     case ExportLayerType::PreCompose:
       layer = CreatePreComposeLayer(layerH, session);
-    break;
+      break;
     case ExportLayerType::Camera:
       layer = CreateCameraLayer(layerH);
-    break;
+      break;
     case ExportLayerType::Null:
       layer = new pag::NullLayer();
-    break;
+      break;
     default:
       layer = new pag::Layer();
-    break;
+      break;
   }
   InitLayer(session, layerH, layer, layerType);
 
