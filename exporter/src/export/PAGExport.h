@@ -2,7 +2,7 @@
 //
 //  Tencent is pleased to support the open source community by making libpag available.
 //
-//  Copyright (C) 2025 THL A29 Limited, a Tencent company. All rights reserved.
+//  Copyright (C) 2025 Tencent. All rights reserved.
 //
 //  Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
 //  except in compliance with the License. You may obtain a copy of the License at
@@ -27,17 +27,23 @@ namespace exporter {
 class PAGExport {
  public:
   static bool ExportFile(const AEGP_ItemH& activeItemH, const std::string& outputPath,
-                         bool enableAudio = true);
-
+                         bool exportAudio = true, bool hardwareEncode = false);
+  static bool ExportFile(PAGExport* pagExport);
   static bool ValidatePAGFile(uint8_t* data, size_t size);
 
-  PAGExport(const AEGP_ItemH& activeItemH, const std::string& outputPath);
-  ~PAGExport() = default;
+  PAGExport(const AEGP_ItemH& activeItemH, const std::string& outputPath, bool exportAudio = true,
+            bool hardwareEncode = false);
+  std::shared_ptr<pag::File> exportAsFile();
 
- private:
-  std::shared_ptr<pag::File> exportPAG(const AEGP_ItemH& activeItemH);
-
+  AEGP_ItemH itemH = nullptr;
   std::shared_ptr<PAGExportSession> session = nullptr;
   ScopedTimeSetter timeSetter = {nullptr, 0};
+
+ private:
+  void addRootComposition();
+  void exportResources(std::vector<pag::Composition*>& compositions);
+  void exportRescaleImages();
+  void exportRescaleBitmapCompositions(std::vector<pag::Composition*>& compositions);
+  void exportRescaleVideoCompositions(std::vector<pag::Composition*>& compositions);
 };
 }  // namespace exporter

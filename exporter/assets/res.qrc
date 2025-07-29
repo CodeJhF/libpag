@@ -18,6 +18,9 @@
         <file>images/tip.png</file>
         <file>images/down-arrow.png</file>
         <file>images/warning.png</file>
+        <file>images/export-error.png</file>
+        <file>images/export-success.png</file>
+        <file>images/export-waiting.png</file>
 
         <!-- qml -->
         <file>qml/AlertDialog.qml</file>
@@ -33,5 +36,11 @@
         <file>qml/PreCompositionItem.qml</file>
         <file>qml/TextLayerItem.qml</file>
         <file>qml/TimeStretchItem.qml</file>
+        <file>qml/ExportComposition.qml</file>
+        <file>qml/ExportCompositions.qml</file>
+        <file>qml/ProgressListView.qml</file>
+
+        <!-- JavaScript -->
+        <file>scripts/GetTextDocument.js</file>
     </qresource>
 </RCC>

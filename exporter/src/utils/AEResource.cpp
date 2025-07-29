@@ -2,7 +2,7 @@
 //
 //  Tencent is pleased to support the open source community by making libpag available.
 //
-//  Copyright (C) 2025 THL A29 Limited, a Tencent company. All rights reserved.
+//  Copyright (C) 2025 Tencent. All rights reserved.
 //
 //  Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
 //  except in compliance with the License. You may obtain a copy of the License at
@@ -17,8 +17,10 @@
 /////////////////////////////////////////////////////////////////////////////////////////////////
 
 #include "AEResource.h"
+#include <QStandardPaths>
 #include <map>
 #include "AEHelper.h"
+#include "StringHelper.h"
 
 namespace exporter {
 
@@ -85,21 +87,23 @@ std::vector<std::shared_ptr<AEResource>> AEResource::getAEResourceList() {
     suites->ProjSuite6()->AEGP_GetProjectByIndex(index, &projectHandle);
     A_char projectName[AEGP_MAX_PROJ_NAME_SIZE];
     suites->ProjSuite6()->AEGP_GetProjectName(projectHandle, projectName);
-    AEGP_ItemH itemHandle = nullptr;
-    suites->ItemSuite6()->AEGP_GetFirstProjItem(projectHandle, &itemHandle);
-    while (itemHandle != nullptr) {
-      A_long id = AEHelper::GetItemID(itemHandle);
+    AEGP_ItemH itemH = nullptr;
+    suites->ItemSuite6()->AEGP_GetFirstProjItem(projectHandle, &itemH);
+    while (itemH != nullptr) {
+      A_long id = AEHelper::GetItemID(itemH);
       if (id != 0) {
         auto item = std::make_shared<AEResource>();
-        auto type = GetAEItemResourceType(itemHandle);
+        auto type = GetAEItemResourceType(itemH);
         if (type != AEResourceType::Unknown) {
           item->type = type;
           item->ID = id;
-          item->name = AEHelper::GetItemName(itemHandle);
-          item->itemH = itemHandle;
+          item->name = AEHelper::GetItemName(itemH);
+          item->itemH = itemH;
+          item->isExportAsBmp =
+              StringHelper::IsEndWidthSuffix(item->name, StringHelper::CompositionBmpSuffix);
           resources.push_back(item);
           resourceMap[id] = item;
-          auto parentID = AEHelper::GetItemParentID(itemHandle);
+          auto parentID = AEHelper::GetItemParentID(itemH);
           auto parentIter = resourceMap.find(parentID);
           if (parentIter != resourceMap.end()) {
             parentIter->second->file.children.push_back(item);
@@ -109,8 +113,8 @@ std::vector<std::shared_ptr<AEResource>> AEResource::getAEResourceList() {
       }
 
       AEGP_ItemH nextItemHandle = nullptr;
-      suites->ItemSuite6()->AEGP_GetNextProjItem(projectHandle, itemHandle, &nextItemHandle);
-      itemHandle = nextItemHandle;
+      suites->ItemSuite6()->AEGP_GetNextProjItem(projectHandle, itemH, &nextItemHandle);
+      itemH = nextItemHandle;
     }
   }
 
@@ -134,6 +138,20 @@ std::vector<std::shared_ptr<AEResource>> AEResource::getAEResourceList() {
   }
 
   return resources;
+}
+
+AEResource::AEResource() {
+  initSavePath();
+}
+
+void AEResource::setSavePath(const std::string& savePath) {
+  this->savePath = savePath;
+  // TODO: Write to marker
+}
+
+void AEResource::initSavePath() {
+  savePath = QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation).toStdString();
+  // TODO: Read form marker
 }
 
 }  // namespace exporter

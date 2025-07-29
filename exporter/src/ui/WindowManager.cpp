@@ -2,7 +2,7 @@
 //
 //  Tencent is pleased to support the open source community by making libpag available.
 //
-//  Copyright (C) 2025 THL A29 Limited, a Tencent company. All rights reserved.
+//  Copyright (C) 2025 Tencent. All rights reserved.
 //
 //  Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
 //  except in compliance with the License. You may obtain a copy of the License at
@@ -17,12 +17,13 @@
 /////////////////////////////////////////////////////////////////////////////////////////////////
 
 #include "WindowManager.h"
+#include <QApplication>
 #include <QFile>
 #include <QQuickStyle>
 #include <QtGui/QFont>
 #include <QtQuick/QQuickWindow>
-#include <QtWidgets/QApplication>
 #include "utils/AEHelper.h"
+#include "utils/StringHelper.h"
 
 namespace exporter {
 
@@ -36,12 +37,12 @@ WindowManager::WindowManager() {
   initializeQtEnvironment();
 }
 
-void WindowManager::showPanelExporterWindow() {
+void WindowManager::showExportPanelWindow() {
   if (app == nullptr) {
     int argc = 0;
     app = std::make_unique<QApplication>(argc, nullptr);
     app->setObjectName("PAG-Exporter");
-    QApplication::setQuitOnLastWindowClosed(false);
+    QGuiApplication::setQuitOnLastWindowClosed(false);
   }
 
   if (configWindow != nullptr && configWindow->isWaitToDestory()) {
@@ -60,6 +61,26 @@ void WindowManager::showPAGConfigWindow() {
 }
 
 void WindowManager::showExportPreviewWindow() {
+}
+
+void WindowManager::showExportWindow() {
+  if (app == nullptr) {
+    int argc = 0;
+    app = std::make_unique<QApplication>(argc, nullptr);
+    app->setObjectName("PAG-Exporter");
+    QApplication::setQuitOnLastWindowClosed(false);
+  }
+
+  if (exportWindow != nullptr && exportWindow->isWaitToDestory()) {
+    qDebug() << "reset exportWindow";
+    exportWindow.reset();
+  }
+
+  if (exportWindow == nullptr) {
+    exportWindow = std::make_unique<ExportWindow>(app.get());
+  }
+  exportWindow->show();
+  app->exec();
 }
 
 void WindowManager::initializeQtEnvironment() {

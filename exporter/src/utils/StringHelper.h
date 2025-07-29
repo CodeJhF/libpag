@@ -2,7 +2,7 @@
 //
 //  Tencent is pleased to support the open source community by making libpag available.
 //
-//  Copyright (C) 2025 THL A29 Limited, a Tencent company. All rights reserved.
+//  Copyright (C) 2025 Tencent. All rights reserved.
 //
 //  Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
 //  except in compliance with the License. You may obtain a copy of the License at
@@ -24,6 +24,8 @@
 #include "pag/types.h"
 
 namespace StringHelper {
+
+extern const std::string CompositionBmpSuffix;
 
 std::string AeMemoryHandleToString(const AEGP_MemHandle& handle);
 
@@ -64,7 +66,8 @@ std::string Utf16ToUtf8(const char16_t* u16str);
 
 std::u16string Utf8ToUtf16(const std::string& u8str);
 
-void ConvertARGBToRGBA(const uint8_t* argb, int width, int height, int srcStride, uint8* rgba,
-                       int dstStride);
+std::string GetJavaScriptFromQRC(const QString& jsPath);
+
+bool IsEndWidthSuffix(const std::string& str, const std::string& suffix);
 
 }  // namespace StringHelper

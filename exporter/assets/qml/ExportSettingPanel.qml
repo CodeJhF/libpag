@@ -181,7 +181,7 @@ PAGWindow {
         anchors.fill: parent
         focus: true
 
-        Keys.onEscapePressed: function(event) {
+        Keys.onEscapePressed: function (event) {
             window.close();
             event.accepted = true;
         }

@@ -228,6 +228,7 @@ ListView {
                                             if (settingColumn.subWindow) {
                                                 settingColumn.subWindow.destroy();
                                                 settingColumn.subWindow = null;
+                                                compositionModel.updateNames();
                                             }
                                         });
                                         settingColumn.subWindow.show();
@@ -257,6 +258,17 @@ ListView {
                             acceptedButtons: Qt.LeftButton
                             cursorShape: Qt.PointingHandCursor
                             onClicked: {
+                                compositionModel.prepareForPreview(row);
+                                let component = Qt.createComponent("qrc:/qml/ExportComposition.qml");
+                                if (component.status === Component.Ready) {
+                                    let progressWindow = component.createObject(parentWindow, {});
+                                    if (progressWindow) {
+                                        progressWindow.closing.connect(function () {
+                                            progressWindow.destroy();
+                                        });
+                                        progressWindow.show();
+                                    }
+                                }
                                 compositionModel.previewComposition(row);
                             }
                         }

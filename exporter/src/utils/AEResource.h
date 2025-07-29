@@ -2,7 +2,7 @@
 //
 //  Tencent is pleased to support the open source community by making libpag available.
 //
-//  Copyright (C) 2025 THL A29 Limited, a Tencent company. All rights reserved.
+//  Copyright (C) 2025 Tencent. All rights reserved.
 //
 //  Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
 //  except in compliance with the License. You may obtain a copy of the License at
@@ -32,6 +32,9 @@ enum class AEResourceType { Unknown, Folder, Composition, Image };
 class AEResource {
  public:
   static std::vector<std::shared_ptr<AEResource>> getAEResourceList();
+
+  AEResource();
+  void setSavePath(const std::string& savePath);
 
   struct FileStructureRelationship {
     AEResource* parent = nullptr;
@@ -72,9 +75,13 @@ class AEResource {
   AEResourceType type = AEResourceType::Unknown;
   A_long ID = -1;
   std::string name = "";
+  std::string savePath = "";
   AEGP_ItemH itemH = nullptr;
   FileStructureRelationship file = {};
   CompositionRelationship composition = {};
+
+ private:
+  void initSavePath();
 };
 
 bool HasCompositionResource();

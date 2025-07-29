@@ -2,7 +2,7 @@
 //
 //  Tencent is pleased to support the open source community by making libpag available.
 //
-//  Copyright (C) 2025 THL A29 Limited, a Tencent company. All rights reserved.
+//  Copyright (C) 2025 Tencent. All rights reserved.
 //
 //  Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
 //  except in compliance with the License. You may obtain a copy of the License at
@@ -20,7 +20,8 @@
 
 #include <string>
 #include <vector>
-#include "config/ExportConfigWindow.h"
+#include "config/ExportWindow.h"
+#include "configPanel/ExportConfigWindow.h"
 
 namespace exporter {
 class WindowManager {
@@ -29,11 +30,13 @@ class WindowManager {
 
   void initializeQtEnvironment();
 
-  void showPanelExporterWindow();
+  void showExportPanelWindow();
 
   void showPAGConfigWindow();
 
   void showExportPreviewWindow();
+
+  void showExportWindow();
 
   bool showWarnings(std::vector<std::string>& infos);
 
@@ -47,6 +50,7 @@ class WindowManager {
 
  private:
   std::unique_ptr<QApplication> app = nullptr;
+  std::unique_ptr<ExportWindow> exportWindow = nullptr;
   std::unique_ptr<ExportConfigWindow> configWindow = nullptr;
   WindowManager();
   ~WindowManager() = default;

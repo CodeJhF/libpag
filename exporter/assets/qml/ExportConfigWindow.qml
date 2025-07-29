@@ -1,4 +1,5 @@
 import QtQuick
+import QtQuick.Window
 import QtQuick.Controls
 
 PAGWindow {
@@ -24,7 +25,6 @@ PAGWindow {
     windowBackgroundColor: "#14141E"
     titlebarBackgroundColor: "#14141E"
     titleFontSize: 14
-    modality: Qt.ApplicationModal
 
     Rectangle {
         id: compositionsContainer
@@ -408,6 +408,17 @@ PAGWindow {
                 acceptedButtons: Qt.LeftButton
                 cursorShape: Qt.PointingHandCursor
                 onPressed: {
+                    let component = Qt.createComponent("qrc:/qml/ExportCompositions.qml");
+                    if (component.status === Component.Ready) {
+                        let progressListWindow = component.createObject(this, {});
+                        if (progressListWindow) {
+                            progressListWindow.closing.connect(function () {
+                                progressListWindow.destroy();
+                            });
+                            window.hide();
+                            progressListWindow.show();
+                        }
+                    }
                     compositionModel.exportSelectedCompositions();
                     window.close();
                 }
@@ -419,14 +430,37 @@ PAGWindow {
         anchors.fill: parent
         focus: true
 
-        Keys.onEscapePressed: function(event) {
+        Keys.onEscapePressed: function (event) {
             window.close();
             event.accepted = true;
+        }
+    }
+
+    Timer {
+        id: raiseTimer
+        interval: 200
+        running: true
+        repeat: true
+        onTriggered: {
+            if (!window.active && window.visible && configWindow.isAEWindowActive()) {
+                window.raise();
+                window.flags |= Qt.WindowStaysOnTopHint;
+            } else {
+                window.flags &= ~Qt.WindowStaysOnTopHint;
+            }
         }
     }
 
     onClosing: function (closeEvent) {
         closeEvent.accepted = true;
         configWindow.onWindowClosing();
+    }
+
+    onVisibleChanged: function (visible) {
+        if (visible) {
+            raiseTimer.start();
+        } else {
+            raiseTimer.stop();
+        }
     }
 }

@@ -48,8 +48,8 @@ Window {
     visible: true
     width: 800
     height: 600
-    color: windowBackgroundColor
-    flags: isWindows ? (Qt.FramelessWindowHint | Qt.Window | Qt.WindowSystemMenuHint | Qt.WindowMinimizeButtonHint | Qt.WindowMaximizeButtonHint) : Qt.Window
+    color: "transparent"
+    flags: isWindows ? (Qt.FramelessWindowHint | Qt.Window | Qt.WindowSystemMenuHint | Qt.WindowMinimizeButtonHint | Qt.WindowMaximizeButtonHint) : (Qt.Window)
 
     Loader {
         active: window.isWindows && window.canResize

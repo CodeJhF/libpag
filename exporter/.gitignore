@@ -1,6 +1,7 @@
 /third_party
 /cmake-build-*
 /vendor/AfterEffectsSDK
+/vendor/TinyXML
 *.cfg
 *.rsrc
 *_bak*

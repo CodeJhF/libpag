@@ -2,7 +2,7 @@
 //
 //  Tencent is pleased to support the open source community by making libpag available.
 //
-//  Copyright (C) 2025 THL A29 Limited, a Tencent company. All rights reserved.
+//  Copyright (C) 2025 Tencent. All rights reserved.
 //
 //  Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
 //  except in compliance with the License. You may obtain a copy of the License at
@@ -16,6 +16,7 @@
 //
 /////////////////////////////////////////////////////////////////////////////////////////////////
 #include "platform/PlatformHelper.h"
+#include <AppKit/AppKit.h>
 #import <Foundation/Foundation.h>
 
 std::string TempFolderPath = "";
@@ -51,6 +52,11 @@ std::string GetTempFolderPath() {
     TempFolderPath = "/tmp";
   }
   return TempFolderPath;
+}
+
+bool IsAEWindowActive() {
+  NSRunningApplication* frontApp = [[NSWorkspace sharedWorkspace] frontmostApplication];
+  return [frontApp.bundleIdentifier containsString:@"com.adobe.AfterEffects"];
 }
 
 }  // namespace exporter

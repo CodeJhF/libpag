@@ -2,7 +2,7 @@
 //
 //  Tencent is pleased to support the open source community by making libpag available.
 //
-//  Copyright (C) 2025 THL A29 Limited, a Tencent company. All rights reserved.
+//  Copyright (C) 2025 Tencent. All rights reserved.
 //
 //  Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
 //  except in compliance with the License. You may obtain a copy of the License at
@@ -562,7 +562,7 @@ std::string AlertInfo::getMessage() {
 }
 
 void AlertInfo::select() {
-  AEHelper::SelectItem(itemH, layerH);
+  AEHelper::SelectLayer(itemH, layerH);
 }
 
 static std::vector<AlertInfo> GetInfoList(std::vector<AlertInfo>& warningList, bool bWarning,
@@ -622,12 +622,8 @@ AlertInfoManager& AlertInfoManager::GetInstance() {
   return instance;
 }
 
-void AlertInfoManager::pushWarning(const std::unordered_map<pag::ID, AEGP_ItemH>& compItemHList,
-                                   const std::unordered_map<pag::ID, AEGP_LayerH>& layerHList,
-                                   AlertInfoType type, pag::ID compId, pag::ID layerId,
-                                   const std::string& addInfo) {
-  auto itemH = GetHandleById(compItemHList, compId);
-  auto layerH = GetHandleById(layerHList, layerId);
+void AlertInfoManager::pushWarning(const AEGP_ItemH& itemH, const AEGP_LayerH& layerH,
+                                   AlertInfoType type, const std::string& addInfo) {
   warningList.emplace_back(AlertInfo(type, itemH, layerH, addInfo));
 }
 

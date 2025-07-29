@@ -2,7 +2,7 @@
 //
 //  Tencent is pleased to support the open source community by making libpag available.
 //
-//  Copyright (C) 2025 THL A29 Limited, a Tencent company. All rights reserved.
+//  Copyright (C) 2025 Tencent. All rights reserved.
 //
 //  Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
 //  except in compliance with the License. You may obtain a copy of the License at
@@ -19,6 +19,7 @@
 #pragma once
 #include <filesystem>
 #include <string>
+
 namespace FileHelper {
 
 std::string ReadTextFile(const std::string& filename);
@@ -35,5 +36,24 @@ bool FileIsExist(const std::string& fileName);
 
 bool WriteToFile(const std::string& filePath, const char* data, std::streamsize size,
                  std::ios::openmode mode = std::ios::out | std::ios::binary);
+
+bool DeleteFile(const std::string& path);
+
+bool CreateDir(const std::string& path);
+
+int ReadFileData(const std::string& filePath, uint8_t* buf, size_t bufSize);
+
+std::string GetFileName(const std::string& filePath);
+
+std::string GetDir(const std::string& filePath);
+
+void OpenPAGFile(const std::string& filePath);
+
+template <typename... Args>
+std::string JoinPaths(const std::string& first, Args&&... args) {
+  std::filesystem::path result = first;
+  (result /= ... /= std::forward<Args>(args));
+  return result.lexically_normal().string();
+}
 
 }  // namespace FileHelper

@@ -5,8 +5,8 @@ import QtQuick.Controls
 Window {
     id: window
 
-    signal accepted()
-    signal rejected()
+    signal accepted
+    signal rejected
 
     width: 400
     height: 200
@@ -116,7 +116,7 @@ Window {
         anchors.fill: parent
         focus: true
 
-        Keys.onEscapePressed: function(event) {
+        Keys.onEscapePressed: function (event) {
             rejected();
             window.close();
             event.accepted = true;

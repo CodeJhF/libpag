@@ -2,7 +2,7 @@
 //
 //  Tencent is pleased to support the open source community by making libpag available.
 //
-//  Copyright (C) 2025 THL A29 Limited, a Tencent company. All rights reserved.
+//  Copyright (C) 2025 Tencent. All rights reserved.
 //
 //  Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
 //  except in compliance with the License. You may obtain a copy of the License at
@@ -16,6 +16,7 @@
 //
 /////////////////////////////////////////////////////////////////////////////////////////////////
 #include "platform/PlatformHelper.h"
+#include <windows.h>
 #include <cstdlib>
 #include <filesystem>
 #include <string>
@@ -67,11 +68,18 @@ std::string GetConfigPath() {
 
 std::string GetTempFolderPath() {
   if (TempFolderPath.empty()) {
-    const auto& suites = AEHelper::GetSuites();
-    auto pluginID = AEHelper::GetPluginID();
-    TempFolderPath = AEHelper::RunScript(suites, pluginID, "Folder.temp.fsName;");
+    TempFolderPath = AEHelper::RunScript("Folder.temp.fsName;");
   }
   return TempFolderPath;
+}
+
+bool IsAEWindowActive() {
+  HWND foreground = GetForegroundWindow();
+  if (!foreground) return false;
+
+  char className[256];
+  GetClassNameA(foreground, className, sizeof(className));
+  return strstr(className, "AE") != nullptr;
 }
 
 }  // namespace exporter

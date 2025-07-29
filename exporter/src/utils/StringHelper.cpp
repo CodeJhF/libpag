@@ -2,7 +2,7 @@
 //
 //  Tencent is pleased to support the open source community by making libpag available.
 //
-//  Copyright (C) 2025 THL A29 Limited, a Tencent company. All rights reserved.
+//  Copyright (C) 2025 Tencent. All rights reserved.
 //
 //  Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
 //  except in compliance with the License. You may obtain a copy of the License at
@@ -17,11 +17,15 @@
 /////////////////////////////////////////////////////////////////////////////////////////////////
 
 #include "StringHelper.h"
+#include <QFile>
+#include <QTextStream>
 #include <iostream>
 #include "AEHelper.h"
 #include "src/base/utils/Log.h"
 
 namespace StringHelper {
+
+const std::string CompositionBmpSuffix = "_bmp";
 
 std::string AeMemoryHandleToString(const AEGP_MemHandle& handle) {
   const auto& suites = AEHelper::GetSuites();
@@ -337,20 +341,28 @@ std::u16string Utf8ToUtf16(const std::string& u8str) {
   return u16str;
 }
 
-void ConvertARGBToRGBA(const uint8_t* argb, int width, int height, int srcStride, uint8* rgba,
-                       int dstStride) {
-  for (int y = 0; y < height; y++) {
-    auto src = argb + srcStride * y;
-    auto dst = rgba + dstStride * y;
-    for (int x = 0; x < width; x++) {
-      dst[0] = src[1];
-      dst[1] = src[2];
-      dst[2] = src[3];
-      dst[3] = src[0];
-      src += 4;
-      dst += 4;
-    }
+std::string GetJavaScriptFromQRC(const QString& jsPath) {
+  QFile jsFile(jsPath);
+  if (!jsFile.open(QIODevice::ReadOnly | QIODevice::Text)) {
+    return "";
   }
+
+  QTextStream in(&jsFile);
+  in.setEncoding(QStringConverter::Encoding::Utf8);
+  QString jsContent = in.readAll();
+  jsFile.close();
+  return jsContent.toStdString();
+}
+
+bool IsEndWidthSuffix(const std::string& str, const std::string& suffix) {
+  if (str.length() < suffix.length()) {
+    return false;
+  }
+
+  std::string newStr = str.substr(str.length() - suffix.length(), suffix.length());
+  std::transform(newStr.begin(), newStr.end(), newStr.begin(), ::tolower);
+
+  return newStr == suffix;
 }
 
 }  // namespace StringHelper

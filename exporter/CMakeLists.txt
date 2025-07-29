@@ -80,7 +80,9 @@ list(APPEND PAG_EXPORTER_THIRD_PARTY_INCLUDES
         ${AE_SDK_PATH}/Resources
         ../third_party/tgfx/include
         ../third_party/tgfx/third_party/json/include
-        vendor/TinyXML)
+        ../third_party/tgfx/third_party/libwebp/src
+        vendor/TinyXML
+        vendor/ffaudio/include)
 
 if (APPLE)
     find_library(COCOA Cocoa REQUIRED)
@@ -101,7 +103,7 @@ if (APPLE)
     list(APPEND libs ${CORE_MEDIA})
     find_library(ICONV_LIBRARIES NAMES iconv libiconv libiconv-2 c)
     list(APPEND libs ${ICONV_LIBRARIES})
-
+    list(APPEND libs ${CMAKE_CURRENT_SOURCE_DIR}/vendor/ffaudio/mac/${ARCH}/libffaudio.dylib)
 elseif (WIN32)
     list(APPEND libs ${CMAKE_CURRENT_SOURCE_DIR}/vendor/ffaudio/win/x64/ffaudio.lib)
 endif ()

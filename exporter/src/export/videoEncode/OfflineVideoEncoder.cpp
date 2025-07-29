@@ -1,0 +1,268 @@
+/////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//  Tencent is pleased to support the open source community by making libpag available.
+//
+//  Copyright (C) 2025 Tencent. All rights reserved.
+//
+//  Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+//  except in compliance with the License. You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+//  unless required by applicable law or agreed to in writing, software distributed under the
+//  license is distributed on an "as is" basis, without warranties or conditions of any kind,
+//  either express or implied. see the license for the specific language governing permissions
+//  and limitations under the license.
+//
+/////////////////////////////////////////////////////////////////////////////////////////////////
+
+#include "OfflineVideoEncoder.h"
+#include <pag/file.h>
+#include <platform/PlatformHelper.h>
+#include <unistd.h>
+#include <QFile>
+#include <QJsonDocument>
+#include <QJsonObject>
+#include <QString>
+
+namespace exporter {
+
+constexpr int SleepUS = 1000;
+constexpr int SleepCount = 100;
+
+static std::string GetH264EncoderToolsFolder() {
+  return FileHelper::JoinPaths(GetRoamingPath(), "H264EncoderTools");
+}
+
+static std::string GetOfflineFolder() {
+  return FileHelper::JoinPaths(GetH264EncoderToolsFolder(), "OffLineFolder");
+}
+
+static bool WriteYUVPlane(uint8_t* data, int stride, int width, int height, FILE* fp) {
+  for (int j = 0; j < height; j++) {
+    auto size = fwrite(data + j * stride, 1, width, fp);
+    if (static_cast<int>(size) != width) {
+      return false;
+    }
+    fflush(fp);
+  }
+  return true;
+}
+
+static bool WriteYUVData(uint8_t* data[4], int stride[4], int width, int height,
+                         const std::string& path) {
+  auto fp = fopen(path.c_str(), "wb");
+  if (fp == nullptr) {
+    return false;
+  }
+  bool ret = WriteYUVPlane(data[0], stride[0], width / 1, height / 1, fp);
+  ret = ret && WriteYUVPlane(data[1], stride[1], width / 2, height / 2, fp);
+  ret = ret && WriteYUVPlane(data[2], stride[2], width / 2, height / 2, fp);
+  fflush(fp);
+  fclose(fp);
+  return ret;
+}
+
+OfflineVideoEncoder::~OfflineVideoEncoder() {
+  std::string inEndFile = FileHelper::JoinPaths(rootPath, "InEnd.txt");
+  writeEndParam(true, true, inEndFile);
+
+  for (int i = 0; i < SleepCount; i++) {
+    bool hasEnd = false;
+    bool earlyExit = false;
+    std::string outEndFile = FileHelper::JoinPaths(rootPath, "OutEnd.txt");
+    bool ret = readEndParam(hasEnd, earlyExit, outEndFile);
+    if (ret && (hasEnd || earlyExit)) {
+      break;
+    }
+    printf("Sleep for ~OfflineVideoEncoder - %d\n", i);
+    usleep(SleepUS);
+  }
+}
+
+bool OfflineVideoEncoder::open(int width, int height, double frameRate, bool hasAlpha,
+                               int maxKeyFrameInterval, int quality) {
+  this->width = width;
+  this->height = height;
+  this->frameRate = frameRate;
+
+  param.width = width;
+  param.height = height;
+  param.frameRate = frameRate;
+  param.hasAlpha = hasAlpha;
+  param.quality = quality;
+  param.maxKeyFrameInterval = maxKeyFrameInterval;
+
+  stride[0] = SIZE_ALIGN(width);
+  stride[1] = SIZE_ALIGN(stride[0] / 2);
+  stride[2] = stride[1];
+  h264Buf.resize(width * height + 1024);
+  data[0].resize(stride[0] * (SIZE_ALIGN(height) / 1), 128);
+  data[1].resize(stride[1] * (SIZE_ALIGN(height) / 2), 128);
+  data[2].resize(stride[2] * (SIZE_ALIGN(height) / 2), 128);
+
+  rootPath = GetOfflineFolder();
+  FileHelper::DeleteFile(rootPath);
+  FileHelper::CreateDir(rootPath);
+  std::string encodeParamFilePath = FileHelper::JoinPaths(rootPath, "EncoderParam.txt");
+  std::string paramStr =
+      QString(
+          R"({ "Width": %d, "Height": %d, "FrameRate": %.2f, "HasAlpha": %d, "MaxKeyFrameInterval": %d, "Quality": %d })")
+          .arg(width)
+          .arg(height)
+          .arg(frameRate)
+          .arg(hasAlpha)
+          .arg(maxKeyFrameInterval)
+          .arg(quality)
+          .toStdString();
+  FileHelper::WriteTextFile(encodeParamFilePath, paramStr);
+
+  std::string toolPath = FileHelper::JoinPaths(GetH264EncoderToolsFolder(), "H264EncoderTools");
+  std::string cmd =
+      QString(R"('%s' '%s' &)").arg(toolPath.data()).arg(GetOfflineFolder().data()).toStdString();
+  system(cmd.data());
+
+  return true;
+}
+
+void OfflineVideoEncoder::getInputFrameBuf(uint8_t* data[], int stride[]) {
+  data[0] = this->data[0].data();
+  data[1] = this->data[1].data();
+  data[2] = this->data[2].data();
+  stride[0] = this->stride[0];
+  stride[1] = this->stride[1];
+  stride[2] = this->stride[2];
+}
+
+int OfflineVideoEncoder::encodeHeaders(uint8_t* header[], int headerSize[]) {
+  for (int i = 0; i < SleepCount; i++) {
+    std::string header0 = FileHelper::JoinPaths(rootPath, "Header-0.dat");
+    std::string header1 = FileHelper::JoinPaths(rootPath, "Header-1.dat");
+    int size0 = FileHelper::ReadFileData(header0, this->header[0].data(), this->header[0].size());
+    int size1 = FileHelper::ReadFileData(header1, this->header[1].data(), this->header[1].size());
+    if (size0 > 0 && size1 > 0) {
+      header[0] = this->header[0].data();
+      header[1] = this->header[1].data();
+      headerSize[0] = size0;
+      headerSize[1] = size1;
+      return 2;
+    }
+    printf("Sleep for encodeHeaders - %d\n", i);
+    usleep(SleepUS);
+  }
+  return 0;
+}
+
+int OfflineVideoEncoder::encodeFrame(uint8_t* data[], int stride[], uint8_t** pOutStream,
+                                     FrameType* pFrameType, int64_t* pOutTimeStamp) {
+  if (data[0] != nullptr) {
+    std::string yuvFile = FileHelper::JoinPaths(rootPath, "YUV-" + std::to_string(frames) + ".yuv");
+    WriteYUVData(data, stride, width, height, yuvFile);
+
+    FrameInfo frameInfo;
+    frameInfo.frameType = *pFrameType;
+    frameInfo.timeStamp = frames;
+    frameInfo.frameSize = width * height * 3 / 2;
+
+    std::string frameInfoFile =
+        FileHelper::JoinPaths(rootPath, "InFrameInfo-" + std::to_string(frames) + ".txt");
+    writeFrameInfo(frameInfo, frameInfoFile);
+    frames++;
+  } else {
+    std::string endFile = FileHelper::JoinPaths(rootPath, "InEnd.txt");
+    writeEndParam(true, false, endFile);
+  }
+
+  for (int i = 0; i < SleepCount; i++) {
+    FrameInfo outFrameInfo;
+    std::string outFrameInfoFile =
+        FileHelper::JoinPaths(rootPath, "OutFrameInfo-" + std::to_string(outFrames) + ".txt");
+    bool ret = readFrameInfo(outFrameInfo, outFrameInfoFile);
+    if (ret) {
+      std::string h264File =
+          FileHelper::JoinPaths(rootPath, "H264-" + std::to_string(outFrames) + ".264");
+      int size = FileHelper::ReadFileData(h264File, h264Buf.data(), h264Buf.size());
+      if (size > 0 && size == outFrameInfo.frameSize) {
+        printf("read frame=%d size = %d outSize = %d\n", outFrames, size, outFrameInfo.frameSize);
+        *pOutStream = h264Buf.data();
+        *pFrameType = outFrameInfo.frameType;
+        *pOutTimeStamp = outFrameInfo.timeStamp;
+        outFrames++;
+        return size;
+      }
+    }
+
+    if (data[0] == nullptr && outFrames < frames) {
+      printf("Sleep for encodeFrame - %d\n", i);
+      usleep(SleepUS);
+    } else {
+      break;
+    }
+  }
+
+  return 0;
+}
+
+bool OfflineVideoEncoder::readEndParam(bool& hasEnd, bool& earlyExit, const std::string& filePath) {
+  QFile file(filePath.data());
+  if (!file.open(QIODevice::ReadOnly)) {
+    return false;
+  }
+
+  QJsonParseError parseError;
+  QJsonDocument doc = QJsonDocument::fromJson(file.readAll(), &parseError);
+  file.close();
+  if (parseError.error != QJsonParseError::NoError) {
+    return false;
+  }
+
+  if (doc.isObject()) {
+    QJsonObject obj = doc.object();
+    hasEnd = obj.value("HasEnd").toInt() == 1;
+    earlyExit = obj.value("EarlyExit").toInt() == 1;
+    return true;
+  }
+  return false;
+}
+
+bool OfflineVideoEncoder::writeEndParam(bool hasEnd, bool earlyExit, const std::string& filePath) {
+  std::string endData = QString(R"({ "HasEnd": %d, "EarlyExit": %d })")
+                            .arg(hasEnd ? 1 : 0)
+                            .arg(earlyExit ? 1 : 0)
+                            .toStdString();
+  return FileHelper::WriteTextFile(filePath, endData) != 0;
+}
+
+bool OfflineVideoEncoder::readFrameInfo(FrameInfo& frameInfo, const std::string& filePath) {
+  QFile file(filePath.data());
+  if (!file.open(QIODevice::ReadOnly)) {
+    return false;
+  }
+
+  QJsonParseError parseError;
+  QJsonDocument doc = QJsonDocument::fromJson(file.readAll(), &parseError);
+  file.close();
+  if (parseError.error != QJsonParseError::NoError) {
+    return false;
+  }
+
+  if (doc.isObject()) {
+    QJsonObject obj = doc.object();
+    frameInfo.frameType = static_cast<FrameType>(obj.value("FrameType").toInt());
+    frameInfo.timeStamp = obj.value("TimeStamp").toInt();
+    frameInfo.frameSize = obj.value("FrameSize").toInt();
+    return true;
+  }
+  return false;
+}
+
+bool OfflineVideoEncoder::writeFrameInfo(const FrameInfo& frameInfo, const std::string& filePath) {
+  std::string frameInfoData = QString(R"({ "FrameType": %d, "TimeStamp": %.0f, "FrameSize": %d })")
+                                  .arg(frameInfo.frameType)
+                                  .arg(static_cast<float>(frameInfo.timeStamp))
+                                  .arg(frameInfo.frameSize)
+                                  .toStdString();
+  return FileHelper::WriteTextFile(filePath, frameInfoData) != 0;
+}
+
+}  // namespace exporter

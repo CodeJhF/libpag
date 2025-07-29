@@ -2,7 +2,7 @@
 //
 //  Tencent is pleased to support the open source community by making libpag available.
 //
-//  Copyright (C) 2025 THL A29 Limited, a Tencent company. All rights reserved.
+//  Copyright (C) 2025 Tencent. All rights reserved.
 //
 //  Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
 //  except in compliance with the License. You may obtain a copy of the License at
@@ -20,26 +20,134 @@
 #include <fstream>
 #include <iostream>
 #include "ExportComposition.h"
+#include "ExportVerify.h"
+#include "layer/ImageBytes.h"
+#include "sequence/AudioSequence.h"
 #include "src/base/utils/Log.h"
 #include "utils/AEHelper.h"
+#include "utils/AETypeTransform.h"
 #include "utils/FileHelper.h"
+#include "utils/UniqueID.h"
+
 namespace exporter {
 
-PAGExport::PAGExport(const AEGP_ItemH& activeItemH, const std::string& outputPath)
-    : session(std::make_shared<PAGExportSession>(outputPath)), timeSetter(activeItemH, -100.0f) {
+static pag::Point GetImageMaxScale(pag::Composition* composition, pag::ID imageID) {
+  if (composition->type() != pag::CompositionType::Vector) {
+    return pag::Point::Zero();
+  }
+
+  pag::Point maxFactor = pag::Point::Zero();
+  for (auto layer : static_cast<pag::VectorComposition*>(composition)->layers) {
+    pag::Point factor = pag::Point::Make(1.0f, 1.0f);
+
+    if (layer->type() != pag::LayerType::Image) {
+      continue;
+    }
+    if (static_cast<pag::ImageLayer*>(layer)->imageBytes->id != imageID) {
+      continue;
+    }
+    if (layer->type() == pag::LayerType::PreCompose) {
+      factor = GetImageMaxScale(static_cast<pag::PreComposeLayer*>(layer)->composition, imageID);
+    }
+
+    auto layerFactor = layer->getMaxScaleFactor();
+    factor.x *= layerFactor.x;
+    factor.y *= layerFactor.y;
+    maxFactor.x = std::max(maxFactor.x, factor.x);
+    maxFactor.y = std::max(maxFactor.y, factor.y);
+  }
+
+  return maxFactor;
+}
+
+static pag::Point GetBitmapCompositionMaxScale(pag::Composition* composition,
+                                               pag::ID compositionID) {
+  if (composition->type() == pag::CompositionType::Bitmap ||
+      composition->type() == pag::CompositionType::Video) {
+    if (composition->id == compositionID) {
+      return pag::Point::Make(1.0f, 1.0f);
+    } else {
+      return pag::Point::Zero();
+    }
+  }
+
+  pag::Point maxFactor = pag::Point::Zero();
+  for (auto layer : static_cast<pag::VectorComposition*>(composition)->layers) {
+    if (layer->type() == pag::LayerType::PreCompose) {
+      auto factor = GetBitmapCompositionMaxScale(
+          static_cast<pag::PreComposeLayer*>(layer)->composition, compositionID);
+      auto layerFactor = layer->getMaxScaleFactor();
+      factor.x *= layerFactor.x;
+      factor.y *= layerFactor.y;
+
+      maxFactor.x = std::max(maxFactor.x, factor.x);
+      maxFactor.y = std::max(maxFactor.y, factor.y);
+    }
+  }
+
+  return maxFactor;
+}
+
+template <typename T>
+static void AdjustCompositionFrameRate(pag::Composition* composition) {
+  if (composition->type() == pag::CompositionType::Vector) {
+    return;
+  }
+  composition->frameRate = 0.0f;
+  for (auto sequence : static_cast<T>(composition)->sequences) {
+    if (composition->frameRate < sequence->frameRate) {
+      composition->frameRate = sequence->frameRate;
+      composition->duration = static_cast<pag::Frame>(sequence->frames.size());
+    }
+  }
+}
+
+template <typename T>
+static void AdjustSequenceCompositionSize(pag::Composition* mainComposition) {
+  mainComposition->width = 0;
+  mainComposition->height = 0;
+  for (auto sequence : static_cast<T>(mainComposition)->sequences) {
+    if (mainComposition->width < sequence->width) {
+      mainComposition->width = sequence->width;
+      mainComposition->height = sequence->height;
+    }
+  }
+}
+
+static void AdjustCompositionSize(std::vector<pag::Composition*>& compositions) {
+  auto mainComposition = compositions[compositions.size() - 1];
+  if (mainComposition->type() == pag::CompositionType::Bitmap) {
+    AdjustSequenceCompositionSize<pag::BitmapComposition*>(mainComposition);
+  } else if (mainComposition->type() == pag::CompositionType::Video) {
+    AdjustSequenceCompositionSize<pag::VideoComposition*>(mainComposition);
+  }
+}
+
+static void ClearLayerName(pag::Composition* composition) {
+  if (composition->type() != pag::CompositionType::Vector) {
+    return;
+  }
+
+  for (auto layer : static_cast<pag::VectorComposition*>(composition)->layers) {
+    layer->name = "";
+    if (layer->type() == pag::LayerType::PreCompose) {
+      auto subCompostion = static_cast<pag::PreComposeLayer*>(layer)->composition;
+      if (subCompostion->type() == pag::CompositionType::Vector) {
+        ClearLayerName(subCompostion);
+      }
+    }
+  }
 }
 
 bool PAGExport::ExportFile(const AEGP_ItemH& activeItemH, const std::string& outputPath,
-                           bool enableAudio) {
+                           bool exportAudio, bool hardwareEncode) {
   bool res = false;
   do {
     if (activeItemH == nullptr || outputPath.empty()) {
       break;
     }
-    PAGExport pagExport(activeItemH, outputPath);
-    pagExport.session->enableAudio = enableAudio;
-
-    auto pagFile = pagExport.exportPAG(activeItemH);
+    PAGExport pagExport(activeItemH, outputPath, exportAudio, hardwareEncode);
+    auto pagFile = pagExport.exportAsFile();
     if (pagFile == nullptr) {
       break;
     }
@@ -63,13 +171,32 @@ bool PAGExport::ExportFile(const AEGP_ItemH& activeItemH, const std::string& out
   return res;
 }
 
-std::shared_ptr<pag::File> PAGExport::exportPAG(const AEGP_ItemH& activeItemH) {
+bool PAGExport::ExportFile(PAGExport* pagExport) {
+  bool res = false;
+  do {
+    auto pagFile = pagExport->exportAsFile();
+    if (pagFile == nullptr) {
+      break;
+    }
 
-  auto id = AEHelper::GetItemId(activeItemH);
-  ScopedAssign<pag::ID> arCI(session->curCompId, id);
-  ExportComposition(session, activeItemH);
+    const auto bytes = pag::Codec::Encode(pagFile);
+    if (bytes->length() == 0) {
+      break;
+    }
+    if (!FileHelper::WriteToFile(pagExport->session->outputPath,
+                                 reinterpret_cast<char*>(bytes->data()),
+                                 static_cast<std::streamsize>(bytes->length()))) {
+      break;
+    }
 
-  return nullptr;
+    if (!ValidatePAGFile(bytes->data(), bytes->length())) {
+      break;
+    }
+
+    res = true;
+  } while (false);
+
+  return res;
 }
 
 bool PAGExport::ValidatePAGFile(uint8_t* data, size_t size) {
@@ -88,6 +215,216 @@ bool PAGExport::ValidatePAGFile(uint8_t* data, size_t size) {
   } while (false);
 
   return res;
+}
+
+PAGExport::PAGExport(const AEGP_ItemH& activeItemH, const std::string& outputPath, bool exportAudio,
+                     bool hardwareEncode)
+    : itemH(activeItemH), session(std::make_shared<PAGExportSession>(activeItemH, outputPath)),
+      timeSetter(activeItemH, -100.0f) {
+  session->exportAudio = exportAudio;
+  session->hardwareEncode = hardwareEncode;
+}
+
+std::shared_ptr<pag::File> PAGExport::exportAsFile() {
+  auto id = AEHelper::GetItemID(itemH);
+  session->setCurrent();
+  ScopedAssign<pag::ID> arCI(session->compID, id);
+
+  ExportComposition(session, itemH);
+  if (session->stopExport) {
+    return nullptr;
+  }
+
+  pag::Codec::InstallReferences(session->compositions);
+  addRootComposition();
+  if (session->stopExport) {
+    return nullptr;
+  }
+
+  auto compositions = session->compositions;
+  if (session->exportAudio && session->configParam.isTagCodeEnable(pag::TagCode::AudioBytes)) {
+    GetAudioSequence(itemH, session->outputPath, compositions[compositions.size() - 1]);
+    CombineAudioMarkers(compositions);
+  }
+  if (session->stopExport) {
+    return nullptr;
+  }
+
+  std::vector<pag::ImageBytes*> images = session->imageBytesList;
+  CheckBeforeExport(session, compositions, images);
+  // TODO: add alertinfo window check
+
+  if (session->stopExport) {
+    return nullptr;
+  }
+
+  exportResources(compositions);
+  if (session->stopExport) {
+    return nullptr;
+  }
+
+  AdjustCompositionSize(compositions);
+  CheckAfterExport(session, compositions);
+  if (session->stopExport) {
+    return nullptr;
+  }
+
+  if (!session->configParam.exportLayerName ||
+      !session->configParam.isTagCodeEnable(pag::TagCode::LayerAttributesV2)) {
+    ClearLayerName(compositions.back());
+  }
+
+  auto pagFile = pag::Codec::VerifyAndMake(compositions, images);
+  if (pagFile == nullptr) {
+    session->pushWarning(AlertInfoType::PAGVerifyError);
+    return nullptr;
+  }
+
+  CheckGraphicsMemory(session, pagFile);
+
+  // TODO: show alertinfo and add markers
+
+  session->unsetCurrent();
+
+  return pagFile;
+}
+
+void PAGExport::addRootComposition() {
+  const auto& Suites = AEHelper::GetSuites();
+  auto* mainComposition = session->compositions[session->compositions.size() - 1];
+  AEGP_CompH compH = AEHelper::GetItemCompH(itemH);
+
+  A_Time workAreaStart = {};
+  A_Time workAreaDuration = {};
+  Suites->CompSuite6()->AEGP_GetCompWorkAreaStart(compH, &workAreaStart);
+  Suites->CompSuite6()->AEGP_GetCompWorkAreaDuration(compH, &workAreaDuration);
+  pag::Frame start = AEHelper::AETimeToTime(workAreaStart, session->frameRate);
+  pag::Frame end = start + AEHelper::AETimeToTime(workAreaDuration, session->frameRate);
+  auto duration = mainComposition->duration;
+  if (start == 0) {
+    if (duration > end) {
+      mainComposition->duration = end;
+    }
+    return;
+  }
+
+  duration = end - start;
+
+  auto rootComposition = new pag::VectorComposition();
+  auto rootLayer = new pag::PreComposeLayer();
+  rootLayer->id = GetLayerUniqueID(session->compositions);
+  rootLayer->transform = new pag::Transform2D();
+  rootLayer->transform->position = new pag::Property<pag::Point>();
+  rootLayer->transform->anchorPoint = new pag::Property<pag::Point>();
+  rootLayer->transform->scale = new pag::Property<pag::Point>();
+  rootLayer->transform->rotation = new pag::Property<float>();
+  rootLayer->transform->opacity = new pag::Property<pag::Opacity>();
+  rootLayer->transform->anchorPoint->value.x = 0;
+  rootLayer->transform->anchorPoint->value.y = 0;
+  rootLayer->transform->position->value.x = 0;
+  rootLayer->transform->position->value.y = 0;
+  rootLayer->transform->scale->value.x = 1.0f;
+  rootLayer->transform->scale->value.y = 1.0f;
+  rootLayer->transform->rotation->value = 0.0f;
+  rootLayer->transform->opacity->value = pag::Opaque;
+  rootLayer->composition = mainComposition;
+  rootLayer->containingComposition = rootComposition;
+  rootLayer->startTime = 0;
+  rootLayer->duration = duration;
+  rootLayer->compositionStartTime = -start;
+
+  rootComposition->layers.push_back(rootLayer);
+  rootComposition->width = mainComposition->width;
+  rootComposition->height = mainComposition->height;
+  rootComposition->duration = duration;
+  rootComposition->frameRate = mainComposition->frameRate;
+  rootComposition->id = GetCompositionUniqueID(session->compositions);
+  rootComposition->backgroundColor = mainComposition->backgroundColor;
+
+  rootComposition->audioBytes = mainComposition->audioBytes;
+  rootComposition->audioMarkers = mainComposition->audioMarkers;
+  rootComposition->audioStartTime = mainComposition->audioStartTime;
+  mainComposition->audioBytes = nullptr;
+  mainComposition->audioMarkers.clear();
+  mainComposition->audioStartTime = pag::ZeroFrame;
+
+  session->compositions.push_back(rootComposition);
+}
+
+void PAGExport::exportResources(std::vector<pag::Composition*>& compositions) {
+  exportRescaleImages();
+  exportRescaleBitmapCompositions(compositions);
+  exportRescaleVideoCompositions(compositions);
+}
+
+void PAGExport::exportRescaleImages() {
+  if (session->imageBytesList.empty()) {
+    return;
+  }
+
+  auto mainComposition = session->compositions[session->compositions.size() - 1];
+  for (size_t index = 0; index < session->imageBytesList.size() && !session->stopExport; index++) {
+    pag::ImageBytes* image = session->imageBytesList[index];
+    bool isVideo = session->imageLayerHList[index].first;
+    AEGP_LayerH layerH = session->imageLayerHList[index].second;
+
+    float factor = 1.0f;
+    if (session->configParam.isTagCodeEnable(pag::TagCode::ImageBytesV2)) {
+      auto point = GetImageMaxScale(mainComposition, image->id);
+      factor = std::max(point.x, point.y);
+      factor *= session->configParam.imagePixelRatio;
+      if (factor > 1.0) {
+        factor = 1.0;
+      }
+    }
+    if (factor > 0.0f) {
+      GetImageBytesActaully(session, image, layerH, isVideo, factor);
+    }
+
+    session->progressModel.addProgress();
+  }
+}
+
+void PAGExport::exportRescaleBitmapCompositions(std::vector<pag::Composition*>& compositions) {
+  auto mainComposition = compositions[compositions.size() - 1];  // get main composition
+  for (auto composition : compositions) {
+    if (session->stopExport) {
+      break;
+    }
+    ScopedAssign<pag::ID> compID(session->compID, composition->id);
+    if (composition->type() == pag::CompositionType::Bitmap) {
+      auto point = GetBitmapCompositionMaxScale(mainComposition, composition->id);
+      float factor = std::max(point.x, point.y);
+      if (factor > 1.0) {
+        factor = 1.0;
+      }
+
+      ExportBitmapCompositionActually(session, static_cast<pag::BitmapComposition*>(composition),
+                                      factor);
+      AdjustCompositionFrameRate<pag::BitmapComposition*>(composition);
+    }
+  }
+}
+
+void PAGExport::exportRescaleVideoCompositions(std::vector<pag::Composition*>& compositions) {
+  auto mainComposition = compositions[compositions.size() - 1];
+  for (auto composition : compositions) {
+    if (session->stopExport) {
+      break;
+    }
+    ScopedAssign<pag::ID> compID(session->compID, composition->id);
+    if (composition->type() == pag::CompositionType::Video) {
+      auto point = GetBitmapCompositionMaxScale(mainComposition, composition->id);
+      float factor = std::max(point.x, point.y);
+      if (factor > 1.0) {
+        factor = 1.0;
+      }
+
+      ExportVideoCompositionActually(session, compositions,
+                                     static_cast<pag::VideoComposition*>(composition), factor);
+      AdjustCompositionFrameRate<pag::VideoComposition*>(composition);
+    }
+  }
 }
 
 }  // namespace exporter
