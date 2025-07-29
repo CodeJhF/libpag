@@ -19,6 +19,7 @@
 #pragma once
 #include <vector>
 #include "ByteArray.h"
+#include "FileHelper.h"
 using namespace exporter;
 
 namespace AEPReader {

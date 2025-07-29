@@ -15,7 +15,7 @@ TabButton {
             text: tabButton.text
             font.pixelSize: 15
             font.family: "PingFang SC"
-            elide: Text.ElideRight
+            elide: Text.ElideMiddle
             color: "#FFFFFF"
             anchors.verticalCenter: parent.verticalCenter
             anchors.horizontalCenter: parent.horizontalCenter

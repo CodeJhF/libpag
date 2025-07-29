@@ -39,6 +39,7 @@
         <file>qml/ExportCompositionProgress.qml</file>
         <file>qml/ExportCompositionsProgress.qml</file>
         <file>qml/ProgressListView.qml</file>
+        <file>qml/ConfigWindow.qml</file>
 
         <!-- JavaScript -->
         <file>scripts/GetTextDocument.js</file>

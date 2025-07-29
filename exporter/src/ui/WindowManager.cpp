@@ -24,6 +24,7 @@
 #include <QtQuick/QQuickWindow>
 #include <memory>
 #include "platform/PlatformHelper.h"
+#include "ConfigModel.h"
 #include "utils/AEHelper.h"
 #include "utils/FileHelper.h"
 #include "utils/StringHelper.h"
@@ -60,6 +61,8 @@ void WindowManager::showExportPanelWindow() {
 }
 
 void WindowManager::showPAGConfigWindow() {
+  auto configModel = std::make_unique<ConfigModel>();
+  configModel->showConfig();
 }
 
 void WindowManager::showExportPreviewWindow() {

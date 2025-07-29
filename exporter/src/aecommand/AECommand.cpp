@@ -60,6 +60,7 @@ A_Err AECommand::OnClickConfig(AEGP_GlobalRefcon /*globalRefcon*/,
     return err;
   }
   *handled = TRUE;
+  WindowManager::GetInstance().showPAGConfigWindow();
   return err;
 }
 
