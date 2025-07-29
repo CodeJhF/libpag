@@ -42,5 +42,8 @@
 
         <!-- JavaScript -->
         <file>scripts/GetTextDocument.js</file>
+
+        <!-- qm -->
+        <file>translation/Chinese.qm</file>
     </qresource>
 </RCC>
