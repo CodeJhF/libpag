@@ -24,11 +24,14 @@
 #include "utils/AEHelper.h"
 
 namespace exporter {
+
 class ExportWindow : public QObject {
+  Q_OBJECT
  public:
   explicit ExportWindow(QApplication* app, QObject* parent = nullptr);
 
   void show();
+  void setOutputPath(const std::string& outputPath);
   bool isWaitToDestory() const;
 
   Q_SLOT void onWindowClosing();
@@ -41,6 +44,8 @@ class ExportWindow : public QObject {
   AEGP_ItemH itemH = nullptr;
   QApplication* app = nullptr;
   QQuickWindow* window = nullptr;
+  std::string outputPath = "";
   std::unique_ptr<QQmlApplicationEngine> engine = nullptr;
 };
+
 }  // namespace exporter

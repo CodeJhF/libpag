@@ -25,8 +25,8 @@
         <!-- qml -->
         <file>qml/AlertDialog.qml</file>
         <file>qml/CompositionListView.qml</file>
-        <file>qml/ExportConfigWindow.qml</file>
-        <file>qml/ExportSettingPanel.qml</file>
+        <file>qml/ExportingPanel.qml</file>
+        <file>qml/CompositionSettingPage.qml</file>
         <file>qml/PAGComboBox.qml</file>
         <file>qml/PAGRectangle.qml</file>
         <file>qml/PAGTabButton.qml</file>
@@ -36,8 +36,8 @@
         <file>qml/PreCompositionItem.qml</file>
         <file>qml/TextLayerItem.qml</file>
         <file>qml/TimeStretchItem.qml</file>
-        <file>qml/ExportComposition.qml</file>
-        <file>qml/ExportCompositions.qml</file>
+        <file>qml/ExportCompositionProgress.qml</file>
+        <file>qml/ExportCompositionsProgress.qml</file>
         <file>qml/ProgressListView.qml</file>
 
         <!-- JavaScript -->

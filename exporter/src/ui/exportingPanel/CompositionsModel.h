@@ -34,7 +34,7 @@ class ExportCompositionData {
   std::shared_ptr<AEResource> resource = nullptr;
 };
 
-class ExportCompositionModel : public QAbstractListModel {
+class CompositionsModel : public QAbstractListModel {
   Q_OBJECT
  public:
   enum class ExportCompositionModelRoles {
@@ -46,7 +46,7 @@ class ExportCompositionModel : public QAbstractListModel {
     LevelRole
   };
 
-  explicit ExportCompositionModel(QObject* parent = nullptr);
+  explicit CompositionsModel(QObject* parent = nullptr);
 
   Q_PROPERTY(bool allSelected READ getAllSelected NOTIFY allSelectedChanged)
   Q_PROPERTY(bool canExport READ getCanExport NOTIFY canExportChanged)

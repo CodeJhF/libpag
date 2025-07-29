@@ -65,18 +65,18 @@ PAGWindow {
                         height: 20
                         anchors.verticalCenter: parent.verticalCenter
                         source: {
-                            if (compositionModel === null) {
+                            if (compositionsModel === null) {
                                 return "";
                             }
 
-                            return compositionModel.allSelected ? "qrc:/images/checkbox-on.png" : "qrc:/images/checkbox-off.png";
+                            return compositionsModel.allSelected ? "qrc:/images/checkbox-on.png" : "qrc:/images/checkbox-off.png";
                         }
 
                         MouseArea {
                             anchors.fill: parent
                             cursorShape: Qt.PointingHandCursor
                             onClicked: {
-                                compositionModel.setAllSelected(!compositionModel.allSelected);
+                                compositionsModel.setAllSelected(!compositionsModel.allSelected);
                             }
                         }
                     }
@@ -141,7 +141,7 @@ PAGWindow {
                             }
 
                             onEditingFinished: {
-                                compositionModel.setSerachText(searchText.text);
+                                compositionsModel.setSerachText(searchText.text);
                             }
 
                             onFocusChanged: function (focus) {
@@ -241,7 +241,7 @@ PAGWindow {
                 id: compositionTableView
                 width: parent.width
                 height: parent.height - header.height - headerDivider.height
-                model: compositionModel === null ? null : compositionModel
+                model: compositionsModel === null ? null : compositionsModel
                 parentWindow: window
             }
         }
@@ -309,10 +309,10 @@ PAGWindow {
             anchors.left: parent.left
             anchors.verticalCenter: parent.verticalCenter
             source: {
-                if (compositionModel === null) {
+                if (compositionsModel === null) {
                     return "";
                 }
-                return compositionModel.exportAudio ? "qrc:/images/checkbox-on.png" : "qrc:/images/checkbox-off.png";
+                return compositionsModel.exportAudio ? "qrc:/images/checkbox-on.png" : "qrc:/images/checkbox-off.png";
             }
 
             MouseArea {
@@ -320,7 +320,7 @@ PAGWindow {
                 acceptedButtons: Qt.LeftButton
                 cursorShape: Qt.PointingHandCursor
                 onPressed: {
-                    compositionModel.exportAudio = !compositionModel.exportAudio;
+                    compositionsModel.exportAudio = !compositionsModel.exportAudio;
                 }
             }
         }
@@ -388,7 +388,7 @@ PAGWindow {
 
             width: 120
             height: parent.height
-            enabled: compositionModel.canExport
+            enabled: compositionsModel.canExport
             color: "#1982EB"
             radius: 2
             anchors.right: parent.right
@@ -408,7 +408,7 @@ PAGWindow {
                 acceptedButtons: Qt.LeftButton
                 cursorShape: Qt.PointingHandCursor
                 onPressed: {
-                    let component = Qt.createComponent("qrc:/qml/ExportCompositions.qml");
+                    let component = Qt.createComponent("qrc:/qml/ExportCompositionsProgress.qml");
                     if (component.status === Component.Ready) {
                         let progressListWindow = component.createObject(this, {});
                         if (progressListWindow) {
@@ -419,7 +419,7 @@ PAGWindow {
                             progressListWindow.show();
                         }
                     }
-                    compositionModel.exportSelectedCompositions();
+                    compositionsModel.exportSelectedCompositions();
                     window.close();
                 }
             }

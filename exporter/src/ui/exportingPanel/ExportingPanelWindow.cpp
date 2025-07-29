@@ -16,14 +16,14 @@
 //
 /////////////////////////////////////////////////////////////////////////////////////////////////
 
-#include "ExportConfigWindow.h"
+#include "ExportingPanelWindow.h"
 #include <platform/PlatformHelper.h>
 #include <QApplication>
 #include <QQmlContext>
 #include <QThread>
 #include <QTimer>
 #include <map>
-#include "ExportCompositionModel.h"
+#include "CompositionsModel.h"
 #include "export/ExportComposition.h"
 #include "src/export/ExportLayer.h"
 #include "utils/AEHelper.h"
@@ -31,27 +31,27 @@
 
 namespace exporter {
 
-ExportConfigWindow::ExportConfigWindow(QApplication* app, QObject* parent)
+ExportingPanelWindow::ExportingPanelWindow(QApplication* app, QObject* parent)
     : QObject(parent), app(app) {
   engine = std::make_unique<QQmlApplicationEngine>(app);
   init();
 }
 
-void ExportConfigWindow::init() {
+void ExportingPanelWindow::init() {
   if (QThread::currentThread() != app->thread()) {
     qCritical() << "Must call init() in main thread";
     return;
   }
 
-  compositionModel = std::make_unique<ExportCompositionModel>(engine.get());
+  compositionsModel = std::make_unique<CompositionsModel>(engine.get());
 
   QQmlContext* context = engine->rootContext();
   QQmlEngine::setObjectOwnership(this, QQmlEngine::CppOwnership);
   context->setContextProperty("configWindow", this);
-  QQmlEngine::setObjectOwnership(compositionModel.get(), QQmlEngine::CppOwnership);
-  context->setContextProperty("compositionModel", compositionModel.get());
+  QQmlEngine::setObjectOwnership(compositionsModel.get(), QQmlEngine::CppOwnership);
+  context->setContextProperty("compositionsModel", compositionsModel.get());
 
-  engine->load(QUrl(QStringLiteral("qrc:/qml/ExportConfigWindow.qml")));
+  engine->load(QUrl(QStringLiteral("qrc:/qml/ExportingPanel.qml")));
 
   window = qobject_cast<QQuickWindow*>(engine->rootObjects().first());
   window->setPersistentGraphics(true);
@@ -59,17 +59,17 @@ void ExportConfigWindow::init() {
   window->setTextRenderType(QQuickWindow::TextRenderType::NativeTextRendering);
 
   resources = AEResource::getAEResourceList();
-  compositionModel->setAEResources(resources);
-  compositionModel->setQmlEngine(engine.get());
+  compositionsModel->setAEResources(resources);
+  compositionsModel->setQmlEngine(engine.get());
 }
 
-void ExportConfigWindow::show() {
+void ExportingPanelWindow::show() {
   if (window != nullptr) {
     window->show();
   }
 }
 
-ExportCompositionInfoModel* ExportConfigWindow::getCompositionInfoModel(int row) {
+ExportCompositionInfoModel* ExportingPanelWindow::getCompositionInfoModel(int row) {
   if (window != nullptr) {
     const auto& resource = resources[row];
     A_long id = resource->ID;
@@ -83,14 +83,14 @@ ExportCompositionInfoModel* ExportConfigWindow::getCompositionInfoModel(int row)
   return nullptr;
 }
 
-ExportFrameImageProvider* ExportConfigWindow::getImageProvider(A_long ID) {
+ExportFrameImageProvider* ExportingPanelWindow::getImageProvider(A_long ID) {
   if (frameImageProviderMap.find(ID) == frameImageProviderMap.end()) {
     return nullptr;
   }
   return frameImageProviderMap[ID];
 }
 
-ExportTextLayerModel* ExportConfigWindow::getTextLayerModel(int row) {
+ExportTextLayerModel* ExportingPanelWindow::getTextLayerModel(int row) {
   const auto& resource = resources[row];
   A_long id = resource->ID;
   auto iter = textLayerModelMap.find(id);
@@ -102,7 +102,7 @@ ExportTextLayerModel* ExportConfigWindow::getTextLayerModel(int row) {
   return nullptr;
 }
 
-ExportImageLayerModel* ExportConfigWindow::getImageLayerModel(int row) {
+ExportImageLayerModel* ExportingPanelWindow::getImageLayerModel(int row) {
   const auto& resource = resources[row];
   A_long id = resource->ID;
   auto iter = imageLayerModelMap.find(id);
@@ -114,7 +114,7 @@ ExportImageLayerModel* ExportConfigWindow::getImageLayerModel(int row) {
   return nullptr;
 }
 
-ExportTimeStretchModel* ExportConfigWindow::getTimeStretchModel(int row) {
+ExportTimeStretchModel* ExportingPanelWindow::getTimeStretchModel(int row) {
   const auto& resource = resources[row];
   A_long id = resource->ID;
   auto iter = timeStretchModelMap.find(id);
@@ -126,7 +126,7 @@ ExportTimeStretchModel* ExportConfigWindow::getTimeStretchModel(int row) {
   return nullptr;
 }
 
-void ExportConfigWindow::updateCompositionSetting(int row) {
+void ExportingPanelWindow::updateCompositionSetting(int row) {
   if (window == nullptr) {
     return;
   }
@@ -168,12 +168,12 @@ void ExportConfigWindow::updateCompositionSetting(int row) {
           &ExportTextLayerModel::onCompositionExportAsBmpChanged);
 }
 
-Q_INVOKABLE bool ExportConfigWindow::isAEWindowActive() {
+Q_INVOKABLE bool ExportingPanelWindow::isAEWindowActive() {
   return IsAEWindowActive();
 }
 
-void ExportConfigWindow::viewLayers(const std::shared_ptr<AEResource>& resource,
-                                    const std::unordered_map<pag::ID, AEGP_LayerH>& layerHMap) {
+void ExportingPanelWindow::viewLayers(const std::shared_ptr<AEResource>& resource,
+                                      const std::unordered_map<pag::ID, AEGP_LayerH>& layerHMap) {
   if (!resource->composition.children.empty() || !resource->composition.textLayers.empty() ||
       !resource->composition.imageLayers.empty()) {
     return;
@@ -225,11 +225,12 @@ void ExportConfigWindow::viewLayers(const std::shared_ptr<AEResource>& resource,
   }
 }
 
-bool ExportConfigWindow::isWaitToDestory() const {
+bool ExportingPanelWindow::isWaitToDestory() const {
   return waitToDestory;
 }
 
-void ExportConfigWindow::onWindowClosing() {
+void ExportingPanelWindow::onWindowClosing() {
+  qDebug() << "ExportingPanelWindow::onWindowClosing";
   if (window != nullptr) {
     window->hide();
   }

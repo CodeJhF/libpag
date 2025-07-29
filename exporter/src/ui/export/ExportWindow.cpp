@@ -36,18 +36,20 @@ void ExportWindow::show() {
   if (itemH == nullptr) {
     return;
   }
-  std::string filePath = getOutputPath();
-  if (filePath.empty()) {
+  if (outputPath.empty()) {
+    outputPath = getOutputPath();
+  }
+  if (outputPath.empty()) {
     return;
   }
 
-  auto* pagExport = new PAGExport(itemH, filePath, true);
+  auto* pagExport = new PAGExport(itemH, outputPath, true);
 
   QQmlContext* context = engine->rootContext();
-  context->setContextProperty("configWindow", this);
+  context->setContextProperty("exportWindow", this);
   context->setContextProperty("progressModel", &pagExport->session->progressModel);
 
-  engine->load(QUrl(QStringLiteral("qrc:/qml/ExportComposition.qml")));
+  engine->load(QUrl(QStringLiteral("qrc:/qml/ExportCompositionProgress.qml")));
   window = qobject_cast<QQuickWindow*>(engine->rootObjects().first());
   window->setPersistentGraphics(true);
   window->setPersistentSceneGraph(true);
@@ -62,7 +64,11 @@ void ExportWindow::show() {
   }
   context->setContextProperty("progressModel", nullptr);
   delete pagExport;
-  FileHelper::OpenPAGFile(filePath);
+  FileHelper::OpenPAGFile(outputPath);
+}
+
+void ExportWindow::setOutputPath(const std::string& outputPath) {
+  this->outputPath = outputPath;
 }
 
 bool ExportWindow::isWaitToDestory() const {

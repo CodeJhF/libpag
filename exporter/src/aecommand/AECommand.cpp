@@ -100,6 +100,7 @@ A_Err AECommand::OnClickPreview(AEGP_GlobalRefcon /*globalRefcon*/,
     return err;
   }
   *handled = TRUE;
+  WindowManager::GetInstance().showExportPreviewWindow();
   return err;
 }
 

@@ -20,8 +20,8 @@
 
 #include <string>
 #include <vector>
-#include "config/ExportWindow.h"
-#include "configPanel/ExportConfigWindow.h"
+#include "export/ExportWindow.h"
+#include "exportingPanel/ExportingPanelWindow.h"
 
 namespace exporter {
 class WindowManager {
@@ -51,7 +51,8 @@ class WindowManager {
  private:
   std::unique_ptr<QApplication> app = nullptr;
   std::unique_ptr<ExportWindow> exportWindow = nullptr;
-  std::unique_ptr<ExportConfigWindow> configWindow = nullptr;
+  std::unique_ptr<ExportWindow> previewWindow = nullptr;
+  std::unique_ptr<ExportingPanelWindow> exportingPanelWindow = nullptr;
   WindowManager();
   ~WindowManager() = default;
 };

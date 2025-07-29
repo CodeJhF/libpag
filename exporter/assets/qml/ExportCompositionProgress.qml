@@ -84,6 +84,11 @@ PAGWindow {
         }
     }
 
+    onClosing: function (closeEvent) {
+        closeEvent.accepted = true;
+        exportWindow.onWindowClosing();
+    }
+
     Connections {
         target: progressModel || null
         function onExportFinished() {

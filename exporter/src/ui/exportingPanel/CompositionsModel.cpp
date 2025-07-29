@@ -16,24 +16,23 @@
 //
 /////////////////////////////////////////////////////////////////////////////////////////////////
 
-#include "ExportCompositionModel.h"
+#include "CompositionsModel.h"
 #include <QQmlContext>
 #include <QStandardPaths>
 #include <QUrl>
 #include <unordered_set>
-#include "ExportConfigWindow.h"
+#include "ExportingPanelWindow.h"
 #include "export/PAGExport.h"
 #include "platform/PlatformHelper.h"
 #include "utils/FileHelper.h"
 
 namespace exporter {
 
-ExportCompositionModel::ExportCompositionModel(QObject* parent) : QAbstractListModel(parent) {
+CompositionsModel::CompositionsModel(QObject* parent) : QAbstractListModel(parent) {
   progressListModel = std::make_unique<ProgressListModel>();
 }
 
-void ExportCompositionModel::setAEResources(
-    const std::vector<std::shared_ptr<AEResource>>& resources) {
+void CompositionsModel::setAEResources(const std::vector<std::shared_ptr<AEResource>>& resources) {
   this->resources = resources;
   compositions.clear();
   for (const auto& resource : resources) {
@@ -48,7 +47,7 @@ void ExportCompositionModel::setAEResources(
   endResetModel();
 }
 
-void ExportCompositionModel::setQmlEngine(QQmlEngine* engine) {
+void CompositionsModel::setQmlEngine(QQmlEngine* engine) {
   this->engine = engine;
   if (engine != nullptr) {
     QQmlContext* context = engine->rootContext();
@@ -56,19 +55,19 @@ void ExportCompositionModel::setQmlEngine(QQmlEngine* engine) {
   }
 }
 
-bool ExportCompositionModel::getAllSelected() const {
+bool CompositionsModel::getAllSelected() const {
   return selectedNum == allSelectedNum;
 }
 
-bool ExportCompositionModel::getCanExport() const {
+bool CompositionsModel::getCanExport() const {
   return selectedNum > 0;
 }
 
-bool ExportCompositionModel::getExportAudio() const {
+bool CompositionsModel::getExportAudio() const {
   return exportAudio;
 }
 
-void ExportCompositionModel::setIsSelected(int index, bool isSelected) {
+void CompositionsModel::setIsSelected(int index, bool isSelected) {
   if (index < 0 || static_cast<size_t>(index) >= compositions.size()) {
     return;
   }
@@ -84,7 +83,7 @@ void ExportCompositionModel::setIsSelected(int index, bool isSelected) {
   Q_EMIT canExportChanged(getCanExport());
 }
 
-void ExportCompositionModel::setIsUnfold(int index, bool isUnfold) {
+void CompositionsModel::setIsUnfold(int index, bool isUnfold) {
   if (index < 0 || static_cast<size_t>(index) >= compositions.size()) {
     return;
   }
@@ -124,7 +123,7 @@ void ExportCompositionModel::setIsUnfold(int index, bool isUnfold) {
   endResetModel();
 }
 
-void ExportCompositionModel::setSavePath(int index, const QString& savePath) {
+void CompositionsModel::setSavePath(int index, const QString& savePath) {
   if (index < 0 || static_cast<size_t>(index) >= compositions.size()) {
     return;
   }
@@ -138,13 +137,13 @@ void ExportCompositionModel::setSavePath(int index, const QString& savePath) {
                      {static_cast<int>(ExportCompositionModelRoles::SavePathRole)});
 }
 
-void ExportCompositionModel::setAllSelected(bool allSelected) {
+void CompositionsModel::setAllSelected(bool allSelected) {
   for (size_t index = 0; index < compositions.size(); index++) {
     setIsSelected(static_cast<int>(index), allSelected);
   }
 }
 
-void ExportCompositionModel::setSerachText(const QString& searchText) {
+void CompositionsModel::setSerachText(const QString& searchText) {
   compositions.clear();
   for (const auto& resource : resources) {
     if (resource->name.find(searchText.toStdString()) == std::string::npos) {
@@ -161,12 +160,12 @@ void ExportCompositionModel::setSerachText(const QString& searchText) {
   endResetModel();
 }
 
-void ExportCompositionModel::setExportAudio(bool exportAudio) {
+void CompositionsModel::setExportAudio(bool exportAudio) {
   this->exportAudio = exportAudio;
   Q_EMIT exportAudioChanged(exportAudio);
 }
 
-void ExportCompositionModel::exportSelectedCompositions() {
+void CompositionsModel::exportSelectedCompositions() {
   progressListModel->clearSessions();
   std::vector<PAGExport*> pagExports = {};
   std::vector<std::shared_ptr<AEResource>> exportResources = {};
@@ -196,7 +195,7 @@ void ExportCompositionModel::exportSelectedCompositions() {
   }
 }
 
-void ExportCompositionModel::prepareForPreview(int row) {
+void CompositionsModel::prepareForPreview(int row) {
   if (row >= static_cast<int>(compositions.size())) {
     return;
   }
@@ -208,7 +207,7 @@ void ExportCompositionModel::prepareForPreview(int row) {
   context->setContextProperty("progressModel", &pagExport->session->progressModel);
 }
 
-void ExportCompositionModel::previewComposition(int row) {
+void CompositionsModel::previewComposition(int row) {
   if (row >= static_cast<int>(compositions.size())) {
     return;
   }
@@ -226,20 +225,20 @@ void ExportCompositionModel::previewComposition(int row) {
   FileHelper::OpenPAGFile(pagExport->session->outputPath);
 }
 
-void ExportCompositionModel::updateNames() {
+void CompositionsModel::updateNames() {
   Q_EMIT dataChanged(index(0, 0), index(rowCount({}) - 1, 0),
                      {static_cast<int>(ExportCompositionModelRoles::NameRole)});
 }
 
-int ExportCompositionModel::rowCount(const QModelIndex&) const {
+int CompositionsModel::rowCount(const QModelIndex&) const {
   return static_cast<int>(compositions.size());
 }
 
-int ExportCompositionModel::columnCount(const QModelIndex&) const {
+int CompositionsModel::columnCount(const QModelIndex&) const {
   return 1;
 }
 
-QVariant ExportCompositionModel::data(const QModelIndex& index, int role) const {
+QVariant CompositionsModel::data(const QModelIndex& index, int role) const {
   if (!index.isValid()) {
     return {};
   }
@@ -270,7 +269,7 @@ QVariant ExportCompositionModel::data(const QModelIndex& index, int role) const 
   }
 }
 
-void ExportCompositionModel::updateCompositionLevel() {
+void CompositionsModel::updateCompositionLevel() {
   for (const auto& composition : compositions) {
     int level = 0;
     auto* parent = composition->resource->file.parent;
@@ -282,7 +281,7 @@ void ExportCompositionModel::updateCompositionLevel() {
   }
 }
 
-void ExportCompositionModel::updateAllSelectedNum() {
+void CompositionsModel::updateAllSelectedNum() {
   selectedNum = 0;
   allSelectedNum = 0;
   for (const auto& composition : compositions) {
@@ -296,7 +295,7 @@ void ExportCompositionModel::updateAllSelectedNum() {
   Q_EMIT allSelectedChanged(getAllSelected());
 }
 
-QHash<int, QByteArray> ExportCompositionModel::roleNames() const {
+QHash<int, QByteArray> CompositionsModel::roleNames() const {
   static QHash<int, QByteArray> roles = {
       {static_cast<int>(ExportCompositionModelRoles::NameRole), "name"},
       {static_cast<int>(ExportCompositionModelRoles::SavePathRole), "savePath"},

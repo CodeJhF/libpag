@@ -209,7 +209,7 @@ ListView {
                             cursorShape: Qt.PointingHandCursor
 
                             onClicked: {
-                                let component = Qt.createComponent("qrc:/qml/ExportSettingPanel.qml");
+                                let component = Qt.createComponent("qrc:/qml/CompositionSettingPage.qml");
                                 if (component.status === Component.Ready) {
                                     configWindow.updateCompositionSetting(row);
                                     let textLayerModel = configWindow.getTextLayerModel(row);
@@ -228,7 +228,7 @@ ListView {
                                             if (settingColumn.subWindow) {
                                                 settingColumn.subWindow.destroy();
                                                 settingColumn.subWindow = null;
-                                                compositionModel.updateNames();
+                                                compositionsModel.updateNames();
                                             }
                                         });
                                         settingColumn.subWindow.show();
@@ -258,8 +258,8 @@ ListView {
                             acceptedButtons: Qt.LeftButton
                             cursorShape: Qt.PointingHandCursor
                             onClicked: {
-                                compositionModel.prepareForPreview(row);
-                                let component = Qt.createComponent("qrc:/qml/ExportComposition.qml");
+                                compositionsModel.prepareForPreview(row);
+                                let component = Qt.createComponent("qrc:/qml/ExportCompositionProgress.qml");
                                 if (component.status === Component.Ready) {
                                     let progressWindow = component.createObject(parentWindow, {});
                                     if (progressWindow) {
@@ -269,7 +269,7 @@ ListView {
                                         progressWindow.show();
                                     }
                                 }
-                                compositionModel.previewComposition(row);
+                                compositionsModel.previewComposition(row);
                             }
                         }
                     }

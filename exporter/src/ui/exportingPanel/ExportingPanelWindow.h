@@ -21,8 +21,7 @@
 #include <QApplication>
 #include <QQmlApplicationEngine>
 #include <QQuickWindow>
-#include "ExportCompositionModel.h"
-#include "ProgressListModel.h"
+#include "CompositionsModel.h"
 #include "settings/ExportCompositionInfoModel.h"
 #include "settings/ExportFrameImageProvider.h"
 #include "settings/ExportImageLayerModel.h"
@@ -33,10 +32,10 @@
 
 namespace exporter {
 
-class ExportConfigWindow : public QObject {
+class ExportingPanelWindow : public QObject {
   Q_OBJECT
  public:
-  explicit ExportConfigWindow(QApplication* app, QObject* parent = nullptr);
+  explicit ExportingPanelWindow(QApplication* app, QObject* parent = nullptr);
 
   void show();
   void viewLayers(const std::shared_ptr<AEResource>& resource,
@@ -59,7 +58,7 @@ class ExportConfigWindow : public QObject {
   QApplication* app = nullptr;
   QQuickWindow* window = nullptr;
   std::unique_ptr<QQmlApplicationEngine> engine = nullptr;
-  std::unique_ptr<ExportCompositionModel> compositionModel = nullptr;
+  std::unique_ptr<CompositionsModel> compositionsModel = nullptr;
   std::vector<std::shared_ptr<AEResource>> resources = {};
   std::map<A_long, std::shared_ptr<PAGExportSession>> sessionMap = {};
   std::map<A_long, std::unique_ptr<ExportTextLayerModel>> textLayerModelMap = {};

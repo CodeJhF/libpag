@@ -22,7 +22,10 @@
 #include <QQuickStyle>
 #include <QtGui/QFont>
 #include <QtQuick/QQuickWindow>
+#include <memory>
+#include "platform/PlatformHelper.h"
 #include "utils/AEHelper.h"
+#include "utils/FileHelper.h"
 #include "utils/StringHelper.h"
 
 namespace exporter {
@@ -45,15 +48,14 @@ void WindowManager::showExportPanelWindow() {
     QGuiApplication::setQuitOnLastWindowClosed(false);
   }
 
-  if (configWindow != nullptr && configWindow->isWaitToDestory()) {
-    qDebug() << "reset configWindow";
-    configWindow.reset();
+  if (exportingPanelWindow != nullptr && exportingPanelWindow->isWaitToDestory()) {
+    exportingPanelWindow.reset();
   }
 
-  if (configWindow == nullptr) {
-    configWindow = std::make_unique<ExportConfigWindow>(app.get());
+  if (exportingPanelWindow == nullptr) {
+    exportingPanelWindow = std::make_unique<ExportingPanelWindow>(app.get());
   }
-  configWindow->show();
+  exportingPanelWindow->show();
   app->exec();
 }
 
@@ -61,6 +63,23 @@ void WindowManager::showPAGConfigWindow() {
 }
 
 void WindowManager::showExportPreviewWindow() {
+  if (app == nullptr) {
+    int argc = 0;
+    app = std::make_unique<QApplication>(argc, nullptr);
+    app->setObjectName("PAG-Exporter");
+    QGuiApplication::setQuitOnLastWindowClosed(false);
+  }
+  if (previewWindow != nullptr && previewWindow->isWaitToDestory()) {
+    previewWindow.reset();
+  }
+
+  if (previewWindow == nullptr) {
+    previewWindow = std::make_unique<ExportWindow>(app.get());
+  }
+  std::string outputPath = FileHelper::JoinPaths(GetTempFolderPath(), ".previewTmp.pag");
+  previewWindow->setOutputPath(outputPath);
+  previewWindow->show();
+  app->exec();
 }
 
 void WindowManager::showExportWindow() {
@@ -72,7 +91,6 @@ void WindowManager::showExportWindow() {
   }
 
   if (exportWindow != nullptr && exportWindow->isWaitToDestory()) {
-    qDebug() << "reset exportWindow";
     exportWindow.reset();
   }
 
