@@ -23,6 +23,7 @@ Rectangle {
             font.pixelSize: 14
             font.family: "PingFang SC"
             elide: Text.ElideRight
+            horizontalAlignment: Text.AlignHCenter
             color: "#FFFFFF"
             anchors.left: parent.left
             anchors.leftMargin: 12
@@ -182,24 +183,31 @@ Rectangle {
                     color: "#FFFFFF"
                     anchors.left: layerNumber.right
                     anchors.leftMargin: 12
-                    anchors.right: isEditableCheckBox.left
+                    anchors.right: isEditableRectangle.left
                     anchors.verticalCenter: parent.verticalCenter
                 }
 
-                Image {
-                    id: isEditableCheckBox
-                    width: 20
-                    height: 20
+                Rectangle {
+                    id: isEditableRectangle
+                    width: 100
+                    height: parent.height
                     anchors.right: parent.right
-                    anchors.rightMargin: 12
-                    anchors.verticalCenter: parent.verticalCenter
-                    source: isEditable ? "qrc:/images/checkbox-on.png" : "qrc:/images/checkbox-off.png"
+                    color: "transparent"
 
-                    MouseArea {
-                        anchors.fill: parent
-                        cursorShape: Qt.PointingHandCursor
-                        onClicked: {
-                            model.setIsEditable(row, !isEditable);
+                    Image {
+                        id: isEditableCheckBox
+                        width: 20
+                        height: 20
+                        anchors.verticalCenter: parent.verticalCenter
+                        anchors.horizontalCenter: parent.horizontalCenter
+                        source: isEditable ? "qrc:/images/checkbox-on.png" : "qrc:/images/checkbox-off.png"
+
+                        MouseArea {
+                            anchors.fill: parent
+                            cursorShape: Qt.PointingHandCursor
+                            onClicked: {
+                                model.setIsEditable(row, !isEditable);
+                            }
                         }
                     }
                 }

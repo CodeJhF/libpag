@@ -17,29 +17,32 @@
 /////////////////////////////////////////////////////////////////////////////////////////////////
 
 #pragma once
-
-#include <QApplication>
 #include <QQmlApplicationEngine>
 #include <QQuickWindow>
+#include <QVariantMap>
+#include "config/ConfigParam.h"
 #include "ui/BaseWindow.h"
-#include "utils/AEHelper.h"
 
 namespace exporter {
-
-class ExportWindow : public BaseWindow {
+class ConfigModel : public BaseWindow {
   Q_OBJECT
- public:
-  explicit ExportWindow(QApplication* app, QObject* parent = nullptr);
 
-  void show() override;
-  void setOutputPath(const std::string& outputPath);
+ public:
+  explicit ConfigModel(QApplication* app, QObject* parent = nullptr);
+
+  void initConfigWindow();
+
+  Q_INVOKABLE void saveConfig();
+  Q_INVOKABLE void resetToDefault();
+  Q_INVOKABLE void setLanguage(int value);
+  Q_INVOKABLE void updateConfigFromQML(const QVariantMap& configData);
+
+  Q_INVOKABLE QVariantMap getDefaultConfig() const;
+  Q_INVOKABLE QVariantMap getCurrentConfig() const;
 
  private:
-  std::string getOutputPath();
-  void init();
+  static QVariantMap ConfigParamToVariantMap(const ConfigParam& config);
 
-  AEGP_ItemH itemH = nullptr;
-  std::string outputPath = "";
+  ConfigParam currentConfig;
 };
-
 }  // namespace exporter

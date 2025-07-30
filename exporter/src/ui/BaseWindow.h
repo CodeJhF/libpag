@@ -18,28 +18,28 @@
 
 #pragma once
 
-#include <QApplication>
 #include <QQmlApplicationEngine>
 #include <QQuickWindow>
-#include "ui/BaseWindow.h"
-#include "utils/AEHelper.h"
+#include "config/ConfigParam.h"
 
 namespace exporter {
 
-class ExportWindow : public BaseWindow {
+class BaseWindow : public QObject {
   Q_OBJECT
  public:
-  explicit ExportWindow(QApplication* app, QObject* parent = nullptr);
+  explicit BaseWindow(QApplication* app, QObject* parent = nullptr);
 
-  void show() override;
-  void setOutputPath(const std::string& outputPath);
+  virtual void show();
+  void switchLanguage();
+  virtual bool isWaitToDestory() const;
+  Q_SLOT virtual void onWindowClosing();
+
+  QApplication* app = nullptr;
+  QQuickWindow* window = nullptr;
+  std::unique_ptr<QQmlApplicationEngine> engine = nullptr;
 
  private:
-  std::string getOutputPath();
-  void init();
-
-  AEGP_ItemH itemH = nullptr;
-  std::string outputPath = "";
+  bool waitToDestory = false;
 };
 
 }  // namespace exporter

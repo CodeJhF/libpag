@@ -9,7 +9,7 @@ PAGWindow {
 
     property int windowHeight: 568
 
-    title: "PAG Config"
+    title: qsTr("PAG Config")
     width: windowWidth
     height: windowHeight
     minimumWidth: windowWidth
@@ -31,6 +31,11 @@ PAGWindow {
         id: dummyFocusItem
         visible: false
         focus: false
+    }
+
+    onClosing: function (closeEvent) {
+        closeEvent.accepted = true;
+        configModel.onWindowClosing();
     }
 
     Component.onCompleted: {

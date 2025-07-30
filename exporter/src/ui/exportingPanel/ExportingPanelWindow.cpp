@@ -32,8 +32,7 @@
 namespace exporter {
 
 ExportingPanelWindow::ExportingPanelWindow(QApplication* app, QObject* parent)
-    : QObject(parent), app(app) {
-  engine = std::make_unique<QQmlApplicationEngine>(app);
+    : BaseWindow(app, parent) {
   init();
 }
 
@@ -61,12 +60,6 @@ void ExportingPanelWindow::init() {
   resources = AEResource::getAEResourceList();
   compositionsModel->setAEResources(resources);
   compositionsModel->setQmlEngine(engine.get());
-}
-
-void ExportingPanelWindow::show() {
-  if (window != nullptr) {
-    window->show();
-  }
 }
 
 ExportCompositionInfoModel* ExportingPanelWindow::getCompositionInfoModel(int row) {
@@ -223,18 +216,6 @@ void ExportingPanelWindow::viewLayers(const std::shared_ptr<AEResource>& resourc
   for (const auto& child : resource->composition.children) {
     viewLayers(child, layerHMap);
   }
-}
-
-bool ExportingPanelWindow::isWaitToDestory() const {
-  return waitToDestory;
-}
-
-void ExportingPanelWindow::onWindowClosing() {
-  qDebug() << "ExportingPanelWindow::onWindowClosing";
-  if (window != nullptr) {
-    window->hide();
-  }
-  waitToDestory = true;
 }
 
 }  // namespace exporter

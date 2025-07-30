@@ -21,10 +21,10 @@
 #include <map>
 #include <memory>
 #include <string>
-#include "../Config/ConfigParam.h"
 #include "AEGP_SuiteHandler.h"
 #include "AE_GeneralPlug.h"
 #include "AlertInfo.h"
+#include "config/ConfigParam.h"
 #include "pag/file.h"
 #include "pag/types.h"
 #include "ui/ProgressModel.h"

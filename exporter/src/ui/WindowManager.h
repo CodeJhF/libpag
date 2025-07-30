@@ -20,10 +20,12 @@
 
 #include <string>
 #include <vector>
+#include "config/ConfigModel.h"
 #include "export/ExportWindow.h"
 #include "exportingPanel/ExportingPanelWindow.h"
 
 namespace exporter {
+
 class WindowManager {
  public:
   static WindowManager& GetInstance();
@@ -49,11 +51,16 @@ class WindowManager {
   WindowManager& operator=(WindowManager&&) = delete;
 
  private:
+  void init();
+
+  std::unique_ptr<QTranslator> translator = nullptr;
   std::unique_ptr<QApplication> app = nullptr;
+  std::unique_ptr<ConfigModel> configWindow = nullptr;
   std::unique_ptr<ExportWindow> exportWindow = nullptr;
   std::unique_ptr<ExportWindow> previewWindow = nullptr;
   std::unique_ptr<ExportingPanelWindow> exportingPanelWindow = nullptr;
   WindowManager();
   ~WindowManager() = default;
 };
+
 }  // namespace exporter

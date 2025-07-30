@@ -71,6 +71,7 @@ Rectangle {
         anchors.rightMargin: 10
         anchors.verticalCenter: parent.verticalCenter
         clip: true
+        opacity: parent.enabled ? 1.0 : 0.5
     }
 
     TextInput {

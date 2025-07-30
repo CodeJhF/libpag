@@ -20,11 +20,12 @@
 #include <QApplication>
 #include <QFile>
 #include <QQuickStyle>
+#include <QTranslator>
 #include <QtGui/QFont>
 #include <QtQuick/QQuickWindow>
-#include <memory>
+#include "config/ConfigFile.h"
+#include "config/ConfigModel.h"
 #include "platform/PlatformHelper.h"
-#include "ConfigModel.h"
 #include "utils/AEHelper.h"
 #include "utils/FileHelper.h"
 #include "utils/StringHelper.h"
@@ -39,16 +40,11 @@ WindowManager& WindowManager::GetInstance() {
 WindowManager::WindowManager() {
   AEHelper::RunScriptPreWarm();
   initializeQtEnvironment();
+  translator = std::make_unique<QTranslator>();
 }
 
 void WindowManager::showExportPanelWindow() {
-  if (app == nullptr) {
-    int argc = 0;
-    app = std::make_unique<QApplication>(argc, nullptr);
-    app->setObjectName("PAG-Exporter");
-    QGuiApplication::setQuitOnLastWindowClosed(false);
-  }
-
+  init();
   if (exportingPanelWindow != nullptr && exportingPanelWindow->isWaitToDestory()) {
     exportingPanelWindow.reset();
   }
@@ -61,21 +57,16 @@ void WindowManager::showExportPanelWindow() {
 }
 
 void WindowManager::showPAGConfigWindow() {
-  auto configModel = std::make_unique<ConfigModel>();
-  configModel->showConfig();
+  init();
+  if (configWindow == nullptr) {
+    configWindow = std::make_unique<ConfigModel>(app.get());
+  }
+  configWindow->show();
+  app->exec();
 }
 
 void WindowManager::showExportPreviewWindow() {
-  if (app == nullptr) {
-    int argc = 0;
-    app = std::make_unique<QApplication>(argc, nullptr);
-    app->setObjectName("PAG-Exporter");
-    QGuiApplication::setQuitOnLastWindowClosed(false);
-  }
-  if (previewWindow != nullptr && previewWindow->isWaitToDestory()) {
-    previewWindow.reset();
-  }
-
+  init();
   if (previewWindow == nullptr) {
     previewWindow = std::make_unique<ExportWindow>(app.get());
   }
@@ -86,17 +77,7 @@ void WindowManager::showExportPreviewWindow() {
 }
 
 void WindowManager::showExportWindow() {
-  if (app == nullptr) {
-    int argc = 0;
-    app = std::make_unique<QApplication>(argc, nullptr);
-    app->setObjectName("PAG-Exporter");
-    QApplication::setQuitOnLastWindowClosed(false);
-  }
-
-  if (exportWindow != nullptr && exportWindow->isWaitToDestory()) {
-    exportWindow.reset();
-  }
-
+  init();
   if (exportWindow == nullptr) {
     exportWindow = std::make_unique<ExportWindow>(app.get());
   }
@@ -134,6 +115,38 @@ bool WindowManager::showWarnings(std::vector<std::string>& /*infos*/) {
 bool WindowManager::showErrors(std::vector<std::string>& /*infos*/) {
 
   return true;
+}
+
+void WindowManager::init() {
+  if (app == nullptr) {
+    int argc = 0;
+    app = std::make_unique<QApplication>(argc, nullptr);
+    app->setObjectName("PAG-Exporter");
+    QApplication::setQuitOnLastWindowClosed(false);
+  }
+
+  ConfigParam config;
+  ReadConfigFile(&config);
+  bool result = translator->load(":/translation/Chinese.qm");
+  if (result) {
+    if (config.language == Language::Chinese) {
+      app->installTranslator(translator.get());
+    } else {
+      app->removeTranslator(translator.get());
+    }
+  }
+
+  if (configWindow != nullptr && configWindow->isWaitToDestory()) {
+    configWindow.reset();
+  }
+
+  if (previewWindow != nullptr && previewWindow->isWaitToDestory()) {
+    previewWindow.reset();
+  }
+
+  if (exportWindow != nullptr && exportWindow->isWaitToDestory()) {
+    exportWindow.reset();
+  }
 }
 
 }  // namespace exporter

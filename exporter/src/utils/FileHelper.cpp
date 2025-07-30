@@ -40,7 +40,7 @@ std::string ReadTextFile(const std::string& filename) {
   return text;
 }
 
-int WriteTextFile(const std::string& fileName, const char* text) {
+size_t WriteTextFile(const std::string& fileName, const char* text) {
   auto parentPath = fs::path(fileName).parent_path();
   if (!parentPath.empty() && !fs::exists(parentPath)) {
     fs::create_directories(parentPath);

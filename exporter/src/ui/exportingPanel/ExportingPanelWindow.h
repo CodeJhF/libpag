@@ -27,21 +27,19 @@
 #include "settings/ExportImageLayerModel.h"
 #include "settings/ExportTextLayerModel.h"
 #include "settings/ExportTimeStretchModel.h"
+#include "ui/BaseWindow.h"
 #include "utils/AEResource.h"
 #include "utils/PAGExportSession.h"
 
 namespace exporter {
 
-class ExportingPanelWindow : public QObject {
+class ExportingPanelWindow : public BaseWindow {
   Q_OBJECT
  public:
   explicit ExportingPanelWindow(QApplication* app, QObject* parent = nullptr);
 
-  void show();
   void viewLayers(const std::shared_ptr<AEResource>& resource,
                   const std::unordered_map<pag::ID, AEGP_LayerH>& layerHMap);
-  bool isWaitToDestory() const;
-  Q_SLOT void onWindowClosing();
 
   Q_INVOKABLE exporter::ExportTextLayerModel* getTextLayerModel(int row);
   Q_INVOKABLE exporter::ExportImageLayerModel* getImageLayerModel(int row);
@@ -54,10 +52,6 @@ class ExportingPanelWindow : public QObject {
  private:
   void init();
 
-  bool waitToDestory = false;
-  QApplication* app = nullptr;
-  QQuickWindow* window = nullptr;
-  std::unique_ptr<QQmlApplicationEngine> engine = nullptr;
   std::unique_ptr<CompositionsModel> compositionsModel = nullptr;
   std::vector<std::shared_ptr<AEResource>> resources = {};
   std::map<A_long, std::shared_ptr<PAGExportSession>> sessionMap = {};

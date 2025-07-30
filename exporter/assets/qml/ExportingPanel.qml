@@ -9,7 +9,7 @@ PAGWindow {
 
     property int windowHeight: 800
 
-    title: "Export PAG"
+    title: qsTr("Export PAG")
     width: windowWidth
     height: windowHeight
     minimumWidth: windowWidth

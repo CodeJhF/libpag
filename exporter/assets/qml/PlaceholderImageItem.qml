@@ -23,6 +23,7 @@ Rectangle {
             font.pixelSize: 14
             font.family: "PingFang SC"
             elide: Text.ElideRight
+            horizontalAlignment: Text.AlignHCenter
             color: "#FFFFFF"
             anchors.left: parent.left
             anchors.leftMargin: 12
@@ -259,9 +260,8 @@ Rectangle {
                         id: isEditableCheckBox
                         width: 20
                         height: 20
-                        anchors.right: parent.right
-                        anchors.rightMargin: 12
                         anchors.verticalCenter: parent.verticalCenter
+                        anchors.horizontalCenter: parent.horizontalCenter
                         source: isEditable ? "qrc:/images/checkbox-on.png" : "qrc:/images/checkbox-off.png"
 
                         MouseArea {

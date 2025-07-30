@@ -21,7 +21,7 @@ PAGWindow {
 
     property alias tabBar: tabBar
 
-    title: "Setting Panel" + " - " + compositionName
+    title: qsTr("Setting Panel") + " - " + compositionName
     width: windowWidth
     height: windowHeight
     minimumWidth: windowWidth

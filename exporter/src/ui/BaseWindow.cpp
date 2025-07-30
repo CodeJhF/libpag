@@ -16,36 +16,37 @@
 //
 /////////////////////////////////////////////////////////////////////////////////////////////////
 
-#pragma once
-#include <QQmlApplicationEngine>
-#include <QQuickWindow>
-#include <QVariantMap>
-#include "Config/ConfigParam.h"
+#include "BaseWindow.h"
+#include <QApplication>
+#include <QTranslator>
+#include "config/ConfigFile.h"
 
 namespace exporter {
-class ConfigModel : public QObject {
-  Q_OBJECT
 
- public:
-  ConfigModel(QObject* parent = nullptr);
-  ~ConfigModel();
+BaseWindow::BaseWindow(QApplication* app, QObject* parent) : QObject(parent), app(app) {
+  engine = std::make_unique<QQmlApplicationEngine>(app);
+  switchLanguage();
+}
 
-  void initConfigWindow();
-  void showConfig() const;
+void BaseWindow::show() {
+  if (window != nullptr) {
+    window->show();
+  }
+}
 
-  Q_INVOKABLE void saveConfig();
-  Q_INVOKABLE void resetToDefault();
-  Q_INVOKABLE void setLanguage(int value);
-  Q_INVOKABLE void updateConfigFromQML(const QVariantMap& configData);
+void BaseWindow::switchLanguage() {
+  engine->retranslate();
+}
 
-  Q_INVOKABLE QVariantMap getDefaultConfig() const;
-  Q_INVOKABLE QVariantMap getCurrentConfig() const;
+bool BaseWindow::isWaitToDestory() const {
+  return waitToDestory;
+}
 
- private:
-  static QVariantMap ConfigParamToVariantMap(const ConfigParam& config);
-  std::unique_ptr<QApplication> app = nullptr;
-  std::unique_ptr<QQmlApplicationEngine> configEngine = nullptr;
-  QQuickWindow* configWindow = nullptr;
-  ConfigParam currentConfig;
-};
+void BaseWindow::onWindowClosing() {
+  if (window != nullptr) {
+    window->hide();
+  }
+  waitToDestory = true;
+}
+
 }  // namespace exporter

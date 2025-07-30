@@ -28,7 +28,7 @@ Rectangle {
 
             Text {
                 id: nameText
-                text: "Name"
+                text: qsTr("Name")
                 font.pixelSize: 14
                 font.family: "PingFang SC"
                 elide: Text.ElideRight

@@ -21,20 +21,13 @@
 #include <QFont>
 #include <QQmlContext>
 #include <QThread>
-#include "Config/ConfigFile.h"
+#include "config/ConfigFile.h"
 
 namespace exporter {
 
-ConfigModel::ConfigModel(QObject* parent) : QObject(parent) {
+ConfigModel::ConfigModel(QApplication* app, QObject* parent) : BaseWindow(app, parent) {
   ReadConfigFile(&currentConfig);
-  int argc = 0;
-  app = std::make_unique<QApplication>(argc, nullptr);
-  app->setObjectName("PAG-Config");
-  configEngine = std::make_unique<QQmlApplicationEngine>(app.get());
   initConfigWindow();
-}
-
-ConfigModel::~ConfigModel() {
 }
 
 void ConfigModel::initConfigWindow() {
@@ -43,23 +36,15 @@ void ConfigModel::initConfigWindow() {
     return;
   }
 
-  QQmlContext* context = configEngine->rootContext();
+  QQmlContext* context = engine->rootContext();
   context->setContextProperty("configModel", this);
 
-  configEngine->load(QUrl(QStringLiteral("qrc:/qml/ConfigWindow.qml")));
+  engine->load(QUrl(QStringLiteral("qrc:/qml/ConfigWindow.qml")));
 
-  configWindow = qobject_cast<QQuickWindow*>(configEngine->rootObjects().first());
-  configWindow->setPersistentGraphics(true);
-  configWindow->setPersistentSceneGraph(true);
-  configWindow->setTextRenderType(QQuickWindow::TextRenderType::NativeTextRendering);
-}
-
-void ConfigModel::showConfig() const {
-  if (configWindow == nullptr) {
-    return;
-  }
-  configWindow->show();
-  app->exec();
+  window = qobject_cast<QQuickWindow*>(engine->rootObjects().first());
+  window->setPersistentGraphics(true);
+  window->setPersistentSceneGraph(true);
+  window->setTextRenderType(QQuickWindow::TextRenderType::NativeTextRendering);
 }
 
 QVariantMap ConfigModel::getDefaultConfig() const {
@@ -101,11 +86,11 @@ void ConfigModel::updateConfigFromQML(const QVariantMap& configData) {
   }
 
   if (configData.contains("exportLayerName")) {
-    currentConfig.enableLayerName = configData["exportLayerName"].toBool();
+    currentConfig.exportLayerName = configData["exportLayerName"].toBool();
   }
 
   if (configData.contains("exportFonts")) {
-    currentConfig.enableFontFile = configData["exportFonts"].toBool();
+    currentConfig.exportFontFile = configData["exportFonts"].toBool();
   }
 
   if (configData.contains("bitmapQuality")) {
@@ -142,8 +127,8 @@ QVariantMap ConfigModel::ConfigParamToVariantMap(const ConfigParam& config) {
   map["tagLevel"] = config.exportTagLevel;
   map["bitmapCompressionQuality"] = config.sequenceQuality;
   map["bitmapPixelDensity"] = config.imagePixelRatio;
-  map["exportLayerName"] = config.enableLayerName;
-  map["exportFonts"] = config.enableFontFile;
+  map["exportLayerName"] = config.exportLayerName;
+  map["exportFonts"] = config.exportFontFile;
 
   map["bitmapQuality"] = static_cast<int>(config.sequenceType);
   map["imageQuality"] = config.imageQuality;

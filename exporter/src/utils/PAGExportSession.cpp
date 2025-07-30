@@ -17,12 +17,12 @@
 /////////////////////////////////////////////////////////////////////////////////////////////////
 
 #include "PAGExportSession.h"
-#include <tinyxml.h>
 #include "AEHelper.h"
 #include "AEPReader.h"
 #include "AETypeTransform.h"
 #include "ByteArray.h"
 #include "StringHelper.h"
+#include "config/ConfigFile.h"
 #include "src/base/utils/Log.h"
 
 namespace exporter {
@@ -61,6 +61,7 @@ void PAGExportSession::unsetCurrent() {
 void PAGExportSession::checkParamValid() {
   const ConfigParam tempParam;
 
+  ReadConfigFile(&configParam);
   configParam.frameRate = std::clamp(configParam.frameRate, 0.01f, 120.0f);
 
   switch (configParam.tagMode) {

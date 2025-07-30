@@ -111,7 +111,7 @@ void ExportImageLayerModel::setAllEditable(bool allEditable) {
   }
 }
 
-void ExportImageLayerModel::setScaleMode(int row, QString scaleMode) {
+void ExportImageLayerModel::setScaleMode(int row, const QString& scaleMode) {
   if (row < 0 || static_cast<size_t>(row) >= items.size()) {
     return;
   }

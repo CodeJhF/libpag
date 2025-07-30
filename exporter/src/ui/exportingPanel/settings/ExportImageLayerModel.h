@@ -42,7 +42,7 @@ class ExportImageLayerModel : public QAbstractListModel {
 
   Q_INVOKABLE void setIsEditable(int row, bool isEditable);
   Q_INVOKABLE void setAllEditable(bool allEditable);
-  Q_INVOKABLE void setScaleMode(int row, QString scaleMode);
+  Q_INVOKABLE void setScaleMode(int row, const QString& scaleMode);
   Q_INVOKABLE bool getAllEditable() const;
   Q_INVOKABLE QStringList getScaleModes();
 

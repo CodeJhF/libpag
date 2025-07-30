@@ -24,6 +24,7 @@
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QString>
+#include "utils/FileHelper.h"
 
 namespace exporter {
 

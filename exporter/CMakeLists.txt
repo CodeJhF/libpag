@@ -49,8 +49,12 @@ set(CMAKE_AUTOUIC ON)
 set(CMAKE_AUTORCC ON)
 
 find_package(QT NAMES Qt6 REQUIRED COMPONENTS Core)
-find_package(Qt6 REQUIRED COMPONENTS Core Qml Quick OpenGL QuickControls2)
+find_package(Qt6 REQUIRED COMPONENTS Core Qml Quick OpenGL QuickControls2 LinguistTools)
 list(APPEND libs Qt6::Core Qt6::Qml Qt6::Quick Qt6::OpenGL Qt6::QuickControls2)
+find_program(LUPDATE_EXECUTABLE lupdate REQUIRED)
+find_program(LRELEASE_EXECUTABLE lrelease REQUIRED)
+execute_process(COMMAND ${LUPDATE_EXECUTABLE} -recursive ${PROJECT_SOURCE_DIR}/src ${PROJECT_SOURCE_DIR}/assets/qml -ts ${PROJECT_SOURCE_DIR}/assets/translation/Chinese.ts)
+execute_process(COMMAND ${LRELEASE_EXECUTABLE} ${PROJECT_SOURCE_DIR}/assets/translation/Chinese.ts -qm ${PROJECT_SOURCE_DIR}/assets/translation/Chinese.qm)
 qt_add_resources(QT_RESOURCES assets/res.qrc)
 
 list(APPEND PAG_EXPORTER_INCLUDES ./ src ../ ../include ../src ../third_party/tgfx/include)
@@ -81,7 +85,7 @@ list(APPEND PAG_EXPORTER_THIRD_PARTY_INCLUDES
         ../third_party/tgfx/include
         ../third_party/tgfx/third_party/json/include
         ../third_party/tgfx/third_party/libwebp/src
-        vendor/TinyXML
+        vendor/TinyXML2
         vendor/ffaudio/include)
 
 if (APPLE)

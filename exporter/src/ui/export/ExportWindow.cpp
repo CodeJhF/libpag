@@ -27,8 +27,7 @@
 
 namespace exporter {
 
-ExportWindow::ExportWindow(QApplication* app, QObject* parent) : QObject(parent), app(app) {
-  engine = std::make_unique<QQmlApplicationEngine>(app);
+ExportWindow::ExportWindow(QApplication* app, QObject* parent) : BaseWindow(app, parent) {
   init();
 }
 
@@ -69,17 +68,6 @@ void ExportWindow::show() {
 
 void ExportWindow::setOutputPath(const std::string& outputPath) {
   this->outputPath = outputPath;
-}
-
-bool ExportWindow::isWaitToDestory() const {
-  return waitToDestory;
-}
-
-void ExportWindow::onWindowClosing() {
-  if (window != nullptr) {
-    window->hide();
-  }
-  waitToDestory = true;
 }
 
 std::string ExportWindow::getOutputPath() {
