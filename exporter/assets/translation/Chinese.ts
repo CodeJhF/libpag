@@ -27,7 +27,7 @@
 <context>
     <name>CompositionListView</name>
     <message>
-        <location filename="../qml/CompositionListView.qml" line="287"/>
+        <location filename="../qml/CompositionListView.qml" line="289"/>
         <source>Select Save Path</source>
         <translation>选择存储路径</translation>
     </message>
@@ -35,32 +35,32 @@
 <context>
     <name>CompositionSettingPage</name>
     <message>
-        <location filename="../qml/CompositionSettingPage.qml" line="24"/>
+        <location filename="../qml/CompositionSettingPage.qml" line="26"/>
         <source>Setting Panel</source>
         <translation>设置面板</translation>
     </message>
     <message>
-        <location filename="../qml/CompositionSettingPage.qml" line="64"/>
+        <location filename="../qml/CompositionSettingPage.qml" line="66"/>
         <source>PreComposition</source>
         <translation>预合成</translation>
     </message>
     <message>
-        <location filename="../qml/CompositionSettingPage.qml" line="70"/>
+        <location filename="../qml/CompositionSettingPage.qml" line="72"/>
         <source>Text Layer</source>
         <translation>文本图层</translation>
     </message>
     <message>
-        <location filename="../qml/CompositionSettingPage.qml" line="76"/>
+        <location filename="../qml/CompositionSettingPage.qml" line="78"/>
         <source>Placeholder Images</source>
         <translation>占位图</translation>
     </message>
     <message>
-        <location filename="../qml/CompositionSettingPage.qml" line="82"/>
+        <location filename="../qml/CompositionSettingPage.qml" line="84"/>
         <source>Time Stretch</source>
         <translation>时间伸缩</translation>
     </message>
     <message>
-        <location filename="../qml/CompositionSettingPage.qml" line="161"/>
+        <location filename="../qml/CompositionSettingPage.qml" line="164"/>
         <source>Confirm</source>
         <translation>确认</translation>
     </message>
@@ -178,7 +178,7 @@
 <context>
     <name>PreCompositionItem</name>
     <message>
-        <location filename="../qml/PreCompositionItem.qml" line="31"/>
+        <location filename="../qml/PreCompositionItem.qml" line="33"/>
         <source>Name</source>
         <translation>名称</translation>
     </message>

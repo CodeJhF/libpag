@@ -95,12 +95,13 @@ T GetValue(AEGP_StreamRefH stream, StreamParser<T> parser, const QVariantMap& ma
   if (streamType != AEGP_StreamType_NO_DATA) {
     AEHelper::GetSuites()->StreamSuite4()->AEGP_GetNewStreamValue(
         AEHelper::GetPluginID(), stream, AEGP_LTimeMode_CompTime, &time, TRUE, &streamValue);
-    auto value = parser(streamValue.val, map);
+  }
+  auto value = parser(streamValue.val, map);
+  if (streamType != AEGP_StreamType_NO_DATA) {
     AEHelper::GetSuites()->StreamSuite4()->AEGP_DisposeStreamValue(&streamValue);
-    return value;
   }
 
-  return T{};
+  return value;
 }
 
 template <typename T>

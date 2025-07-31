@@ -250,7 +250,7 @@ std::shared_ptr<pag::File> PAGExport::exportAsFile() {
     return nullptr;
   }
 
-  std::vector<pag::ImageBytes*> images = session->imageBytesList;
+  std::vector<pag::ImageBytes*> images = getRefImages(compositions);
   CheckBeforeExport(session, compositions, images);
   // TODO: add alertinfo window check
 
@@ -289,7 +289,7 @@ std::shared_ptr<pag::File> PAGExport::exportAsFile() {
   return pagFile;
 }
 
-void PAGExport::addRootComposition() {
+void PAGExport::addRootComposition() const {
   const auto& Suites = AEHelper::GetSuites();
   auto* mainComposition = session->compositions[session->compositions.size() - 1];
   AEGP_CompH compH = AEHelper::GetItemCompH(itemH);
@@ -351,13 +351,39 @@ void PAGExport::addRootComposition() {
   session->compositions.push_back(rootComposition);
 }
 
+std::vector<pag::ImageBytes*> PAGExport::getRefImages(
+    const std::vector<pag::Composition*>& compositions) {
+  std::unordered_set<pag::ImageBytes*> refImages = {};
+  for (const auto& composition : compositions) {
+    if (composition->type() != pag::CompositionType::Vector) {
+      continue;
+    }
+    for (auto layer : static_cast<pag::VectorComposition*>(composition)->layers) {
+      auto imageLayer = static_cast<pag::ImageLayer*>(layer);
+      if (layer->type() == pag::LayerType::Image && imageLayer->imageBytes) {
+        refImages.insert(imageLayer->imageBytes);
+      }
+    }
+  }
+
+  std::vector<pag::ImageBytes*> images = {};
+  for (auto image : session->imageBytesList) {
+    if (refImages.count(image)) {
+      images.push_back(image);
+    } else {
+      delete image;
+    }
+  }
+  return images;
+}
+
 void PAGExport::exportResources(std::vector<pag::Composition*>& compositions) {
   exportRescaleImages();
   exportRescaleBitmapCompositions(compositions);
   exportRescaleVideoCompositions(compositions);
 }
 
-void PAGExport::exportRescaleImages() {
+void PAGExport::exportRescaleImages() const {
   if (session->imageBytesList.empty()) {
     return;
   }
@@ -385,8 +411,9 @@ void PAGExport::exportRescaleImages() {
   }
 }
 
-void PAGExport::exportRescaleBitmapCompositions(std::vector<pag::Composition*>& compositions) {
-  auto mainComposition = compositions[compositions.size() - 1];  // get main composition
+void PAGExport::exportRescaleBitmapCompositions(
+    std::vector<pag::Composition*>& compositions) const {
+  auto mainComposition = compositions[compositions.size() - 1];
   for (auto composition : compositions) {
     if (session->stopExport) {
       break;
@@ -406,7 +433,7 @@ void PAGExport::exportRescaleBitmapCompositions(std::vector<pag::Composition*>& 
   }
 }
 
-void PAGExport::exportRescaleVideoCompositions(std::vector<pag::Composition*>& compositions) {
+void PAGExport::exportRescaleVideoCompositions(std::vector<pag::Composition*>& compositions) const {
   auto mainComposition = compositions[compositions.size() - 1];
   for (auto composition : compositions) {
     if (session->stopExport) {

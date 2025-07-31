@@ -35,6 +35,9 @@ ScopedTimeSetter::ScopedTimeSetter(const AEGP_ItemH& itemHandle, float time)
 
 ScopedTimeSetter::~ScopedTimeSetter() {
   const auto& suites = AEHelper::GetSuites();
+  if (itemHandle == nullptr) {
+    return;
+  }
   suites->ItemSuite8()->AEGP_SetItemCurrentTime(itemHandle, &orgTime);
 }
 

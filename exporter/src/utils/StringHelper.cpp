@@ -365,4 +365,11 @@ bool IsEndWidthSuffix(const std::string& str, const std::string& suffix) {
   return newStr == suffix;
 }
 
+QString ColorToQString(pag::Color color) {
+  return QString("#%1%2%3")
+      .arg(color.red, 2, 16, QChar('0'))
+      .arg(color.green, 2, 16, QChar('0'))
+      .arg(color.blue, 2, 16, QChar('0'));
+}
+
 }  // namespace StringHelper

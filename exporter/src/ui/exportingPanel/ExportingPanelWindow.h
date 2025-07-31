@@ -46,6 +46,7 @@ class ExportingPanelWindow : public BaseWindow {
   Q_INVOKABLE exporter::ExportTimeStretchModel* getTimeStretchModel(int row);
   Q_INVOKABLE exporter::ExportCompositionInfoModel* getCompositionInfoModel(int row);
   exporter::ExportFrameImageProvider* getImageProvider(A_long ID);
+  Q_INVOKABLE QString getBackgroundColor(int row) const;
   Q_INVOKABLE void updateCompositionSetting(int row);
   Q_INVOKABLE bool isAEWindowActive();
 

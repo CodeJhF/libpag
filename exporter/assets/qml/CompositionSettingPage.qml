@@ -11,6 +11,8 @@ PAGWindow {
 
     property string compositionName: ""
 
+    required property string backgroundColor
+
     required property var textLayerModel
 
     required property var imageLayerModel
@@ -114,6 +116,7 @@ PAGWindow {
             PreCompositionItem {
                 model: compositionInfoModel
                 parentWindow: window
+                backgroundColor: window.backgroundColor
             }
 
             TextLayerItem {

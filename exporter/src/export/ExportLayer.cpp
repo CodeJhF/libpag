@@ -119,8 +119,8 @@ static bool IsLayerBeReferenced(pag::ID id, const std::vector<pag::Layer*>& laye
   return lastLayerHasTrackMatte;
 }
 
-static pag::Layer* ExportLayer(const std::shared_ptr<PAGExportSession>& session,
-                               const AEGP_LayerH& layerH);
+static pag::Layer* ExportLayer(const AEGP_LayerH& layerH,
+                               const std::shared_ptr<PAGExportSession>& session);
 
 static void ModifyTransform3DForCameraLayer(pag::Layer* layer, AEGP_LayerFlags layerFlags) {
   if (layer->type() != pag::LayerType::Camera) {
@@ -209,7 +209,7 @@ static void InitLayer(const std::shared_ptr<PAGExportSession>& session, const AE
       if (trackMatteLayerH == nullptr) {
         layer->trackMatteType = pag::TrackMatteType::None;
       } else {
-        layer->trackMatteLayer = ExportLayer(session, trackMatteLayerH);
+        layer->trackMatteLayer = ExportLayer(trackMatteLayerH, session);
         layer->trackMatteLayer->isActive = false;
         layer->trackMatteLayer->trackMatteType = pag::TrackMatteType::None;
       }
@@ -251,8 +251,8 @@ static pag::SolidLayer* CreateSolidLayer(const AEGP_LayerH& layerH) {
   return layer;
 }
 
-static pag::TextLayer* CreateTextLayer(const std::shared_ptr<PAGExportSession>& session,
-                                       const AEGP_LayerH& layerH) {
+static pag::TextLayer* CreateTextLayer(const AEGP_LayerH& layerH,
+                                       const std::shared_ptr<PAGExportSession>& session) {
   auto layer = new pag::TextLayer();
   GetTextProperties(session, layerH, layer);
   return layer;
@@ -336,16 +336,17 @@ static pag::CameraLayer* CreateCameraLayer(const AEGP_LayerH& layerH) {
   return layer;
 }
 
-static pag::Layer* ExportLayer(const std::shared_ptr<PAGExportSession>& session,
-                               const AEGP_LayerH& layerH) {
+static pag::Layer* ExportLayer(const AEGP_LayerH& layerH,
+                               const std::shared_ptr<PAGExportSession>& session) {
   ExportLayerType layerType = GetLayerType(layerH);
   pag::Layer* layer = nullptr;
+  ScopedAssign<pag::ID> layerID(session->layerID, AEHelper::GetLayerID(layerH));
   switch (layerType) {
     case ExportLayerType::Solid:
       layer = CreateSolidLayer(layerH);
       break;
     case ExportLayerType::Text:
-      layer = CreateTextLayer(session, layerH);
+      layer = CreateTextLayer(layerH, session);
       break;
     case ExportLayerType::Shape:
       layer = CreateShapeLayer(layerH);
@@ -402,7 +403,8 @@ std::vector<pag::Layer*> ExportLayers(const std::shared_ptr<PAGExportSession>& s
         session->configParam.exportTagLevel >= static_cast<uint16_t>(pag::TagCode::MarkerList)) {
       // TODO: AEMakers
     }
-    auto layer = ExportLayer(session, layerH);
+    ScopedAssign<int> layerIndex(session->layerIndex, index);
+    auto layer = ExportLayer(layerH, session);
     if (layer->trackMatteLayer != nullptr) {
       soloFlags.push_back(false);
       layers.push_back(layer->trackMatteLayer);

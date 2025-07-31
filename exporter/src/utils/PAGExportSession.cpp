@@ -140,13 +140,13 @@ pag::GradientColorHandle PAGExportSession::GetGradientColorsFromFileBytes(
 
   std::string gradientText;
   for (int i = 0; layerBytes.bytesAvailable() > 0 && i <= index; ++i) {
-    auto tag = AEPReader::ReadFirstGroupByMatchNames(&layerBytes, matchNames);
-    if (tag.bytes.empty()) {
+    auto groupTag = AEPReader::ReadFirstGroupByMatchNames(&layerBytes, matchNames);
+    if (groupTag.bytes.empty()) {
       break;
     }
 
     if (i == index) {
-      tag = AEPReader::ReadFirstTagByName(&tag.bytes, "GCky");
+      auto tag = AEPReader::ReadFirstTagByName(&groupTag.bytes, "GCky");
       if (tag.bytes.empty()) {
         break;
       }

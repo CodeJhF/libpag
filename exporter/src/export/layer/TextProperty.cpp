@@ -508,7 +508,7 @@ void GetTextProperties(const std::shared_ptr<PAGExportSession>& session, const A
           QVariantMap map = {};
           map["runJavaScript"] = session->enableRunScript;
           map["compID"] = session->compID;
-          map["layerID"] = session->layerID;
+          map["layerIndex"] = session->layerIndex;
           map["keyFrame"] = 0;
           if (session->configParam.exportFontFile) {
             map["outPath"] = QString(session->outputPath.data());

@@ -211,12 +211,14 @@ ListView {
                             onClicked: {
                                 let component = Qt.createComponent("qrc:/qml/CompositionSettingPage.qml");
                                 if (component.status === Component.Ready) {
-                                    configWindow.updateCompositionSetting(row);
-                                    let textLayerModel = configWindow.getTextLayerModel(row);
-                                    let imageLayerModel = configWindow.getImageLayerModel(row);
-                                    let timeStretchModel = configWindow.getTimeStretchModel(row);
-                                    let compositionInfoModel = configWindow.getCompositionInfoModel(row);
+                                    exportingPanelWindow.updateCompositionSetting(row);
+                                    let backgroundColor = exportingPanelWindow.getBackgroundColor(row);
+                                    let textLayerModel = exportingPanelWindow.getTextLayerModel(row);
+                                    let imageLayerModel = exportingPanelWindow.getImageLayerModel(row);
+                                    let timeStretchModel = exportingPanelWindow.getTimeStretchModel(row);
+                                    let compositionInfoModel = exportingPanelWindow.getCompositionInfoModel(row);
                                     settingColumn.subWindow = component.createObject(parentWindow, {
+                                        "backgroundColor": backgroundColor,
                                         "compositionName": name,
                                         "textLayerModel": textLayerModel,
                                         "imageLayerModel": imageLayerModel,

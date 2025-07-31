@@ -193,15 +193,16 @@ static pag::Color StringToColor(const QString& value, const pag::Color& defaultV
 static pag::TextDocumentHandle ParseTextDocument(const AEGP_StreamVal2&, const QVariantMap& map) {
   bool runJavaScript = map.value("runJavaScript", false).toBool();
   std::string compID = map.value("compID").toString().toStdString();
-  std::string layerID = map.value("layerID").toString().toStdString();
+  std::string layerIndex = map.value("layerIndex").toString().toStdString();
   std::string keyFrame = map.value("keyFrame").toString().toStdString();
   std::string outPath = map.value("outPath", "").toString().toStdString();
-  if (!runJavaScript || compID.empty() || layerID.empty() || keyFrame.empty()) {
+  if (!runJavaScript || compID.empty() || layerIndex.empty() || keyFrame.empty()) {
     return std::make_shared<pag::TextDocument>();
   }
 
   AEHelper::RegisterTextDocumentScript();
-  std::string code = "PAG.printTextDocuments(" + compID + ", " + layerID + ", " + keyFrame + ");";
+  std::string code =
+      "PAG.printTextDocuments(" + compID + ", " + layerIndex + ", " + keyFrame + ");";
   std::string result = AEHelper::RunScript(code);
   if (result.empty()) {
     return std::make_shared<pag::TextDocument>();
@@ -210,7 +211,6 @@ static pag::TextDocumentHandle ParseTextDocument(const AEGP_StreamVal2&, const Q
   QJsonDocument doc = QJsonDocument::fromJson(result.data());
   if (doc.isNull()) {
     return std::make_shared<pag::TextDocument>();
-    ;
   }
   QJsonObject obj = doc.object();
 

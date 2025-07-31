@@ -43,10 +43,7 @@ QString ExportFrameImageProvider::getName() {
          QString::number(reinterpret_cast<quintptr>(this));
 }
 
-QImage ExportFrameImageProvider::requestImage(const QString& id, QSize* size,
-                                              const QSize& requestedSize) {
-  Q_UNUSED(size);
-  Q_UNUSED(requestedSize);
+QImage ExportFrameImageProvider::requestImage(const QString& id, QSize*, const QSize&) {
   if (frameImages.find(id.toInt()) != frameImages.end()) {
     return frameImages[id.toLongLong()];
   }

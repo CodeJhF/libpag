@@ -28,6 +28,7 @@
 #include "src/export/ExportLayer.h"
 #include "utils/AEHelper.h"
 #include "utils/AEResource.h"
+#include "utils/StringHelper.h"
 
 namespace exporter {
 
@@ -46,7 +47,7 @@ void ExportingPanelWindow::init() {
 
   QQmlContext* context = engine->rootContext();
   QQmlEngine::setObjectOwnership(this, QQmlEngine::CppOwnership);
-  context->setContextProperty("configWindow", this);
+  context->setContextProperty("exportingPanelWindow", this);
   QQmlEngine::setObjectOwnership(compositionsModel.get(), QQmlEngine::CppOwnership);
   context->setContextProperty("compositionsModel", compositionsModel.get());
 
@@ -74,6 +75,20 @@ ExportCompositionInfoModel* ExportingPanelWindow::getCompositionInfoModel(int ro
   }
 
   return nullptr;
+}
+
+QString ExportingPanelWindow::getBackgroundColor(int row) const {
+  const auto& resource = resources[row];
+  A_long id = resource->ID;
+  if (sessionMap.find(id) == sessionMap.end()) {
+    return "transparent";
+  }
+  const auto& session = sessionMap.at(id);
+  if (session->compositions.empty()) {
+    return "transparent";
+  }
+  auto& mainComposition = session->compositions[session->compositions.size() - 1];
+  return StringHelper::ColorToQString(mainComposition->backgroundColor);
 }
 
 ExportFrameImageProvider* ExportingPanelWindow::getImageProvider(A_long ID) {

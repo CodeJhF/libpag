@@ -58,6 +58,7 @@ class PAGExportSession {
 
   pag::ID compID = 0;
   pag::ID layerID = 0;
+  int layerIndex = 0;
 
   AEGP_ItemH itemH = nullptr;
 

@@ -6,6 +6,8 @@ Rectangle {
 
     required property var model
 
+    required property string backgroundColor
+
     required property var parentWindow
 
     color: "transparent"
@@ -219,7 +221,7 @@ Rectangle {
             anchors.top: parent.top
             anchors.left: parent.left
             anchors.bottom: sliderContaner.top
-            color: "black"
+            color: backgroundColor
 
             Image {
                 id: frameImage

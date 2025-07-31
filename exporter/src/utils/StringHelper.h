@@ -70,4 +70,6 @@ std::string GetJavaScriptFromQRC(const QString& jsPath);
 
 bool IsEndWidthSuffix(const std::string& str, const std::string& suffix);
 
+QString ColorToQString(pag::Color color);
+
 }  // namespace StringHelper

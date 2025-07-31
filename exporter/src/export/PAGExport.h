@@ -40,10 +40,11 @@ class PAGExport {
   ScopedTimeSetter timeSetter = {nullptr, 0};
 
  private:
-  void addRootComposition();
+  void addRootComposition() const;
+  std::vector<pag::ImageBytes*> getRefImages(const std::vector<pag::Composition*>& compositions);
   void exportResources(std::vector<pag::Composition*>& compositions);
-  void exportRescaleImages();
-  void exportRescaleBitmapCompositions(std::vector<pag::Composition*>& compositions);
-  void exportRescaleVideoCompositions(std::vector<pag::Composition*>& compositions);
+  void exportRescaleImages() const;
+  void exportRescaleBitmapCompositions(std::vector<pag::Composition*>& compositions) const;
+  void exportRescaleVideoCompositions(std::vector<pag::Composition*>& compositions) const;
 };
 }  // namespace exporter
