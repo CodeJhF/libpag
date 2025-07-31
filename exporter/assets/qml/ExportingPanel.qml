@@ -442,7 +442,7 @@ PAGWindow {
         running: true
         repeat: true
         onTriggered: {
-            if (!window.active && window.visible && configWindow.isAEWindowActive()) {
+            if (!window.active && window.visible && exportingPanelWindow.isAEWindowActive()) {
                 window.raise();
                 window.flags |= Qt.WindowStaysOnTopHint;
             } else {
@@ -453,7 +453,7 @@ PAGWindow {
 
     onClosing: function (closeEvent) {
         closeEvent.accepted = true;
-        configWindow.onWindowClosing();
+        exportingPanelWindow.onWindowClosing();
     }
 
     onVisibleChanged: function (visible) {
