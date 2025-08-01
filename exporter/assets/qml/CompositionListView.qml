@@ -267,8 +267,10 @@ ListView {
                                     if (progressWindow) {
                                         progressWindow.closing.connect(function () {
                                             progressWindow.destroy();
+                                            parentWindow.show();
                                         });
                                         progressWindow.show();
+                                        parentWindow.hide();
                                     }
                                 }
                                 compositionsModel.previewComposition(row);

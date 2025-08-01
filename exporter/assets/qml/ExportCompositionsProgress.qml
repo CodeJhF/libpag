@@ -26,7 +26,6 @@ PAGWindow {
     windowBackgroundColor: "#14141E"
     titlebarBackgroundColor: "#14141E"
     titleFontSize: 14
-    modality: Qt.ApplicationModal
 
     Rectangle {
         id: contentContainer

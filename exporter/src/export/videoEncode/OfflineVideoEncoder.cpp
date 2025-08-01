@@ -29,7 +29,7 @@
 namespace exporter {
 
 constexpr int SleepUS = 1000;
-constexpr int SleepCount = 100;
+constexpr int SleepCount = 2000;
 
 static std::string GetH264EncoderToolsFolder() {
   return FileHelper::JoinPaths(GetRoamingPath(), "H264EncoderTools");
@@ -76,7 +76,6 @@ OfflineVideoEncoder::~OfflineVideoEncoder() {
     if (ret && (hasEnd || earlyExit)) {
       break;
     }
-    printf("Sleep for ~OfflineVideoEncoder - %d\n", i);
     usleep(SleepUS);
   }
 }
@@ -108,10 +107,10 @@ bool OfflineVideoEncoder::open(int width, int height, double frameRate, bool has
   std::string encodeParamFilePath = FileHelper::JoinPaths(rootPath, "EncoderParam.txt");
   std::string paramStr =
       QString(
-          R"({ "Width": %d, "Height": %d, "FrameRate": %.2f, "HasAlpha": %d, "MaxKeyFrameInterval": %d, "Quality": %d })")
+          R"({ "Width": %1, "Height": %2, "FrameRate": %3, "HasAlpha": %4, "MaxKeyFrameInterval": %5, "Quality": %6 })")
           .arg(width)
           .arg(height)
-          .arg(frameRate)
+          .arg(frameRate, 0, 'f', 2)
           .arg(hasAlpha)
           .arg(maxKeyFrameInterval)
           .arg(quality)
@@ -120,10 +119,15 @@ bool OfflineVideoEncoder::open(int width, int height, double frameRate, bool has
 
   std::string toolPath = FileHelper::JoinPaths(GetH264EncoderToolsFolder(), "H264EncoderTools");
   std::string cmd =
-      QString(R"('%s' '%s' &)").arg(toolPath.data()).arg(GetOfflineFolder().data()).toStdString();
+      QString(R"('%1' '%2/' &)").arg(toolPath.data()).arg(GetOfflineFolder().data()).toStdString();
   system(cmd.data());
 
   return true;
+}
+
+void OfflineVideoEncoder::close() {
+  std::string endFile = FileHelper::JoinPaths(rootPath, "InEnd.txt");
+  writeEndParam(true, false, endFile);
 }
 
 void OfflineVideoEncoder::getInputFrameBuf(uint8_t* data[], int stride[]) {
@@ -148,33 +152,32 @@ int OfflineVideoEncoder::encodeHeaders(uint8_t* header[], int headerSize[]) {
       headerSize[1] = size1;
       return 2;
     }
-    printf("Sleep for encodeHeaders - %d\n", i);
     usleep(SleepUS);
   }
   return 0;
 }
 
-int OfflineVideoEncoder::encodeFrame(uint8_t* data[], int stride[], uint8_t** pOutStream,
-                                     FrameType* pFrameType, int64_t* pOutTimeStamp) {
-  if (data[0] != nullptr) {
-    std::string yuvFile = FileHelper::JoinPaths(rootPath, "YUV-" + std::to_string(frames) + ".yuv");
-    WriteYUVData(data, stride, width, height, yuvFile);
-
-    FrameInfo frameInfo;
-    frameInfo.frameType = *pFrameType;
-    frameInfo.timeStamp = frames;
-    frameInfo.frameSize = width * height * 3 / 2;
-
-    std::string frameInfoFile =
-        FileHelper::JoinPaths(rootPath, "InFrameInfo-" + std::to_string(frames) + ".txt");
-    writeFrameInfo(frameInfo, frameInfoFile);
-    frames++;
-  } else {
-    std::string endFile = FileHelper::JoinPaths(rootPath, "InEnd.txt");
-    writeEndParam(true, false, endFile);
+void OfflineVideoEncoder::encodeFrame(uint8_t* data[], int stride[], FrameType frameType) {
+  if (data[0] == nullptr) {
+    return;
   }
+  std::string yuvFile = FileHelper::JoinPaths(rootPath, "YUV-" + std::to_string(frames) + ".yuv");
+  WriteYUVData(data, stride, width, height, yuvFile);
 
-  for (int i = 0; i < SleepCount; i++) {
+  FrameInfo frameInfo;
+  frameInfo.frameType = frameType;
+  frameInfo.timeStamp = frames;
+  frameInfo.frameSize = width * height * 3 / 2;
+
+  std::string frameInfoFile =
+      FileHelper::JoinPaths(rootPath, "InFrameInfo-" + std::to_string(frames) + ".txt");
+  writeFrameInfo(frameInfo, frameInfoFile);
+  frames++;
+}
+
+int OfflineVideoEncoder::getEncodedFrame(bool wait, uint8_t** outData, FrameType* outFrameType,
+                                         int64_t* outFrameIndex) {
+  for (int i = 0; i < SleepCount && outFrames < frames; i++) {
     FrameInfo outFrameInfo;
     std::string outFrameInfoFile =
         FileHelper::JoinPaths(rootPath, "OutFrameInfo-" + std::to_string(outFrames) + ".txt");
@@ -185,16 +188,15 @@ int OfflineVideoEncoder::encodeFrame(uint8_t* data[], int stride[], uint8_t** pO
       int size = FileHelper::ReadFileData(h264File, h264Buf.data(), h264Buf.size());
       if (size > 0 && size == outFrameInfo.frameSize) {
         printf("read frame=%d size = %d outSize = %d\n", outFrames, size, outFrameInfo.frameSize);
-        *pOutStream = h264Buf.data();
-        *pFrameType = outFrameInfo.frameType;
-        *pOutTimeStamp = outFrameInfo.timeStamp;
+        *outData = h264Buf.data();
+        *outFrameType = outFrameInfo.frameType;
+        *outFrameIndex = outFrameInfo.timeStamp;
         outFrames++;
         return size;
       }
     }
 
-    if (data[0] == nullptr && outFrames < frames) {
-      printf("Sleep for encodeFrame - %d\n", i);
+    if (wait) {
       usleep(SleepUS);
     } else {
       break;
@@ -227,7 +229,7 @@ bool OfflineVideoEncoder::readEndParam(bool& hasEnd, bool& earlyExit, const std:
 }
 
 bool OfflineVideoEncoder::writeEndParam(bool hasEnd, bool earlyExit, const std::string& filePath) {
-  std::string endData = QString(R"({ "HasEnd": %d, "EarlyExit": %d })")
+  std::string endData = QString(R"({ "HasEnd": %1, "EarlyExit": %2 })")
                             .arg(hasEnd ? 1 : 0)
                             .arg(earlyExit ? 1 : 0)
                             .toStdString();
@@ -258,9 +260,9 @@ bool OfflineVideoEncoder::readFrameInfo(FrameInfo& frameInfo, const std::string&
 }
 
 bool OfflineVideoEncoder::writeFrameInfo(const FrameInfo& frameInfo, const std::string& filePath) {
-  std::string frameInfoData = QString(R"({ "FrameType": %d, "TimeStamp": %.0f, "FrameSize": %d })")
+  std::string frameInfoData = QString(R"({ "FrameType": %1, "TimeStamp": %2, "FrameSize": %3 })")
                                   .arg(frameInfo.frameType)
-                                  .arg(static_cast<float>(frameInfo.timeStamp))
+                                  .arg(static_cast<float>(frameInfo.timeStamp), 0, 'f', 0)
                                   .arg(frameInfo.frameSize)
                                   .toStdString();
   return FileHelper::WriteTextFile(filePath, frameInfoData) != 0;

@@ -57,7 +57,7 @@ void GetBitmapSequence(const std::shared_ptr<PAGExportSession>& session,
   float factor = compositionFactor;
   float frameRate = std::min(session->configParam.frameRate, composition->frameRate);
   auto duration =
-      static_cast<pag::Frame>(ceil(composition->duration * factor / composition->frameRate));
+      static_cast<pag::Frame>(ceil(composition->duration * frameRate / composition->frameRate));
 
   if (session->configParam.bitmapMaxResolution > 0) {
     int shorterSideLength =

@@ -30,7 +30,6 @@ PAGWindow {
     windowBackgroundColor: "#14141E"
     titlebarBackgroundColor: "#14141E"
     titleFontSize: 14
-    modality: Qt.ApplicationModal
 
     Rectangle {
         id: progressContainer
@@ -86,7 +85,9 @@ PAGWindow {
 
     onClosing: function (closeEvent) {
         closeEvent.accepted = true;
-        exportWindow.onWindowClosing();
+        if (exportWindow !== null) {
+            exportWindow.onWindowClosing();
+        }
     }
 
     Connections {

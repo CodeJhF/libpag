@@ -561,14 +561,34 @@ bool IsStaticComposition(const AEGP_CompH& compH) {
     return isStatic;
   }
 
-  QImage image = GetCompositionFrameImage(itemH, 0);
-  for (pag::Frame index = 1; index < totalFrames; index++) {
-    QImage newImage = GetCompositionFrameImage(itemH, index);
-    if (image != newImage) {
-      isStatic = false;
-      break;
-    }
+  AEGP_RenderOptionsH renderOptions = nullptr;
+  float frameRate = GetItemFrameRate(itemH);
+
+  Suites->RenderOptionsSuite3()->AEGP_NewFromItem(PluginID, itemH, &renderOptions);
+  if (renderOptions == nullptr) {
+    return isStatic;
   }
+
+  uint8_t* curData = nullptr;
+  uint8_t* preData = nullptr;
+  A_u_long stride = 0;
+  for (pag::Frame frame = 0; frame < totalFrames; frame++) {
+    SetRenderTime(renderOptions, frameRate, frame);
+    A_long width = 0;
+    A_long height = 0;
+    A_u_long rowBytesLength = 0;
+    GetRenderFrame(curData, rowBytesLength, stride, width, height, renderOptions);
+    if (curData != nullptr && preData != nullptr) {
+      if (!exporter::ImageIsStatic(curData, preData, width, height, stride)) {
+        isStatic = false;
+        break;
+      }
+    }
+    std::swap(curData, preData);
+  }
+
+  delete curData;
+  delete preData;
 
   return isStatic;
 }

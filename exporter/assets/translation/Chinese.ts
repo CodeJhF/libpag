@@ -27,7 +27,7 @@
 <context>
     <name>CompositionListView</name>
     <message>
-        <location filename="../qml/CompositionListView.qml" line="289"/>
+        <location filename="../qml/CompositionListView.qml" line="291"/>
         <source>Select Save Path</source>
         <translation>选择存储路径</translation>
     </message>
@@ -94,12 +94,12 @@
         <translation>PAG生成中</translation>
     </message>
     <message>
-        <location filename="../qml/ExportCompositionsProgress.qml" line="58"/>
+        <location filename="../qml/ExportCompositionsProgress.qml" line="57"/>
         <source>%1/%2 Complete</source>
         <translation>%1/%2已完成</translation>
     </message>
     <message>
-        <location filename="../qml/ExportCompositionsProgress.qml" line="150"/>
+        <location filename="../qml/ExportCompositionsProgress.qml" line="149"/>
         <source>Finish</source>
         <translation>完成</translation>
     </message>

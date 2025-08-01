@@ -113,6 +113,7 @@ void ConfigModel::updateConfigFromQML(const QVariantMap& configData) {
   if (configData.contains("keyframeInterval")) {
     currentConfig.bitmapKeyFrameInterval = configData["keyframeInterval"].toInt();
   }
+  saveConfig();
 }
 
 void ConfigModel::resetToDefault() {

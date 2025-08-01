@@ -45,10 +45,12 @@ class OfflineVideoEncoder : public VideoEncoder {
   ~OfflineVideoEncoder() override;
   bool open(int width, int height, double frameRate, bool hasAlpha, int maxKeyFrameInterval,
             int quality) override;
+  void close() override;
   void getInputFrameBuf(uint8_t* data[], int stride[]) override;
   int encodeHeaders(uint8_t* header[], int headerSize[]) override;
-  int encodeFrame(uint8_t* data[], int stride[], uint8_t** pOutStream, FrameType* pFrameType,
-                  int64_t* pOutTimeStamp) override;
+  void encodeFrame(uint8_t* data[], int stride[], FrameType frameType) override;
+  int getEncodedFrame(bool wait, uint8_t** outData, FrameType* outFrameType,
+                      int64_t* outFrameIndex) override;
 
  private:
   static bool readEndParam(bool& hasEnd, bool& earlyExit, const std::string& filePath);

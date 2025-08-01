@@ -414,13 +414,13 @@ PAGWindow {
                         if (progressListWindow) {
                             progressListWindow.closing.connect(function () {
                                 progressListWindow.destroy();
+                                window.show();
                             });
                             window.hide();
                             progressListWindow.show();
                         }
                     }
                     compositionsModel.exportSelectedCompositions();
-                    window.close();
                 }
             }
         }

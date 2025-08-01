@@ -170,19 +170,20 @@ static FrameType GetFrameType(bool currentFrameIsStatic, bool lastFrameIsStatic,
   return FRAME_TYPE_AUTO;
 }
 
-static pag::ByteData* EncodeVideoFrame(PAGEncoder* pagEncoder, uint8_t* rgbaBytes, int rowBytes,
-                                       FrameType* pFrameType, int64_t* pOutTimeStamp) {
+static void EncodeVideoFrame(PAGEncoder* pagEncoder, uint8_t* data, int inDataStride,
+                             FrameType frameType) {
+  pagEncoder->encodeRGBA(data, inDataStride, frameType);
+}
 
-  pag::ByteData* videoBytes = nullptr;
-  uint8_t* output = nullptr;
-  auto size = pagEncoder->encodeRGBA(rgbaBytes, rowBytes, &output, pFrameType, pOutTimeStamp);
-  if (size > 0 && output != nullptr) {
-    auto bytes = new uint8_t[size];
-    memcpy(bytes, output, size);
-    videoBytes = pag::ByteData::MakeAdopted(bytes, size).release();
+static pag::ByteData* GetEncodedVideoFrame(PAGEncoder* pagEncoder, FrameType* outFrameType,
+                                           int64_t* outFrameIndex) {
+  pag::ByteData* encodedData = nullptr;
+  uint8_t* outData = nullptr;
+  auto size = pagEncoder->getEncodedData(&outData, outFrameType, outFrameIndex);
+  if (size > 0 && outData != nullptr) {
+    encodedData = pag::ByteData::MakeCopy(outData, size).release();
   }
-
-  return videoBytes;
+  return encodedData;
 }
 
 static void GetVideoSequence(const std::shared_ptr<PAGExportSession>& session,
@@ -289,17 +290,7 @@ static void GetVideoSequence(const std::shared_ptr<PAGExportSession>& session,
                                               : false;
         FrameType frameType = GetFrameType(currentFrameIsStatic, lastFrameIsStatic,
                                            currentFrameIsVisible, lastFrameIsVisible);
-        int64_t outTimeStamp = 0;
-        pag::ByteData* videoBytes = EncodeVideoFrame(pagEncoder.get(), curData.data(), seqStride,
-                                                     &frameType, &outTimeStamp);
-
-        if (videoBytes != nullptr) {
-          auto videoFrame = new pag::VideoFrame();
-          videoFrame->isKeyframe = (frameType == FRAME_TYPE_I);
-          videoFrame->frame = outTimeStamp;
-          videoFrame->fileBytes = videoBytes;
-          sequence->frames.push_back(videoFrame);
-        }
+        EncodeVideoFrame(pagEncoder.get(), curData.data(), seqStride, frameType);
 
         if (!currentFrameIsStatic) {
           if (lastFrameIsStatic && frame > 0) {
@@ -329,16 +320,15 @@ static void GetVideoSequence(const std::shared_ptr<PAGExportSession>& session,
 
     do {
       FrameType frameType = FRAME_TYPE_AUTO;
-      int64_t outTimeStamp = 0;
-      pag::ByteData* videoBytes =
-          EncodeVideoFrame(pagEncoder.get(), nullptr, 0, &frameType, &outTimeStamp);
+      int64_t index = 0;
+      pag::ByteData* videoBytes = GetEncodedVideoFrame(pagEncoder.get(), &frameType, &index);
       if (videoBytes == nullptr) {
         break;
       }
 
       auto videoFrame = new pag::VideoFrame();
       videoFrame->isKeyframe = (frameType == FRAME_TYPE_I);
-      videoFrame->frame = outTimeStamp;
+      videoFrame->frame = index;
       videoFrame->fileBytes = videoBytes;
       sequence->frames.push_back(videoFrame);
     } while (!session->stopExport);

@@ -388,7 +388,9 @@ static bool CompareVideoComposition(const std::shared_ptr<PAGExportSession>& ses
 
 static void CheckDuplicateVideoSequence(const std::shared_ptr<PAGExportSession>& session,
                                         std::vector<pag::Composition*>& compositions) {
-  // TODO: add 'enableForceStaticBMP' ?
+  if (!session->exportStaticCompAsBmp) {
+    return;
+  }
 
   std::vector<pag::Composition*> videoCompositions = {};
   for (auto composition : compositions) {

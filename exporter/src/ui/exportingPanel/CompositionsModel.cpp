@@ -205,6 +205,7 @@ void CompositionsModel::prepareForPreview(int row) {
   pagExport = std::make_unique<PAGExport>(resource->itemH, outputPath, exportAudio);
   QQmlContext* context = engine->rootContext();
   context->setContextProperty("progressModel", &pagExport->session->progressModel);
+  context->setContextProperty("exportWindow", nullptr);
 }
 
 void CompositionsModel::previewComposition(int row) {

@@ -36,10 +36,12 @@ class VideoEncoder {
   virtual ~VideoEncoder() = default;
   virtual bool open(int width, int height, double frameRate, bool hasAlpha, int maxKeyFrameInterval,
                     int quality) = 0;
-  virtual int encodeFrame(uint8_t* data[], int stride[], uint8_t** pOutStream,
-                          FrameType* pFrameType, int64_t* pOutTimeStamp) = 0;
+  virtual void close() = 0;
+  virtual void encodeFrame(uint8_t* data[], int stride[], FrameType frameType) = 0;
   virtual int encodeHeaders(uint8_t* header[], int headerSize[]) = 0;
   virtual void getInputFrameBuf(uint8_t* data[], int stride[]) = 0;
+  virtual int getEncodedFrame(bool wait, uint8_t** outData, FrameType* outFrameType,
+                              int64_t* outFrameIndex) = 0;
 
  protected:
   int width = 0;
@@ -53,9 +55,9 @@ class PAGEncoder {
   bool init(int width, int height, double frameRate, bool hasAlpha, int maxKeyFrameInterval = 0,
             int quality = 0);
   void getAlphaStartXY(int32_t* pAlphaStartX, int32_t* pAlphaStartY);
-  int encodeRGBA(uint8_t* inData, int inDataStride, uint8_t** outStream, FrameType* pFrameType,
-                 int64_t* pFrameIndex);
+  void encodeRGBA(uint8_t* data, int dataStride, FrameType frameType);
   int encodeHeaders(uint8_t* header[], int headerSize[]);
+  int getEncodedData(uint8_t** outData, FrameType* outFrameType, int64_t* outFrameIndex);
 
  private:
   const int paddingX = 4;

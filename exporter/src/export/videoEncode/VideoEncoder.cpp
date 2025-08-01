@@ -107,34 +107,36 @@ void PAGEncoder::getAlphaStartXY(int32_t* pAlphaStartX, int32_t* pAlphaStartY) {
   *pAlphaStartY = alphaStartY;
 }
 
-int PAGEncoder::encodeRGBA(uint8_t* inData, int inDataStride, uint8_t** outStream,
-                           FrameType* pFrameType, int64_t* pFrameIndex) {
-  uint8_t* data[4] = {nullptr};
-  int stride[4] = {0};
-  enc->getInputFrameBuf(data, stride);
+void PAGEncoder::encodeRGBA(uint8_t* data, int dataStride, FrameType frameType) {
+  uint8_t* tmpData[4] = {nullptr};
+  int tmpStride[4] = {0};
+  enc->getInputFrameBuf(tmpData, tmpStride);
 
-  if (inData != NULL) {
-    RGBAToYUV420(inData, inDataStride, data[0], data[1], data[2], stride[0], stride[1], inputWidth,
-                 inputHeight, 0);
-
-    if (hasAlpha) {
-      GetAlphaFromRGBA(data, stride, inData, inDataStride, SIZE_ALIGN(inputWidth),
-                       SIZE_ALIGN(inputHeight), alphaStartX, alphaStartY);
-
-      FillYUVPadding(data, stride, SIZE_ALIGN(inputWidth), SIZE_ALIGN(inputHeight), alphaStartX,
-                     alphaStartY);
-    }
-  } else {
-    data[0] = nullptr;
+  if (data == nullptr) {
+    return;
   }
 
-  auto size = enc->encodeFrame(data, stride, outStream, pFrameType, pFrameIndex);
+  RGBAToYUV420(data, dataStride, tmpData[0], tmpData[1], tmpData[2], tmpStride[0], tmpStride[1],
+               inputWidth, inputHeight, 0);
 
-  return size;
+  if (hasAlpha) {
+    GetAlphaFromRGBA(tmpData, tmpStride, data, dataStride, SIZE_ALIGN(inputWidth),
+                     SIZE_ALIGN(inputHeight), alphaStartX, alphaStartY);
+
+    FillYUVPadding(tmpData, tmpStride, SIZE_ALIGN(inputWidth), SIZE_ALIGN(inputHeight), alphaStartX,
+                   alphaStartY);
+  }
+
+  enc->encodeFrame(tmpData, tmpStride, frameType);
 }
 
 int PAGEncoder::encodeHeaders(uint8_t* header[], int headerSize[]) {
   return enc->encodeHeaders(header, headerSize);
+}
+
+int PAGEncoder::getEncodedData(uint8_t** outData, FrameType* outFrameType, int64_t* outFrameIndex) {
+  enc->close();
+  return enc->getEncodedFrame(true, outData, outFrameType, outFrameIndex);
 }
 
 }  // namespace exporter

@@ -82,15 +82,15 @@ ListView {
             anchors.verticalCenter: parent.verticalCenter
             visible: true
             source: {
-                let basePath = "file:///Users/markffan/workspace/refactor3/libpag/exporter/assets/images/";
                 if (exportStatus === 2) {
-                    return basePath + "export-error.png";
+                    return "qrc:/images/export-error.png";
                 }
                 if (exportStatus === 1) {
-                    return basePath + "export-success.png";
+                    return "qrc:/images/export-success.png";
                 }
-                return basePath + "export-waiting.png";
+                return "qrc:/images/export-waiting.png";
             }
+            rotation: exportStatus !== 0 ? 0 : statusIcon.rotation
             RotationAnimation on rotation {
                 running: exportStatus === 0 && currentFrame > 0.0
                 to: 360

@@ -99,10 +99,7 @@ static void ReadBitmapConfig(XMLElement* bitmapElement, ConfigParam* configParam
 
   if (XMLElement* sequencesElement = bitmapElement->FirstChildElement("sequences")) {
     if (const XMLElement* sequenceElement = sequencesElement->FirstChildElement("sequence")) {
-      double frameRate = 24.0;
-      if (sequenceElement->DoubleAttribute("framerate", frameRate) == XML_SUCCESS) {
-        configParam->frameRate = static_cast<float>(frameRate);
-      }
+      configParam->frameRate = sequenceElement->FloatAttribute("framerate", 24.0);
     }
   }
 

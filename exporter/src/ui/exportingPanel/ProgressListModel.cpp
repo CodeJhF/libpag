@@ -55,7 +55,8 @@ void ProgressListModel::addSession(const std::shared_ptr<PAGExportSession>& sess
 
 void ProgressListModel::clearSessions() {
   sessionList.clear();
-  Q_EMIT dataChanged(createIndex(0, 0), createIndex(0, 0));
+  beginResetModel();
+  endResetModel();
   Q_EMIT exportNumChanged(0);
   Q_EMIT totalExportNumChanged(0);
 }
@@ -107,7 +108,8 @@ QVariant ProgressListModel::data(const QModelIndex& index, int role) const {
       return session->progressModel.getCurrentFrame();
     }
     case static_cast<int>(ProgressListModelRoles::TotalFrameRole): {
-      return session->progressModel.getTotalFrame();
+      auto totalFrame = session->progressModel.getTotalFrame();
+      return totalFrame == 0.0 ? 1.0 : totalFrame;
     }
     default: {
       return {};
