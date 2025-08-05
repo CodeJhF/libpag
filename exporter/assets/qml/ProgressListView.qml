@@ -92,7 +92,7 @@ ListView {
             }
             rotation: exportStatus !== 0 ? 0 : statusIcon.rotation
             RotationAnimation on rotation {
-                running: exportStatus === 0 && currentFrame > 0.0
+                running: exportStatus === 0
                 to: 360
                 duration: 1500
                 loops: Animation.Infinite

@@ -88,6 +88,7 @@ class CompositionsModel : public QAbstractListModel {
   size_t allSelectedNum = 0;
   QQmlEngine* engine = nullptr;
   std::unique_ptr<PAGExport> pagExport = nullptr;
+  std::vector<std::unique_ptr<PAGExport>> pagExports = {};
   std::unique_ptr<ProgressListModel> progressListModel = nullptr;
   std::vector<std::shared_ptr<AEResource>> resources = {};
   std::vector<std::shared_ptr<ExportCompositionData>> compositions = {};

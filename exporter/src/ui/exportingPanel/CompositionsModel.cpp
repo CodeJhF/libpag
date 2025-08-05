@@ -167,7 +167,10 @@ void CompositionsModel::setExportAudio(bool exportAudio) {
 
 void CompositionsModel::exportSelectedCompositions() {
   progressListModel->clearSessions();
-  std::vector<PAGExport*> pagExports = {};
+
+  auto* context = engine->rootContext();
+  context->setContextProperty("exportCompositionsWindow", this);
+
   std::vector<std::shared_ptr<AEResource>> exportResources = {};
   for (const auto& resource : resources) {
     if (resource->isExport) {
@@ -179,20 +182,21 @@ void CompositionsModel::exportSelectedCompositions() {
       continue;
     }
     std::string outputPath = FileHelper::JoinPaths(resource->savePath, resource->name + ".pag");
-    auto* pagExport = new PAGExport(resource->itemH, outputPath, exportAudio);
-    pagExports.push_back(pagExport);
+    auto pagExport = std::make_unique<PAGExport>(resource->itemH, outputPath, exportAudio);
     progressListModel->addSession(pagExport->session);
+    pagExports.push_back(std::move(pagExport));
   }
 
-  for (auto pagExport : pagExports) {
-    bool result = PAGExport::ExportFile(pagExport);
+  for (auto& pagExport : pagExports) {
+    bool result = PAGExport::ExportFile(pagExport.get());
     if (result) {
       pagExport->session->progressModel.setExportStatus(ProgressModel::ExportStatus::Success);
     } else {
       pagExport->session->progressModel.setExportStatus(ProgressModel::ExportStatus::Error);
     }
-    delete pagExport;
   }
+  pagExports.clear();
+  context->setContextProperty("exportCompositionsWindow", nullptr);
 }
 
 void CompositionsModel::prepareForPreview(int row) {
@@ -235,6 +239,9 @@ void CompositionsModel::updateNames() {
 
 void CompositionsModel::onWindowClosing() {
   if (pagExport != nullptr && pagExport->session != nullptr) {
+    pagExport->session->stopExport = true;
+  }
+  for (const auto& pagExport : pagExports) {
     pagExport->session->stopExport = true;
   }
 }

@@ -64,10 +64,9 @@ void WindowManager::showPAGConfigWindow() {
 void WindowManager::showExportPreviewWindow() {
   init();
   if (previewWindow == nullptr) {
-    previewWindow = std::make_unique<ExportWindow>(app.get());
+    std::string outputPath = FileHelper::JoinPaths(GetTempFolderPath(), ".previewTmp.pag");
+    previewWindow = std::make_unique<ExportWindow>(app.get(), outputPath);
   }
-  std::string outputPath = FileHelper::JoinPaths(GetTempFolderPath(), ".previewTmp.pag");
-  previewWindow->setOutputPath(outputPath);
   previewWindow->show();
   app->exec();
 }

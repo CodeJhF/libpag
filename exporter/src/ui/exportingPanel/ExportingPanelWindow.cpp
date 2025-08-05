@@ -17,7 +17,6 @@
 /////////////////////////////////////////////////////////////////////////////////////////////////
 
 #include "ExportingPanelWindow.h"
-#include "platform/PlatformHelper.h"
 #include <QApplication>
 #include <QQmlContext>
 #include <QThread>
@@ -25,6 +24,7 @@
 #include <map>
 #include "CompositionsModel.h"
 #include "export/ExportComposition.h"
+#include "platform/PlatformHelper.h"
 #include "src/export/ExportLayer.h"
 #include "utils/AEHelper.h"
 #include "utils/AEResource.h"

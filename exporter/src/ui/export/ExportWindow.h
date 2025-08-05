@@ -30,11 +30,10 @@ namespace exporter {
 class ExportWindow : public BaseWindow {
   Q_OBJECT
  public:
-  explicit ExportWindow(QApplication* app, QObject* parent = nullptr);
+  explicit ExportWindow(QApplication* app, const std::string& outputPath = "", QObject* parent = nullptr);
 
   void show() override;
   void onWindowClosing() override;
-  void setOutputPath(const std::string& outputPath);
 
  private:
   std::string getOutputPath();

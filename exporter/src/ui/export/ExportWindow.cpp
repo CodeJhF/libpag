@@ -27,40 +27,15 @@
 
 namespace exporter {
 
-ExportWindow::ExportWindow(QApplication* app, QObject* parent) : BaseWindow(app, parent) {
+ExportWindow::ExportWindow(QApplication* app, const std::string& outputPath, QObject* parent) : BaseWindow(app, parent), outputPath(outputPath) {
   init();
 }
 
 void ExportWindow::show() {
-  if (QThread::currentThread() != app->thread()) {
-    qCritical() << "Must call init() in main thread";
+  if (pagExport== nullptr) {
     return;
   }
-  if (itemH == nullptr) {
-    return;
-  }
-  if (outputPath.empty()) {
-    outputPath = getOutputPath();
-    if (outputPath.empty()) {
-      return;
-    }
-  }
-
-  pagExport = std::make_unique<PAGExport>(itemH, outputPath, true);
-
-  QQmlContext* context = engine->rootContext();
-  QQmlEngine::setObjectOwnership(this, QQmlEngine::CppOwnership);
-  context->setContextProperty("exportWindow", this);
-  QQmlEngine::setObjectOwnership(&pagExport->session->progressModel, QQmlEngine::CppOwnership);
-  context->setContextProperty("progressModel", &pagExport->session->progressModel);
-
-  engine->load(QUrl(QStringLiteral("qrc:/qml/ExportCompositionProgress.qml")));
-
-  window = qobject_cast<QQuickWindow*>(engine->rootObjects().first());
-  window->setPersistentGraphics(true);
-  window->setPersistentSceneGraph(true);
-  QQuickWindow::setTextRenderType(QQuickWindow::TextRenderType::NativeTextRendering);
-  window->show();
+  BaseWindow::show();
 
   bool result = PAGExport::ExportFile(pagExport.get());
   if (result) {
@@ -68,6 +43,7 @@ void ExportWindow::show() {
   } else {
     pagExport->session->progressModel.setExportStatus(ProgressModel::ExportStatus::Error);
   }
+  QQmlContext* context = engine->rootContext();
   context->setContextProperty("progressModel", nullptr);
   pagExport.reset();
   if (result) {
@@ -80,10 +56,6 @@ void ExportWindow::onWindowClosing() {
     pagExport->session->stopExport = true;
   }
   BaseWindow::onWindowClosing();
-}
-
-void ExportWindow::setOutputPath(const std::string& outputPath) {
-  this->outputPath = outputPath;
 }
 
 std::string ExportWindow::getOutputPath() {
@@ -100,7 +72,38 @@ std::string ExportWindow::getOutputPath() {
 }
 
 void ExportWindow::init() {
+  if (QThread::currentThread() != app->thread()) {
+    qCritical() << "Must call init() in main thread";
+    return;
+  }
+
   itemH = AEHelper::GetActiveCompositionItem();
+  if (itemH == nullptr) {
+    return;
+  }
+
+  if (outputPath.empty()) {
+    outputPath = getOutputPath();
+    if (outputPath.empty()) {
+      return;
+    }
+  }
+
+  pagExport = std::make_unique<PAGExport>(itemH, outputPath, true);
+
+  QQmlContext* context = engine->rootContext();
+  QQmlEngine::setObjectOwnership(this, QQmlEngine::CppOwnership);
+  context->setContextProperty("exportWindow", this);
+  QQmlEngine::setObjectOwnership(&pagExport->session->progressModel, QQmlEngine::CppOwnership);
+  context->setContextProperty("progressModel", &pagExport->session->progressModel);
+
+  QMetaObject::invokeMethod(this, [this]() {
+    engine->load(QUrl(QStringLiteral("qrc:/qml/ExportCompositionProgress.qml")));
+    window = qobject_cast<QQuickWindow*>(engine->rootObjects().first());
+    window->setPersistentGraphics(true);
+    window->setPersistentSceneGraph(true);
+    QQuickWindow::setTextRenderType(QQuickWindow::TextRenderType::NativeTextRendering);
+  }, Qt::QueuedConnection);
 }
 
 }  // namespace exporter

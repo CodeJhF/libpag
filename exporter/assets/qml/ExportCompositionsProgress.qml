@@ -164,4 +164,11 @@ PAGWindow {
             }
         }
     }
+
+    onClosing: function (closeEvent) {
+        closeEvent.accepted = true;
+        if (exportCompositionsWindow !== null) {
+            exportCompositionsWindow.onWindowClosing();
+        }
+    }
 }
