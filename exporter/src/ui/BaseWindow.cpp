@@ -34,7 +34,7 @@ void BaseWindow::show() {
   }
 }
 
-void BaseWindow::switchLanguage() {
+void BaseWindow::switchLanguage() const {
   engine->retranslate();
 }
 

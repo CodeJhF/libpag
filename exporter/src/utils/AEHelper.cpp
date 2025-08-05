@@ -572,7 +572,15 @@ bool IsStaticComposition(const AEGP_CompH& compH) {
   uint8_t* curData = nullptr;
   uint8_t* preData = nullptr;
   A_u_long stride = 0;
-  for (pag::Frame frame = 0; frame < totalFrames; frame++) {
+  pag::Frame step = 1;
+  while (true) {
+    pag::Frame value = totalFrames / step;
+    if (value < 100) {
+      break;
+    }
+    step *= 10;
+  }
+  for (pag::Frame frame = 0; frame < totalFrames; frame += step) {
     SetRenderTime(renderOptions, frameRate, frame);
     A_long width = 0;
     A_long height = 0;

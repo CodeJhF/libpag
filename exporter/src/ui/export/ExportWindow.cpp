@@ -32,38 +32,54 @@ ExportWindow::ExportWindow(QApplication* app, QObject* parent) : BaseWindow(app,
 }
 
 void ExportWindow::show() {
+  if (QThread::currentThread() != app->thread()) {
+    qCritical() << "Must call init() in main thread";
+    return;
+  }
   if (itemH == nullptr) {
     return;
   }
   if (outputPath.empty()) {
     outputPath = getOutputPath();
-  }
-  if (outputPath.empty()) {
-    return;
+    if (outputPath.empty()) {
+      return;
+    }
   }
 
-  auto* pagExport = new PAGExport(itemH, outputPath, true);
+  pagExport = std::make_unique<PAGExport>(itemH, outputPath, true);
 
   QQmlContext* context = engine->rootContext();
+  QQmlEngine::setObjectOwnership(this, QQmlEngine::CppOwnership);
   context->setContextProperty("exportWindow", this);
+  QQmlEngine::setObjectOwnership(&pagExport->session->progressModel, QQmlEngine::CppOwnership);
   context->setContextProperty("progressModel", &pagExport->session->progressModel);
 
   engine->load(QUrl(QStringLiteral("qrc:/qml/ExportCompositionProgress.qml")));
+
   window = qobject_cast<QQuickWindow*>(engine->rootObjects().first());
   window->setPersistentGraphics(true);
   window->setPersistentSceneGraph(true);
   QQuickWindow::setTextRenderType(QQuickWindow::TextRenderType::NativeTextRendering);
   window->show();
 
-  bool result = PAGExport::ExportFile(pagExport);
+  bool result = PAGExport::ExportFile(pagExport.get());
   if (result) {
     pagExport->session->progressModel.setExportStatus(ProgressModel::ExportStatus::Success);
   } else {
     pagExport->session->progressModel.setExportStatus(ProgressModel::ExportStatus::Error);
   }
   context->setContextProperty("progressModel", nullptr);
-  delete pagExport;
-  FileHelper::OpenPAGFile(outputPath);
+  pagExport.reset();
+  if (result) {
+    FileHelper::OpenPAGFile(outputPath);
+  }
+}
+
+void ExportWindow::onWindowClosing() {
+  if (pagExport != nullptr && pagExport->session != nullptr) {
+    pagExport->session->stopExport = true;
+  }
+  BaseWindow::onWindowClosing();
 }
 
 void ExportWindow::setOutputPath(const std::string& outputPath) {
@@ -84,11 +100,6 @@ std::string ExportWindow::getOutputPath() {
 }
 
 void ExportWindow::init() {
-  if (QThread::currentThread() != app->thread()) {
-    qCritical() << "Must call init() in main thread";
-    return;
-  }
-
   itemH = AEHelper::GetActiveCompositionItem();
 }
 

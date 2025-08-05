@@ -205,7 +205,7 @@ void CompositionsModel::prepareForPreview(int row) {
   pagExport = std::make_unique<PAGExport>(resource->itemH, outputPath, exportAudio);
   QQmlContext* context = engine->rootContext();
   context->setContextProperty("progressModel", &pagExport->session->progressModel);
-  context->setContextProperty("exportWindow", nullptr);
+  context->setContextProperty("exportWindow", this);
 }
 
 void CompositionsModel::previewComposition(int row) {
@@ -223,12 +223,20 @@ void CompositionsModel::previewComposition(int row) {
   }
   QQmlContext* context = engine->rootContext();
   context->setContextProperty("progressModel", nullptr);
-  FileHelper::OpenPAGFile(pagExport->session->outputPath);
+  if (result) {
+    FileHelper::OpenPAGFile(pagExport->session->outputPath);
+  }
 }
 
 void CompositionsModel::updateNames() {
   Q_EMIT dataChanged(index(0, 0), index(rowCount({}) - 1, 0),
                      {static_cast<int>(ExportCompositionModelRoles::NameRole)});
+}
+
+void CompositionsModel::onWindowClosing() {
+  if (pagExport != nullptr && pagExport->session != nullptr) {
+    pagExport->session->stopExport = true;
+  }
 }
 
 int CompositionsModel::rowCount(const QModelIndex&) const {

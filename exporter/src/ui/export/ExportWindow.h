@@ -21,6 +21,7 @@
 #include <QApplication>
 #include <QQmlApplicationEngine>
 #include <QQuickWindow>
+#include "export/PAGExport.h"
 #include "ui/BaseWindow.h"
 #include "utils/AEHelper.h"
 
@@ -32,6 +33,7 @@ class ExportWindow : public BaseWindow {
   explicit ExportWindow(QApplication* app, QObject* parent = nullptr);
 
   void show() override;
+  void onWindowClosing() override;
   void setOutputPath(const std::string& outputPath);
 
  private:
@@ -40,6 +42,7 @@ class ExportWindow : public BaseWindow {
 
   AEGP_ItemH itemH = nullptr;
   std::string outputPath = "";
+  std::unique_ptr<PAGExport> pagExport = nullptr;
 };
 
 }  // namespace exporter

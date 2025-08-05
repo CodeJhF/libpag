@@ -45,10 +45,6 @@ WindowManager::WindowManager() {
 
 void WindowManager::showExportPanelWindow() {
   init();
-  if (exportingPanelWindow != nullptr && exportingPanelWindow->isWaitToDestory()) {
-    exportingPanelWindow.reset();
-  }
-
   if (exportingPanelWindow == nullptr) {
     exportingPanelWindow = std::make_unique<ExportingPanelWindow>(app.get());
   }
@@ -146,6 +142,10 @@ void WindowManager::init() {
 
   if (exportWindow != nullptr && exportWindow->isWaitToDestory()) {
     exportWindow.reset();
+  }
+
+  if (exportingPanelWindow != nullptr && exportingPanelWindow->isWaitToDestory()) {
+    exportingPanelWindow.reset();
   }
 }
 

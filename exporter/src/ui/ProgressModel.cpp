@@ -17,6 +17,7 @@
 /////////////////////////////////////////////////////////////////////////////////////////////////
 
 #include "ProgressModel.h"
+#include <QApplication>
 
 namespace exporter {
 
@@ -28,6 +29,9 @@ int ProgressModel::getExportStatus() const {
 }
 
 double ProgressModel::getTotalFrame() const {
+  if (totalFrame == 0) {
+    return 1.0;
+  }
   return totalFrame;
 }
 
@@ -67,6 +71,7 @@ void ProgressModel::addProgress(double value) {
   if (currentFrame >= totalFrame) {
     currentFrame = totalFrame;
   }
+  QApplication::processEvents();
   Q_EMIT currentFrameChanged(currentFrame);
 }
 

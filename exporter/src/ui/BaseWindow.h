@@ -30,7 +30,7 @@ class BaseWindow : public QObject {
   explicit BaseWindow(QApplication* app, QObject* parent = nullptr);
 
   virtual void show();
-  void switchLanguage();
+  void switchLanguage() const;
   virtual bool isWaitToDestory() const;
   Q_SLOT virtual void onWindowClosing();
 

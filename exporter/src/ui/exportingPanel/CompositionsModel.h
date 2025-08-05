@@ -67,6 +67,7 @@ class CompositionsModel : public QAbstractListModel {
   Q_INVOKABLE void prepareForPreview(int row);
   Q_INVOKABLE void previewComposition(int row);
   Q_INVOKABLE void updateNames();
+  Q_INVOKABLE void onWindowClosing();
 
   int rowCount(const QModelIndex& parent) const override;
   int columnCount(const QModelIndex& parent) const override;

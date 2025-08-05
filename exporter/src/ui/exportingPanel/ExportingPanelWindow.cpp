@@ -17,7 +17,7 @@
 /////////////////////////////////////////////////////////////////////////////////////////////////
 
 #include "ExportingPanelWindow.h"
-#include <platform/PlatformHelper.h>
+#include "platform/PlatformHelper.h"
 #include <QApplication>
 #include <QQmlContext>
 #include <QThread>
@@ -56,7 +56,7 @@ void ExportingPanelWindow::init() {
   window = qobject_cast<QQuickWindow*>(engine->rootObjects().first());
   window->setPersistentGraphics(true);
   window->setPersistentSceneGraph(true);
-  window->setTextRenderType(QQuickWindow::TextRenderType::NativeTextRendering);
+  QQuickWindow::setTextRenderType(QQuickWindow::TextRenderType::NativeTextRendering);
 
   resources = AEResource::getAEResourceList();
   compositionsModel->setAEResources(resources);

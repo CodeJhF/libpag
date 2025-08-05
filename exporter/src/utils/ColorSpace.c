@@ -872,7 +872,7 @@ static void xx_i420_to_nv12_c(uint8_t* dst[], int dst_stride[], uint8_t* src[], 
 #define YUV_TO_RGB_COEFF_RV    ((int)(1.596*256 + 0.5))   // 409
 
 void xx_i420_to_rgb565_c(unsigned char* dst[], int dst_stride[], unsigned char* src[], int src_stride[], int width,
-                         int height, int vflip) {
+                         int height, int vflip __attribute__((unused))) {
   int Y;
   int i, j;
   int R, G, B, Cr, Cb;
