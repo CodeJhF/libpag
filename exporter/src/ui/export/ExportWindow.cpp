@@ -98,16 +98,11 @@ void ExportWindow::init() {
   QQmlEngine::setObjectOwnership(&pagExport->session->progressModel, QQmlEngine::CppOwnership);
   context->setContextProperty("progressModel", &pagExport->session->progressModel);
 
-  QMetaObject::invokeMethod(
-      this,
-      [this]() {
-        engine->load(QUrl(QStringLiteral("qrc:/qml/ExportCompositionProgress.qml")));
-        window = qobject_cast<QQuickWindow*>(engine->rootObjects().first());
-        window->setPersistentGraphics(true);
-        window->setPersistentSceneGraph(true);
-        QQuickWindow::setTextRenderType(QQuickWindow::TextRenderType::NativeTextRendering);
-      },
-      Qt::QueuedConnection);
+  engine->load(QUrl(QStringLiteral("qrc:/qml/ExportCompositionProgress.qml")));
+  window = qobject_cast<QQuickWindow*>(engine->rootObjects().first());
+  window->setPersistentGraphics(true);
+  window->setPersistentSceneGraph(true);
+  QQuickWindow::setTextRenderType(QQuickWindow::TextRenderType::NativeTextRendering);
 }
 
 }  // namespace exporter

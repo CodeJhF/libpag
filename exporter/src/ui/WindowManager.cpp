@@ -98,6 +98,9 @@ void WindowManager::initializeQtEnvironment() {
   defaultFonts.setStyleHint(QFont::SansSerif);
   QApplication::setFont(defaultFonts);
 #endif
+  int argc = 0;
+  app = std::make_unique<QApplication>(argc, nullptr);
+  app->setObjectName("PAG-Exporter");
   QQuickWindow::setGraphicsApi(QSGRendererInterface::OpenGL);
   QQuickStyle::setStyle("Universal");
 }
@@ -113,13 +116,6 @@ bool WindowManager::showErrors(std::vector<std::string>& /*infos*/) {
 }
 
 void WindowManager::init() {
-  if (app == nullptr) {
-    int argc = 0;
-    app = std::make_unique<QApplication>(argc, nullptr);
-    app->setObjectName("PAG-Exporter");
-    QApplication::setQuitOnLastWindowClosed(false);
-  }
-
   ConfigParam config;
   ReadConfigFile(&config);
   bool result = translator->load(":/translation/Chinese.qm");
