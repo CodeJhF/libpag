@@ -17,8 +17,8 @@
 /////////////////////////////////////////////////////////////////////////////////////////////////
 
 #include "ImageData.h"
-#include <CoreGraphics/CoreGraphics.h>
 #include <webp/encode.h>
+#include "platform/PlatformHelper.h"
 
 namespace exporter {
 
@@ -81,27 +81,7 @@ void ClipTransparentEdge(ImageRect& rect, const uint8_t* srcData, int width, int
 
 void ScaleCoreGraphics(uint8_t* dstRGBA, int dstStride, uint8_t* srcRGBA, int srcStride,
                        int dstWidth, int dstHeight, int srcWidth, int srcHeight) {
-  // TODO: add code for windows
-  CGColorSpaceRef colorSpace = CGColorSpaceCreateDeviceRGB();
-
-  CGContextRef dstCtx =
-      CGBitmapContextCreate(dstRGBA, (size_t)dstWidth, (size_t)dstHeight, 8, (size_t)dstStride,
-                            colorSpace, kCGImageAlphaPremultipliedLast);
-
-  CGContextRef srcCtx =
-      CGBitmapContextCreate(srcRGBA, (size_t)srcWidth, (size_t)srcHeight, 8, (size_t)srcStride,
-                            colorSpace, kCGImageAlphaPremultipliedLast);
-  CGImageRef imageRef = CGBitmapContextCreateImage(srcCtx);
-
-  auto dstRect = CGRectMake(0, 0, (size_t)dstWidth, (size_t)dstHeight);
-  CGContextSetInterpolationQuality(dstCtx, kCGInterpolationLow);
-  CGContextClearRect(dstCtx, dstRect);
-  CGContextDrawImage(dstCtx, dstRect, imageRef);
-
-  CGImageRelease(imageRef);
-  CGContextRelease(srcCtx);
-  CGContextRelease(dstCtx);
-  CGColorSpaceRelease(colorSpace);
+  ScaleGraphics(dstRGBA, dstStride, srcRGBA, srcStride, dstWidth, dstHeight, srcWidth, srcHeight);
 }
 
 void GetImageDiffRect(ImageRect& rect, const uint8_t* preImage, const uint8_t* curImage, int width,

@@ -137,7 +137,7 @@ static void StartPreview(const std::string& pagFilePath) {
   if (!FileHelper::FileIsExist(pagFilePath)) {
     QString errorMsg =
         QString::fromUtf8(Messages::FILE_NOT_EXIST) + QString::fromStdString(pagFilePath);
-    WindowManager::GetInstance().showSimpleError(errorMsg);
+    // WindowManager::GetInstance().showSimpleError(errorMsg);
     return;
   }
 
@@ -145,7 +145,7 @@ static void StartPreview(const std::string& pagFilePath) {
   if (pagViewerPath.empty()) {
     QString errorMsg =
         QString::fromUtf8(Messages::PAGVIEWER_NOT_FOUND) + QString::fromStdString(pagFilePath);
-    WindowManager::GetInstance().showSimpleError(errorMsg);
+    // WindowManager::GetInstance().showSimpleError(errorMsg);
     return;
   }
 
@@ -164,7 +164,7 @@ static void StartPreview(const std::string& pagFilePath) {
   } else {
     QString errorMsg =
         QString::fromUtf8(Messages::PREVIEW_LAUNCH_FAILED) + QString::number(GetLastError());
-    WindowManager::GetInstance().showSimpleError(errorMsg);
+    // WindowManager::GetInstance().showSimpleError(errorMsg);
   }
 }
 
@@ -174,12 +174,60 @@ void PreviewPAGFile(std::string pagFilePath) {
   auto checker = std::make_unique<PAGViewerCheck>(config);
 
   if (!checker->isPAGViewerInstalled()) {
-    bool installSuccess = WindowManager::GetInstance().showPAGViewerInstallDialog(pagFilePath);
-    if (!installSuccess) {
-      return;
-    }
+    // bool installSuccess = WindowManager::GetInstance().showPAGViewerInstallDialog(pagFilePath);
+    // if (!installSuccess) {
+    //   return;
+    // }
   }
   StartPreview(pagFilePath);
+}
+
+// 缩放，双线性插值，未优化
+void ScaleRGBABiLinear(uint8_t* dstRGBA, int dstStride, uint8_t* srcRGBA, int srcStride, int dstWidth, int dstHeight,
+                       int srcWidth, int srcHeight) {
+
+  double xFactor = (double)srcWidth / dstWidth;
+  double yFactor = (double)srcHeight / dstHeight;
+
+  for (int j = 0; j < dstHeight; j++) {
+    auto dst = dstRGBA + j * dstStride;
+
+    auto sj = (int)(j * yFactor);
+    auto src0 = srcRGBA + sj * srcStride;
+    auto src1 = srcRGBA + (sj + 1) * srcStride;
+    if (sj >= srcHeight - 1) {
+      src1 = src0;
+    }
+
+    // y权重
+    double y1 = j * yFactor - sj;
+    double y0 = 1 - y1;
+
+    for (int i = 0; i < dstWidth; i++) {
+      auto si = (int)(i * xFactor);
+
+      // x权重
+      double x1 = i * xFactor - si;
+      double x0 = 1 - x1;
+
+      si *= 4; // RGBA=4
+
+      dst[0] = (uint8_t)lround(
+          src0[si + 0] * x0 * y0 + src0[si + 4] * x1 * y0 + src1[si + 0] * x0 * y1 + src1[si + 4] * x1 * y1);
+      dst[1] = (uint8_t)lround(
+          src0[si + 1] * x0 * y0 + src0[si + 5] * x1 * y0 + src1[si + 1] * x0 * y1 + src1[si + 5] * x1 * y1);
+      dst[2] = (uint8_t)lround(
+          src0[si + 2] * x0 * y0 + src0[si + 6] * x1 * y0 + src1[si + 2] * x0 * y1 + src1[si + 6] * x1 * y1);
+      dst[3] = (uint8_t)lround(
+          src0[si + 3] * x0 * y0 + src0[si + 7] * x1 * y0 + src1[si + 3] * x0 * y1 + src1[si + 7] * x1 * y1);
+
+      dst += 4;
+    }
+  }
+}
+
+void ScaleGraphics(uint8_t* dstRGBA, int dstStride, uint8_t* srcRGBA, int srcStride, int dstWidth, int dstHeight, int srcWidth, int srcHeight) {
+  ScaleRGBABiLinear(dstRGBA, dstStride, srcRGBA, srcStride, dstWidth, dstHeight, srcWidth, srcHeight);
 }
 
 }  // namespace exporter

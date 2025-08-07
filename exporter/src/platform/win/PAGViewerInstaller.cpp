@@ -20,10 +20,9 @@
 #include <QDebug>
 #include <QDir>
 #include <QFile>
+#include <QProcess>
 #include <QSettings>
 #include <QStandardPaths>
-
-#ifdef Q_OS_WIN
 #include <shlobj.h>
 #include <windows.h>
 
@@ -67,7 +66,7 @@ InstallStatus PAGViewerInstaller::executeInstall(const QString& installerPath) {
   installerProcess.setArguments(arguments);
 
   installerProcess.start();
-  installerProcess.waitForFinished(INSTALLER_PROCESS_TIMEOUT_MS);
+  installerProcess.waitForFinished(UNZIP_PROCESS_TIMEOUT_MS);
 
   if (installerProcess.exitCode() != 0) {
     QString error = installerProcess.readAllStandardError();
@@ -83,5 +82,3 @@ InstallStatus PAGViewerInstaller::executeInstall(const QString& installerPath) {
 }
 
 }  // namespace exporter
-
-#endif

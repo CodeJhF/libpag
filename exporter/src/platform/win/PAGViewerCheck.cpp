@@ -1,8 +1,8 @@
 #include "platform/PAGViewerCheck.h"
-#include <shellapi.h>
-#include <shlobj.h>
-#include <stringapiset.h>
 #include <windows.h>
+#include <shlobj.h>
+#include <shellapi.h>
+#include <stringapiset.h>
 #include <winerror.h>
 #include <winreg.h>
 #include <algorithm>
@@ -161,14 +161,14 @@ static PackageInfo ReadPackageInfoFromRegistry(const RegistryKey& parentKey,
     return info;
   }
 
-  info.displayName = readRegistryStringValue(subKey, L"DisplayName");
+  info.displayName = ReadRegistryStringValue(subKey, L"DisplayName");
   if (info.displayName.empty()) {
-    info.displayName = readRegistryStringValue(subKey, L"QuietDisplayName");
+    info.displayName = ReadRegistryStringValue(subKey, L"QuietDisplayName");
   }
 
-  info.version = readRegistryStringValue(subKey, L"DisplayVersion");
-  info.installLocation = readRegistryStringValue(subKey, L"InstallLocation");
-  info.uninstallString = readRegistryStringValue(subKey, L"UninstallString");
+  info.version = ReadRegistryStringValue(subKey, L"DisplayVersion");
+  info.installLocation = ReadRegistryStringValue(subKey, L"InstallLocation");
+  info.uninstallString = ReadRegistryStringValue(subKey, L"UninstallString");
 
   return info;
 }
@@ -182,7 +182,7 @@ static void ScanRegistryView(std::vector<PackageInfo>& softwareList, HKEY rootKe
 
   auto subKeys = EnumerateRegistrySubKeys(uninstallKey);
   for (const auto& subKeyName : subKeys) {
-    PackageInfo info = readSoftwareInfoFromRegistry(uninstallKey, subKeyName);
+    PackageInfo info = ReadPackageInfoFromRegistry(uninstallKey, subKeyName);
     if (!info.displayName.empty()) {
       softwareList.push_back(std::move(info));
     }
@@ -202,7 +202,7 @@ void AppConfig::setAppName(const std::string& name) {
   this->AppName = name;
 }
 
-std::string AppConfig::getTargetAppName() {
+std::string AppConfig::getAppName() {
   return this->AppName;
 }
 
@@ -260,13 +260,13 @@ std::vector<PackageInfo> PAGViewerCheck::findPackageinfoByName(const std::string
 InstallStatus PAGViewerCheck::installPAGViewer() {
   std::string installerPathStr = config->getInstallerPath();
   if (installerPathStr.empty() || installerPathStr.length() > MAX_PATH) {
-    return InstallStatus::Error(InstallResult::InvalidPath,
+    return InstallStatus(InstallResult::InvalidPath,
                                 "Invalid installer path: " + installerPathStr);
   }
 
   std::wstring installerPathW = stringToWstring(installerPathStr);
-  if (!FileHelper::FileIsExist(installerPathW)) {
-    return InstallStatus::Error(InstallResult::FileNotFound,
+  if (!FileHelper::FileIsExist(installerPathStr)) {
+    return InstallStatus(InstallResult::FileNotFound,
                                 "Installer file not found: " + installerPathStr);
   }
 
@@ -279,9 +279,9 @@ InstallStatus PAGViewerCheck::installPAGViewer() {
   if (!ShellExecuteExW(&sei)) {
     DWORD error = GetLastError();
     if (error == ERROR_CANCELLED) {
-      return InstallStatus::Error(InstallResult::PermissionDenied, "User denied permission.");
+      return InstallStatus(InstallResult::PermissionDenied, "User denied permission.");
     }
-    return InstallStatus::Error(InstallResult::ExecutionFailed,
+    return InstallStatus(InstallResult::ExecutionFailed,
                                 "Failed to execute installer. Error: " + std::to_string(error));
   }
 
@@ -293,14 +293,14 @@ InstallStatus PAGViewerCheck::installPAGViewer() {
     CloseHandle(sei.hProcess);
 
     if (exitCode == 0) {
-      return InstallStatus::Success();
+      return InstallStatus(InstallResult::Success);
     } else {
-      return InstallStatus::Error(InstallResult::ExecutionFailed,
+      return InstallStatus(InstallResult::ExecutionFailed,
                                   "Installer exited with code: " + std::to_string(exitCode));
     }
   }
 
-  return InstallStatus::Success();
+  return InstallStatus(InstallResult::Success);
 }
 
 }  // namespace exporter

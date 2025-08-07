@@ -19,11 +19,14 @@
 #include "OfflineVideoEncoder.h"
 #include <pag/file.h>
 #include <platform/PlatformHelper.h>
+#ifndef WIN32
 #include <unistd.h>
+#endif
 #include <QFile>
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QString>
+#include <thread>
 #include "utils/FileHelper.h"
 
 namespace exporter {
@@ -76,7 +79,7 @@ OfflineVideoEncoder::~OfflineVideoEncoder() {
     if (ret && (hasEnd || earlyExit)) {
       break;
     }
-    usleep(SleepUS);
+    std::this_thread::sleep_for(std::chrono::microseconds(SleepUS));
   }
 }
 
@@ -152,7 +155,7 @@ int OfflineVideoEncoder::encodeHeaders(uint8_t* header[], int headerSize[]) {
       headerSize[1] = size1;
       return 2;
     }
-    usleep(SleepUS);
+    std::this_thread::sleep_for(std::chrono::microseconds(SleepUS));
   }
   return 0;
 }
@@ -197,7 +200,7 @@ int OfflineVideoEncoder::getEncodedFrame(bool wait, uint8_t** outData, FrameType
     }
 
     if (wait) {
-      usleep(SleepUS);
+      std::this_thread::sleep_for(std::chrono::microseconds(SleepUS));
     } else {
       break;
     }

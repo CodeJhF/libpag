@@ -762,8 +762,11 @@ void xx_i420_to_yuyv_c(uint8_t* dst[], int dst_stride[], uint8_t* src[], int src
   }
 }
 
-static void xx_nv12_to_i420_c(uint8_t* dst[], int dst_stride[], uint8_t* src[], int src_stride[] __attribute__((unused)), int width, int height,
-                              int vflip) {
+#ifdef WIN32
+static void xx_nv12_to_i420_c(uint8_t* dst[], int dst_stride[], uint8_t* src[], int src_stride[], int width, int height, int vflip) {
+#else
+static void xx_nv12_to_i420_c(uint8_t* dst[], int dst_stride[], uint8_t* src[], int src_stride[] __attribute__((unused)), int width, int height, int vflip) {
+#endif
   int i, j, k;
   uint8_t* p_dst[3];
   int d_stride[3];
@@ -871,8 +874,13 @@ static void xx_i420_to_nv12_c(uint8_t* dst[], int dst_stride[], uint8_t* src[], 
 #define YUV_TO_RGB_COEFF_GV    ((int)(0.813*256 + 0.5))   // 208
 #define YUV_TO_RGB_COEFF_RV    ((int)(1.596*256 + 0.5))   // 409
 
+#ifdef WIN32
+void xx_i420_to_rgb565_c(unsigned char* dst[], int dst_stride[], unsigned char* src[], int src_stride[], int width,
+                         int height, int vflip) {
+#else
 void xx_i420_to_rgb565_c(unsigned char* dst[], int dst_stride[], unsigned char* src[], int src_stride[], int width,
                          int height, int vflip __attribute__((unused))) {
+#endif
   int Y;
   int i, j;
   int R, G, B, Cr, Cb;
@@ -997,7 +1005,11 @@ xx_csp_convert_pf xx_i420_to_yuyv = xx_i420_to_yuyv_c;
 xx_csp_convert_pf xx_i420_to_nv12 = xx_i420_to_nv12_c;
 xx_csp_convert_pf xx_i420_to_rgb565 = xx_i420_to_rgb565_c;
 
+#ifdef WIN32
+void c264_csp_init(uint32_t cpu) {
+#else
 void c264_csp_init(uint32_t cpu __attribute__((unused))) {
+#endif
   RGB555ToYUV420 = RGB555ToYUV420_c;
   RGB565ToYUV420 = RGB565ToYUV420_c;
   BGRToYUV420 = BGRToYUV420_c;

@@ -35,6 +35,7 @@ endif ()
 if (MSVC)
     add_compile_options("/utf-8")
     add_compile_options(/GR-)
+    add_compile_options(/bigobj)
 endif (MSVC)
 
 # Sets flags
