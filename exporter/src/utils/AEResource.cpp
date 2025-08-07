@@ -21,6 +21,7 @@
 #include <map>
 #include "AEHelper.h"
 #include "StringHelper.h"
+#include "export/Marker.h"
 
 namespace exporter {
 
@@ -146,12 +147,15 @@ AEResource::AEResource() {
 
 void AEResource::setSavePath(const std::string& savePath) {
   this->savePath = savePath;
-  // TODO: Write to marker
+  Marker::SetCompositionStoragePath(savePath, itemH);
 }
 
 void AEResource::initSavePath() {
-  savePath = QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation).toStdString();
-  // TODO: Read form marker
+  std::string path = Marker::GetCompositionStoragePath(itemH);
+  if (path.empty()) {
+    path = QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation).toStdString();
+  }
+  savePath = path;
 }
 
 }  // namespace exporter

@@ -45,6 +45,8 @@ class PAGExportSession {
   void pushWarning(AlertInfoType type, const std::string& addInfo = "");
   pag::GradientColorHandle GetGradientColorsFromFileBytes(
       const std::vector<std::string>& matchNames, int index);
+  bool isVideoLayer(pag::ID id);
+  AEGP_LayerH getLayerHByID(pag::ID id);
 
   bool videoHasAlpha = false;
   bool videoAlphaDetected = false;
@@ -66,6 +68,7 @@ class PAGExportSession {
   ProgressModel progressModel;
   AlertInfoManager& alertInfoManager = AlertInfoManager::GetInstance();
 
+  std::vector<pag::Marker*>* audioMarkers = nullptr;
   std::vector<char> fileBytes = {};
   std::vector<pag::Composition*> compositions = {};
   std::vector<pag::ImageBytes*> imageBytesList = {};

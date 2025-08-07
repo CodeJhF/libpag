@@ -64,6 +64,7 @@ file(GLOB_RECURSE PAG_EXPORTER_THIRD_PARTY_SOURCE_FILES
         vendor/TinyXML2/*.cpp)
 
 list(FILTER PAG_EXPORTER_SOURCE_FILES EXCLUDE REGEX src/platform/*.*)
+list(APPEND PAG_EXPORTER_SOURCE_FILES src/platform/PAGViewerInstaller.cpp)
 if (APPLE)
     file(GLOB_RECURSE PLATFORM_SOURCE_FILES src/platform/mac/*.*)
 elseif (WIN32)

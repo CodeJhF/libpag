@@ -18,6 +18,7 @@
 
 #include "ExportLayer.h"
 #include "ExportComposition.h"
+#include "Marker.h"
 #include "layer/CameraOption.h"
 #include "layer/Effect.h"
 #include "layer/ImageBytes.h"
@@ -186,7 +187,7 @@ static void InitLayer(const std::shared_ptr<PAGExportSession>& session, const AE
   layer->autoOrientation = layerFlags & AEGP_LayerFlag_AUTO_ORIENT_ROTATION;
 
   if ((layerFlags & AEGP_LayerFlag_LAYER_IS_3D) &&
-      session->configParam.exportTagLevel >= static_cast<uint16_t>(pag::TagCode::Transform3D)) {
+      session->configParam.isTagCodeEnable(pag::TagCode::Transform3D)) {
     layer->transform3D = GetTransform3D(layerH, session->frameRate);
   } else {
     layer->transform = GetTransform2D(layerH, session->frameRate);
@@ -200,8 +201,7 @@ static void InitLayer(const std::shared_ptr<PAGExportSession>& session, const AE
   } else {
     layer->blendMode = AEHelper::GetLayerBlendMode(layerH);
     layer->trackMatteType = AEHelper::GetLayerTrackMatteType(layerH);
-    if (session->configParam.exportTagLevel >=
-        static_cast<uint16_t>(pag::TagCode::LayerAttributesExtra)) {
+    if (session->configParam.isTagCodeEnable(pag::TagCode::LayerAttributesExtra)) {
       layer->motionBlur = static_cast<bool>(layerFlags & AEGP_LayerFlag_MOTION_BLUR);
     }
     if (layer->trackMatteType != pag::TrackMatteType::None) {
@@ -234,8 +234,10 @@ static void InitLayer(const std::shared_ptr<PAGExportSession>& session, const AE
     layer->isActive = layerFlags & AEGP_LayerFlag_VIDEO_ACTIVE;
   }
 
-  if (session->configParam.exportTagLevel >= static_cast<uint16_t>(pag::TagCode::MarkerList)) {
-    // TODO: handle markers
+  if (session->configParam.isTagCodeEnable(pag::TagCode::MarkerList)) {
+    auto markers = Marker::ExportMarkers(session, layerH);
+    layer->markers.insert(layer->markers.end(), markers.begin(), markers.end());
+    Marker::ParseMarkers(layer);
   }
 }
 
@@ -399,9 +401,10 @@ std::vector<pag::Layer*> ExportLayers(const std::shared_ptr<PAGExportSession>& s
     uint32_t layerID = AEHelper::GetLayerID(layerH);
     session->layerHMap[layerID] = layerH;
     ExportLayerType layerType = GetLayerType(layerH);
-    if (layerType == ExportLayerType::Audio &&
-        session->configParam.exportTagLevel >= static_cast<uint16_t>(pag::TagCode::MarkerList)) {
-      // TODO: AEMakers
+    if (layerType == ExportLayerType::Audio && session->audioMarkers != nullptr &&
+        session->configParam.isTagCodeEnable(pag::TagCode::MarkerList)) {
+      auto markers = Marker::ExportMarkers(session, layerH);
+      session->audioMarkers->insert(session->audioMarkers->end(), markers.begin(), markers.end());
     }
     ScopedAssign<int> layerIndex(session->layerIndex, index);
     auto layer = ExportLayer(layerH, session);

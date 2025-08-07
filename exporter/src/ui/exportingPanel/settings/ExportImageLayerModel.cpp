@@ -17,6 +17,7 @@
 /////////////////////////////////////////////////////////////////////////////////////////////////
 
 #include "ExportImageLayerModel.h"
+#include "export/Marker.h"
 #include "utils/AEHelper.h"
 
 namespace exporter {
@@ -79,9 +80,9 @@ void ExportImageLayerModel::refreshData(const std::shared_ptr<AEResource>& resou
     items.push_back(item);
     if (this->resource->composition.imagesLayerFlagMap.find(layer.layerID) ==
         this->resource->composition.imagesLayerFlagMap.end()) {
-      this->resource->composition.imagesLayerFlagMap[layer.layerID] = {
-          true, pag::PAGScaleMode::LetterBox};
-      // TODO: Read from marker
+      pag::ID imageID = AEHelper::GetItemID(AEHelper::GetLayerItemH(layer.layerH));
+      auto mode = Marker::GetImageFillMode(resource->itemH, imageID);
+      this->resource->composition.imagesLayerFlagMap[layer.layerID] = {true, mode};
     }
   }
 
@@ -97,9 +98,10 @@ void ExportImageLayerModel::setIsEditable(int row, bool isEditable) {
   if (this->resource->composition.imagesLayerFlagMap[items[row].layerID].isEditable == isEditable) {
     return;
   }
-  // TODO: Write to marker
   editableItemNum += isEditable ? 1 : -1;
   this->resource->composition.imagesLayerFlagMap[items[row].layerID].isEditable = isEditable;
+  pag::ID imageID = AEHelper::GetItemID(AEHelper::GetLayerItemH(items[row].layerH));
+  Marker::SetLayerEditable(isEditable, resource->itemH, imageID);
   QModelIndex index = this->index(row, 0);
   Q_EMIT dataChanged(index, index, {static_cast<int>(ExportImageLayerModelRoles::IsEditableRole)});
   Q_EMIT allEditableChanged(getAllEditable());
@@ -119,8 +121,9 @@ void ExportImageLayerModel::setScaleMode(int row, const QString& scaleMode) {
   if (this->resource->composition.imagesLayerFlagMap[items[row].layerID].scaleMode == mode) {
     return;
   }
-  // TODO: Write to marker
   this->resource->composition.imagesLayerFlagMap[items[row].layerID].scaleMode = mode;
+  pag::ID imageID = AEHelper::GetItemID(AEHelper::GetLayerItemH(items[row].layerH));
+  Marker::SetImageFillMode(mode, resource->itemH, imageID);
   QModelIndex index = this->index(row, 0);
   Q_EMIT dataChanged(index, index, {static_cast<int>(ExportImageLayerModelRoles::FillModeRole)});
 }

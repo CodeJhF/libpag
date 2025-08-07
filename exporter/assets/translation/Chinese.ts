@@ -153,6 +153,19 @@
     </message>
 </context>
 <context>
+    <name>PAGViewerInstall</name>
+    <message>
+        <location filename="../qml/PAGViewerInstall.qml" line="9"/>
+        <source>Install PAGViewer</source>
+        <translation>安装PAGViewer</translation>
+    </message>
+    <message>
+        <location filename="../qml/PAGViewerInstall.qml" line="94"/>
+        <source>Cancel</source>
+        <translation>取消</translation>
+    </message>
+</context>
+<context>
     <name>PlaceholderImageItem</name>
     <message>
         <location filename="../qml/PlaceholderImageItem.qml" line="22"/>
@@ -194,7 +207,7 @@
 <context>
     <name>QObject</name>
     <message>
-        <location filename="../../src/ui/export/ExportWindow.cpp" line="70"/>
+        <location filename="../../src/ui/export/ExportWindow.cpp" line="71"/>
         <source>Select Storage Path</source>
         <translation>选择存储路径</translation>
     </message>
@@ -781,6 +794,85 @@
         <location filename="../qml/TimeStretchItem.qml" line="226"/>
         <source>Duration: </source>
         <translation>持续时间：</translation>
+    </message>
+</context>
+<context>
+    <name>exporter::PAGViewerInstallModel</name>
+    <message>
+        <location filename="../../src/ui/PAGViewerInstallModel.cpp" line="104"/>
+        <source>PAGViewer is not installed</source>
+        <translation>PAGViewer尚未安装</translation>
+    </message>
+    <message>
+        <location filename="../../src/ui/PAGViewerInstallModel.cpp" line="106"/>
+        <source>PAGViewer is used to preview PAG files.
+Would you like to download and install it now?</source>
+        <translation>PAGViewer可以预览PAG文件。
+是否立即下载并安装？</translation>
+    </message>
+    <message>
+        <location filename="../../src/ui/PAGViewerInstallModel.cpp" line="108"/>
+        <source>Confirm</source>
+        <translation>确认</translation>
+    </message>
+    <message>
+        <location filename="../../src/ui/PAGViewerInstallModel.cpp" line="113"/>
+        <source>Installing PAGViewer</source>
+        <translation>正在安装PAGViewer</translation>
+    </message>
+    <message>
+        <location filename="../../src/ui/PAGViewerInstallModel.cpp" line="114"/>
+        <source>Please wait, downloading and installing PAGViewer...</source>
+        <translation>请稍候，正在下载并安装PAGViewer...</translation>
+    </message>
+    <message>
+        <location filename="../../src/ui/PAGViewerInstallModel.cpp" line="120"/>
+        <source>Installation Complete</source>
+        <translation>安装完成</translation>
+    </message>
+    <message>
+        <location filename="../../src/ui/PAGViewerInstallModel.cpp" line="121"/>
+        <source>PAGViewer installed successfully!
+Previewing your PAG file now.</source>
+        <translation>安装PAGViewer成功！
+现在将预览您的PAG文件。</translation>
+    </message>
+    <message>
+        <location filename="../../src/ui/PAGViewerInstallModel.cpp" line="122"/>
+        <source>Preview</source>
+        <translation>预览</translation>
+    </message>
+    <message>
+        <location filename="../../src/ui/PAGViewerInstallModel.cpp" line="127"/>
+        <source>Installation Failed</source>
+        <translation>安装失败</translation>
+    </message>
+    <message>
+        <location filename="../../src/ui/PAGViewerInstallModel.cpp" line="129"/>
+        <source>PAGViewer installation failed
+Please check your network connection or install manually.</source>
+        <translation>安装PAGViewer失败
+请检查网络连接或手动安装。</translation>
+    </message>
+    <message>
+        <location filename="../../src/ui/PAGViewerInstallModel.cpp" line="131"/>
+        <source>Retry</source>
+        <translation>重试</translation>
+    </message>
+    <message>
+        <location filename="../../src/ui/PAGViewerInstallModel.cpp" line="154"/>
+        <source>Installing PAGViewer... </source>
+        <translation>正在安装PAGViewer...</translation>
+    </message>
+    <message>
+        <location filename="../../src/ui/PAGViewerInstallModel.cpp" line="169"/>
+        <source>PAGViewer installation failed</source>
+        <translation>PAGViewer安装失败</translation>
+    </message>
+    <message>
+        <location filename="../../src/ui/PAGViewerInstallModel.cpp" line="184"/>
+        <source>An error occurred during installation: </source>
+        <translation>安装过程中发生异常：</translation>
     </message>
 </context>
 </TS>

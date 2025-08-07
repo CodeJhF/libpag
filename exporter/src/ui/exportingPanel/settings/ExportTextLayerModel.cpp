@@ -17,6 +17,7 @@
 /////////////////////////////////////////////////////////////////////////////////////////////////
 
 #include "ExportTextLayerModel.h"
+#include "export/Marker.h"
 
 namespace exporter {
 
@@ -43,8 +44,8 @@ void ExportTextLayerModel::refreshData(const std::shared_ptr<AEResource>& resour
     items.push_back(item);
     if (this->resource->composition.textLayerFlagMap.find(layer.layerID) ==
         this->resource->composition.textLayerFlagMap.end()) {
-      // TODO: Read from marker
-      this->resource->composition.textLayerFlagMap[layer.layerID] = {true};
+      bool isEditable = Marker::GetLayerEditable(resource->itemH, layer.layerID);
+      this->resource->composition.textLayerFlagMap[layer.layerID] = {isEditable};
     }
   }
 
@@ -60,9 +61,9 @@ void ExportTextLayerModel::setIsEditable(int row, bool isEditable) {
   if (this->resource->composition.textLayerFlagMap[items[row].layerID].isEditable == isEditable) {
     return;
   }
-  // TODO: write to marker
   editableItemNum += isEditable ? 1 : -1;
   this->resource->composition.textLayerFlagMap[items[row].layerID].isEditable = isEditable;
+  Marker::SetLayerEditable(isEditable, resource->itemH, items[row].layerID);
   QModelIndex index = this->index(row, 0);
   Q_EMIT dataChanged(index, index, {static_cast<int>(ExportTextLayerModelRoles::IsEditableRole)});
   Q_EMIT allEditableChanged(getAllEditable());

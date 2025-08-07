@@ -40,14 +40,14 @@ pag::CompositionType GetCompositionType(const std::shared_ptr<PAGExportSession>&
   }
 
   if (session->configParam.sequenceType == pag::CompositionType::Video &&
-      session->configParam.exportTagLevel >= static_cast<uint16_t>(pag::TagCode::VideoSequence)) {
+      session->configParam.isTagCodeEnable(pag::TagCode::VideoSequence)) {
     if (session->exportStaticCompAsBmp && AEHelper::IsStaticComposition(compH)) {
       return pag::CompositionType::Bitmap;
     }
     return pag::CompositionType::Video;
   }
 
-  if (session->configParam.exportTagLevel >= static_cast<uint16_t>(pag::TagCode::BitmapSequence)) {
+  if (session->configParam.isTagCodeEnable(pag::TagCode::BitmapSequence)) {
     return pag::CompositionType::Bitmap;
   }
 
@@ -126,6 +126,8 @@ void ExportVectorComposition(const std::shared_ptr<PAGExportSession>& session,
                              const AEGP_CompH& compH) {
   auto* composition = new pag::VectorComposition();
   GetCompositionAttributes(session, compH, composition);
+  ScopedAssign<std::vector<pag::Marker*>*> markers(session->audioMarkers,
+                                                   &composition->audioMarkers);
   composition->layers = ExportLayers(session, compH);
   session->compositions.push_back(composition);
 

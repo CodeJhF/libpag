@@ -17,6 +17,7 @@
 /////////////////////////////////////////////////////////////////////////////////////////////////
 
 #include "ExportTimeStretchModel.h"
+#include "export/Marker.h"
 #include "utils/AEHelper.h"
 
 namespace exporter {
@@ -65,19 +66,25 @@ void ExportTimeStretchModel::setTimeStretchMode(const QString& timeStretchMode) 
       break;
     }
   }
-  // TODO: Write to marker
+  TimeStretchInfo timeStretchInfo = {resource->stretchMode, resource->stretchStartTime,
+                                     resource->stretchDuration};
+  Marker::SetTimeStretchInfo(timeStretchInfo, resource->itemH);
   Q_EMIT timeStretchModeChanged(timeStretchMode);
 }
 
 void ExportTimeStretchModel::setStretchStartTime(int stretchStartTime) {
-  // TODO: Write to marker
   resource->stretchStartTime = static_cast<pag::Frame>(stretchStartTime);
+  TimeStretchInfo timeStretchInfo = {resource->stretchMode, resource->stretchStartTime,
+                                     resource->stretchDuration};
+  Marker::SetTimeStretchInfo(timeStretchInfo, resource->itemH);
   Q_EMIT stretchStartTimeChanged(stretchStartTime);
 }
 
 void ExportTimeStretchModel::setStretchDuration(int stretchDuation) {
-  // TODO: Write to marker
   resource->stretchDuration = static_cast<pag::Frame>(stretchDuation);
+  TimeStretchInfo timeStretchInfo = {resource->stretchMode, resource->stretchStartTime,
+                                     resource->stretchDuration};
+  Marker::SetTimeStretchInfo(timeStretchInfo, resource->itemH);
   Q_EMIT stretchDurationChanged(stretchDuation);
 }
 
@@ -85,7 +92,16 @@ void ExportTimeStretchModel::setAEResource(const std::shared_ptr<AEResource>& re
   this->resource = resource;
   duration = AEHelper::GetItemDuration(resource->itemH);
   frameRate = AEHelper::GetItemFrameRate(resource->itemH);
-  // TODO: Read from marker
+  std::optional<TimeStretchInfo> timeStretchInfo = Marker::GetTimeStretchInfo(resource->itemH);
+  if (timeStretchInfo.has_value()) {
+    const auto& info = *timeStretchInfo;
+    resource->stretchMode = info.mode;
+    resource->stretchStartTime = info.start;
+    resource->stretchDuration = info.duration;
+    Q_EMIT timeStretchModeChanged(timeStretchModeMap[info.mode]);
+    Q_EMIT stretchStartTimeChanged(static_cast<int>(info.start));
+    Q_EMIT stretchDurationChanged(static_cast<int>(info.duration));
+  }
   Q_EMIT durationChanged(static_cast<int>(duration));
   Q_EMIT frameRateChanged(static_cast<int>(frameRate));
 }

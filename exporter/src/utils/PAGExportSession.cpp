@@ -166,4 +166,26 @@ pag::GradientColorHandle PAGExportSession::GetGradientColorsFromFileBytes(
   return AEHelper::XmlToGradientColor(gradientText);
 }
 
+bool PAGExportSession::isVideoLayer(pag::ID id) {
+  if (layerHMap.find(id) == layerHMap.end()) {
+    return false;
+  }
+  AEGP_LayerH layerH = layerHMap[id];
+
+  for (const auto& pair : imageLayerHList) {
+    if (pair.second == layerH) {
+      return pair.first;
+    }
+  }
+
+  return false;
+}
+
+AEGP_LayerH PAGExportSession::getLayerHByID(pag::ID id) {
+  if (layerHMap.find(id) == layerHMap.end()) {
+    return nullptr;
+  }
+  return layerHMap[id];
+}
+
 }  // namespace exporter

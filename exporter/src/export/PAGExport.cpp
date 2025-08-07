@@ -21,6 +21,7 @@
 #include <iostream>
 #include "ExportComposition.h"
 #include "ExportVerify.h"
+#include "Marker.h"
 #include "layer/ImageBytes.h"
 #include "sequence/AudioSequence.h"
 #include "src/base/utils/Log.h"
@@ -281,6 +282,10 @@ std::shared_ptr<pag::File> PAGExport::exportAsFile() {
   }
 
   CheckGraphicsMemory(session, pagFile);
+
+  Marker::ExportTimeStretch(pagFile, session, itemH);
+  Marker::ExportLayerEditable(pagFile, session, itemH);
+  Marker::ExportImageFillMode(pagFile, itemH);
 
   // TODO: show alertinfo and add markers
 

@@ -130,4 +130,12 @@ bool IsStreamHidden(const AEGP_StreamRefH& streamH);
 
 bool IsStreamActive(const AEGP_StreamRefH& streamH);
 
+void DeleteStream(AEGP_StreamRefH streamRefH);
+
+AEGP_StreamRefH GetMarkerStreamFromLayer(const AEGP_LayerH& layerH);
+
+AEGP_StreamRefH GetMarkerStreamFromItem(const AEGP_ItemH& litemH);
+
+AEGP_StreamRefH GetMarkerStreamFromComposition(const AEGP_CompH& compH);
+
 }  // namespace AEHelper

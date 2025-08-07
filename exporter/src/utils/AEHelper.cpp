@@ -619,4 +619,38 @@ bool IsStreamActive(const AEGP_StreamRefH& streamH) {
   return (flags & AEGP_DynStreamFlag_ACTIVE_EYEBALL) > 0;
 }
 
+AEGP_StreamRefH GetMarkerStreamFromLayer(const AEGP_LayerH& layerH) {
+  if (layerH == nullptr) {
+    return nullptr;
+  }
+  const auto& suites = GetSuites();
+  auto pluginID = GetPluginID();
+  AEGP_StreamRefH streamRefH;
+  suites->StreamSuite4()->AEGP_GetNewLayerStream(pluginID, layerH, AEGP_LayerStream_MARKER,
+                                                 &streamRefH);
+  return streamRefH;
+}
+AEGP_StreamRefH GetMarkerStreamFromItem(const AEGP_ItemH& itemH) {
+  auto compH = GetItemCompH(itemH);
+  return GetMarkerStreamFromComposition(compH);
+}
+AEGP_StreamRefH GetMarkerStreamFromComposition(const AEGP_CompH& compH) {
+  if (compH == nullptr) {
+    return nullptr;
+  }
+  const auto& suites = GetSuites();
+  auto pluginID = GetPluginID();
+  AEGP_StreamRefH streamRefH;
+  suites->CompSuite10()->AEGP_GetNewCompMarkerStream(pluginID, compH, &streamRefH);
+  return streamRefH;
+}
+
+void DeleteStream(AEGP_StreamRefH streamRefH) {
+  if (streamRefH != nullptr) {
+    const auto& suites = GetSuites();
+    suites->StreamSuite4()->AEGP_DisposeStream(streamRefH);
+    streamRefH = nullptr;
+  }
+}
+
 }  // namespace AEHelper
