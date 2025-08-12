@@ -61,6 +61,9 @@ class WindowManager {
   std::unique_ptr<ExportingPanelWindow> exportingPanelWindow = nullptr;
   WindowManager();
   ~WindowManager() = default;
+
+  int argc = 0;
+  char** argv = nullptr;
 };
 
 }  // namespace exporter

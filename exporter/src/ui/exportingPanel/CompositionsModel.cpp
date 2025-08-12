@@ -96,7 +96,8 @@ void CompositionsModel::setIsUnfold(int index, bool isUnfold) {
         compositions.begin() + index + 1, compositions.end());
     compositions.resize(index + 1);
     for (const auto& resource : resources) {
-      if (idSet.find(resource->file.parent->ID) == idSet.end()) {
+      if (resource->file.parent == nullptr ||
+          idSet.find(resource->file.parent->ID) == idSet.end()) {
         continue;
       }
       auto newComposition = std::make_shared<ExportCompositionData>();
@@ -109,7 +110,8 @@ void CompositionsModel::setIsUnfold(int index, bool isUnfold) {
   } else {
     auto iter = compositions.begin();
     while (iter != compositions.end()) {
-      if (idSet.find((*iter)->resource->file.parent->ID) == idSet.end()) {
+      if ((*iter)->resource->file.parent == nullptr ||
+          idSet.find((*iter)->resource->file.parent->ID) == idSet.end()) {
         ++iter;
         continue;
       }

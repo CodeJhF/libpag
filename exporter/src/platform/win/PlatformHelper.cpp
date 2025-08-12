@@ -107,7 +107,8 @@ bool IsAEWindowActive() {
 
   char className[256];
   GetClassNameA(foreground, className, sizeof(className));
-  return strstr(className, "AE") != nullptr;
+  std::string name = className;
+  return name.find_first_of("AE") == 0;
 }
 
 std::string GetPAGViewerPath() {
@@ -183,8 +184,8 @@ void PreviewPAGFile(std::string pagFilePath) {
 }
 
 // 缩放，双线性插值，未优化
-void ScaleRGBABiLinear(uint8_t* dstRGBA, int dstStride, uint8_t* srcRGBA, int srcStride, int dstWidth, int dstHeight,
-                       int srcWidth, int srcHeight) {
+void ScaleRGBABiLinear(uint8_t* dstRGBA, int dstStride, uint8_t* srcRGBA, int srcStride,
+                       int dstWidth, int dstHeight, int srcWidth, int srcHeight) {
 
   double xFactor = (double)srcWidth / dstWidth;
   double yFactor = (double)srcHeight / dstHeight;
@@ -210,24 +211,26 @@ void ScaleRGBABiLinear(uint8_t* dstRGBA, int dstStride, uint8_t* srcRGBA, int sr
       double x1 = i * xFactor - si;
       double x0 = 1 - x1;
 
-      si *= 4; // RGBA=4
+      si *= 4;  // RGBA=4
 
-      dst[0] = (uint8_t)lround(
-          src0[si + 0] * x0 * y0 + src0[si + 4] * x1 * y0 + src1[si + 0] * x0 * y1 + src1[si + 4] * x1 * y1);
-      dst[1] = (uint8_t)lround(
-          src0[si + 1] * x0 * y0 + src0[si + 5] * x1 * y0 + src1[si + 1] * x0 * y1 + src1[si + 5] * x1 * y1);
-      dst[2] = (uint8_t)lround(
-          src0[si + 2] * x0 * y0 + src0[si + 6] * x1 * y0 + src1[si + 2] * x0 * y1 + src1[si + 6] * x1 * y1);
-      dst[3] = (uint8_t)lround(
-          src0[si + 3] * x0 * y0 + src0[si + 7] * x1 * y0 + src1[si + 3] * x0 * y1 + src1[si + 7] * x1 * y1);
+      dst[0] = (uint8_t)lround(src0[si + 0] * x0 * y0 + src0[si + 4] * x1 * y0 +
+                               src1[si + 0] * x0 * y1 + src1[si + 4] * x1 * y1);
+      dst[1] = (uint8_t)lround(src0[si + 1] * x0 * y0 + src0[si + 5] * x1 * y0 +
+                               src1[si + 1] * x0 * y1 + src1[si + 5] * x1 * y1);
+      dst[2] = (uint8_t)lround(src0[si + 2] * x0 * y0 + src0[si + 6] * x1 * y0 +
+                               src1[si + 2] * x0 * y1 + src1[si + 6] * x1 * y1);
+      dst[3] = (uint8_t)lround(src0[si + 3] * x0 * y0 + src0[si + 7] * x1 * y0 +
+                               src1[si + 3] * x0 * y1 + src1[si + 7] * x1 * y1);
 
       dst += 4;
     }
   }
 }
 
-void ScaleGraphics(uint8_t* dstRGBA, int dstStride, uint8_t* srcRGBA, int srcStride, int dstWidth, int dstHeight, int srcWidth, int srcHeight) {
-  ScaleRGBABiLinear(dstRGBA, dstStride, srcRGBA, srcStride, dstWidth, dstHeight, srcWidth, srcHeight);
+void ScaleGraphics(uint8_t* dstRGBA, int dstStride, uint8_t* srcRGBA, int srcStride, int dstWidth,
+                   int dstHeight, int srcWidth, int srcHeight) {
+  ScaleRGBABiLinear(dstRGBA, dstStride, srcRGBA, srcStride, dstWidth, dstHeight, srcWidth,
+                    srcHeight);
 }
 
 }  // namespace exporter

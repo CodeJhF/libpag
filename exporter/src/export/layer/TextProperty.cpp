@@ -523,7 +523,7 @@ void GetTextProperties(const std::shared_ptr<PAGExportSession>& session, const A
         }
         case TextPropertyType::Animators: {
           auto vec = GetTextAnimators(streamH);
-          layer->animators.insert(vec.begin(), vec.end(), layer->animators.end());
+          layer->animators.insert(layer->animators.end(), vec.begin(), vec.end());
           break;
         }
         default: {

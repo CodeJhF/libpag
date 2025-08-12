@@ -45,6 +45,7 @@ std::string GetPAGViewerPath();
 
 void PreviewPAGFile(std::string pagFilePath);
 
-void ScaleGraphics(uint8_t* dstRGBA, int dstStride, uint8_t* srcRGBA, int srcStride, int dstWidth, int dstHeight, int srcWidth, int srcHeight);
+void ScaleGraphics(uint8_t* dstRGBA, int dstStride, uint8_t* srcRGBA, int srcStride, int dstWidth,
+                   int dstHeight, int srcWidth, int srcHeight);
 
 }  // namespace exporter

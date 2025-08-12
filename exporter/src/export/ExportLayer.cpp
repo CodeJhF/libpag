@@ -408,6 +408,9 @@ std::vector<pag::Layer*> ExportLayers(const std::shared_ptr<PAGExportSession>& s
     }
     ScopedAssign<int> layerIndex(session->layerIndex, index);
     auto layer = ExportLayer(layerH, session);
+    if (layer == nullptr) {
+      continue;
+    }
     if (layer->trackMatteLayer != nullptr) {
       soloFlags.push_back(false);
       layers.push_back(layer->trackMatteLayer);
