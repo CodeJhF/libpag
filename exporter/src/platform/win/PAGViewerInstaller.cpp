@@ -17,14 +17,14 @@
 /////////////////////////////////////////////////////////////////////////////////////////////////
 
 #include "platform/PAGViewerInstaller.h"
+#include <shlobj.h>
+#include <windows.h>
 #include <QDebug>
 #include <QDir>
 #include <QFile>
 #include <QProcess>
 #include <QSettings>
 #include <QStandardPaths>
-#include <shlobj.h>
-#include <windows.h>
 
 namespace exporter {
 

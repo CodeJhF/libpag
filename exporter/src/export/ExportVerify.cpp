@@ -477,6 +477,9 @@ static void CheckLayerFlags(const std::shared_ptr<PAGExportSession>& session, pa
   const auto& Suites = AEHelper::GetSuites();
 
   auto layerH = session->layerHMap[layer->id];
+  if (layerH == nullptr) {
+    return;
+  }
   AEGP_LayerFlags layerFlags;
   Suites->LayerSuite6()->AEGP_GetLayerFlags(layerH, &layerFlags);
   if (layerFlags & AEGP_LayerFlag_ADJUSTMENT_LAYER) {

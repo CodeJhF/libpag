@@ -1,10 +1,12 @@
 #include "platform/PAGViewerCheck.h"
+// clang-format off
 #include <windows.h>
-#include <shlobj.h>
 #include <shellapi.h>
+#include <shlobj.h>
 #include <stringapiset.h>
 #include <winerror.h>
 #include <winreg.h>
+// clang-format on
 #include <algorithm>
 #include <filesystem>
 #include <memory>
@@ -260,14 +262,13 @@ std::vector<PackageInfo> PAGViewerCheck::findPackageinfoByName(const std::string
 InstallStatus PAGViewerCheck::installPAGViewer() {
   std::string installerPathStr = config->getInstallerPath();
   if (installerPathStr.empty() || installerPathStr.length() > MAX_PATH) {
-    return InstallStatus(InstallResult::InvalidPath,
-                                "Invalid installer path: " + installerPathStr);
+    return InstallStatus(InstallResult::InvalidPath, "Invalid installer path: " + installerPathStr);
   }
 
   std::wstring installerPathW = stringToWstring(installerPathStr);
   if (!FileHelper::FileIsExist(installerPathStr)) {
     return InstallStatus(InstallResult::FileNotFound,
-                                "Installer file not found: " + installerPathStr);
+                         "Installer file not found: " + installerPathStr);
   }
 
   SHELLEXECUTEINFOW sei = {sizeof(sei)};
@@ -282,7 +283,7 @@ InstallStatus PAGViewerCheck::installPAGViewer() {
       return InstallStatus(InstallResult::PermissionDenied, "User denied permission.");
     }
     return InstallStatus(InstallResult::ExecutionFailed,
-                                "Failed to execute installer. Error: " + std::to_string(error));
+                         "Failed to execute installer. Error: " + std::to_string(error));
   }
 
   if (sei.hProcess) {
@@ -296,7 +297,7 @@ InstallStatus PAGViewerCheck::installPAGViewer() {
       return InstallStatus(InstallResult::Success);
     } else {
       return InstallStatus(InstallResult::ExecutionFailed,
-                                  "Installer exited with code: " + std::to_string(exitCode));
+                           "Installer exited with code: " + std::to_string(exitCode));
     }
   }
 

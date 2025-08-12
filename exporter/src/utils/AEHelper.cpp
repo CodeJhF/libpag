@@ -130,7 +130,7 @@ void GetRenderFrame(uint8*& rgbaBytes, A_u_long& rowBytesLength, A_u_long& strid
 
   if (width > 0 && height > 0 && rowBytesLength > 0) {
     if (rgbaBytes == nullptr) {
-      stride = rowBytesLength;
+      stride = 4 * width;
       rgbaBytes = new uint8_t[stride * height + stride * 2];
     }
     exporter::ConvertARGBToRGBA(&(pixels->alpha), width, height, rowBytesLength, rgbaBytes, stride);
@@ -516,8 +516,9 @@ QImage GetCompositionFrameImage(const AEGP_ItemH& itemH, pag::Frame frame) {
   GetRenderFrame(rgbaBytes, rowBytesLength, stride, width, height, renderOptions);
   if (width > 0 && height > 0 && rgbaBytes != nullptr) {
     QImage image(rgbaBytes, width, height, stride, QImage::Format_RGBA8888);
+    QImage saveImage = image.copy();
     delete[] rgbaBytes;
-    return image;
+    return saveImage;
   }
   return {};
 }

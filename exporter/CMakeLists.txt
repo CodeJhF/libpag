@@ -12,6 +12,8 @@ endif ()
 
 if (CMAKE_CXX_COMPILER_ID MATCHES "Clang")
     add_definitions(-Werror -Wall -Wextra -Weffc++ -pedantic -Werror=return-type -fno-rtti)
+elseif (CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
+	add_definitions(-D_DISABLE_CONSTEXPR_MUTEX_CONSTRUCTOR=1)
 endif ()
 
 # configures the local installation path of the AE_SDK.

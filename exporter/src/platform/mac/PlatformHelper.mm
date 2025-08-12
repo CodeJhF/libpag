@@ -171,7 +171,8 @@ void PreviewPAGFile(std::string pagFilePath) {
   StartPreview(pagFilePath);
 }
 
-void ScaleGraphics(uint8_t* dstRGBA, int dstStride, uint8_t* srcRGBA, int srcStride, int dstWidth, int dstHeight, int srcWidth, int srcHeight) {
+void ScaleGraphics(uint8_t* dstRGBA, int dstStride, uint8_t* srcRGBA, int srcStride, int dstWidth,
+                   int dstHeight, int srcWidth, int srcHeight) {
   CGColorSpaceRef colorSpace = CGColorSpaceCreateDeviceRGB();
 
   CGContextRef dstCtx =
