@@ -574,30 +574,25 @@ pag::TextDirection AETextDirectionToTextDirection(int value) {
   return pag::TextDirection::Horizontal;
 }
 
-float AEStringToTextFirstBaseLine(const QString& value, float lineHeight, float baseLineShift,
+float AEStringToTextFirstBaseLine(const QJsonArray& array, float lineHeight, float baseLineShift,
                                   bool isVertical) {
-  if (value.isEmpty()) {
+  if (array.size() < 4) {
     return 0;
   }
 
-  QStringList lines = value.split(',');
-  if (lines.size() < 4) {
-    return 0;
-  }
-
-  int lineNum = static_cast<int>(lines.size()) / 4;
+  int lineNum = static_cast<int>(array.size()) / 4;
   int index = (lineNum - 1) * 4;
   float firstBaseLine = 0;
   if (isVertical) {
-    firstBaseLine = lines[0].toFloat();
+    firstBaseLine = array[0].toString().toFloat();
     if (fabsf(firstBaseLine) > 100000000.0f) {
-      auto lastBaseLine = lines[index + 0].toFloat();
+      auto lastBaseLine = array[index + 0].toString().toFloat();
       firstBaseLine = lastBaseLine + lineHeight * static_cast<float>((lineNum - 1));
     }
   } else {
-    firstBaseLine = lines[1].toFloat();
+    firstBaseLine = array[1].toString().toFloat();
     if (fabsf(firstBaseLine) > 100000000.0f) {
-      auto lastBaseLine = lines[index + 1].toFloat();
+      auto lastBaseLine = array[index + 1].toString().toFloat();
       firstBaseLine = lastBaseLine - lineHeight * static_cast<float>((lineNum - 1));
     }
   }

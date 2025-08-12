@@ -428,6 +428,23 @@ std::vector<pag::Layer*> ExportLayers(const std::shared_ptr<PAGExportSession>& s
     soloFlags.push_back(soloFlag);
   }
 
+  {
+    std::unordered_set<pag::ID> sets = {};
+    auto layerIter = layers.begin();
+    auto soloFlagIter = soloFlags.begin();
+    while (layerIter != layers.end() && soloFlagIter != soloFlags.end()) {
+      pag::Layer* layer = *layerIter;
+      if (sets.find(layer->id) != sets.end()) {
+        layerIter = layers.erase(layerIter);
+        soloFlagIter = soloFlags.erase(soloFlagIter);
+      } else {
+        sets.insert(layer->id);
+        ++layerIter;
+        ++soloFlagIter;
+      }
+    }
+  }
+
   if (session->stopExport) {
     return layers;
   }

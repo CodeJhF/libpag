@@ -20,6 +20,7 @@
 
 #include <AE_GeneralPlug.h>
 #include <pag/file.h>
+#include <QJsonArray>
 #include <QString>
 
 namespace AEHelper {
@@ -96,7 +97,7 @@ pag::GlowTechniqueType AEGlowTechniqueTypeToGlowTechniqueType(int value);
 
 pag::TextDirection AETextDirectionToTextDirection(int value);
 
-float AEStringToTextFirstBaseLine(const QString& value, float lineHeight, float baseLineShift,
+float AEStringToTextFirstBaseLine(const QJsonArray& array, float lineHeight, float baseLineShift,
                                   bool isVertical);
 
 pag::GradientColorHandle GetDefaultGradientColors();

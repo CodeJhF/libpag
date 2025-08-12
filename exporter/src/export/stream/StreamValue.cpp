@@ -17,6 +17,7 @@
 /////////////////////////////////////////////////////////////////////////////////////////////////
 
 #include "StreamValue.h"
+#include <QJsonArray>
 #include <QJsonDocument>
 #include <QJsonObject>
 #include "utils/AETypeTransform.h"
@@ -164,29 +165,21 @@ static pag::PathHandle ParsePath(const AEGP_StreamVal2& streamValue, const QVari
   return pag::PathHandle(path);
 }
 
-static pag::Point StringToPoint(const QString& value, const pag::Point& defaultValue) {
-  if (value.isEmpty()) {
+static pag::Point ArraryToPoint(const QJsonArray& array, const pag::Point& defaultValue) {
+  if (array.size() != 2) {
     return defaultValue;
   }
-  auto split = value.split(',');
-  if (split.size() != 2) {
-    return defaultValue;
-  }
-  return pag::Point::Make(split[0].toFloat(), split[1].toFloat());
+  return pag::Point::Make(array[0].toString().toFloat(), array[1].toString().toFloat());
 }
 
-static pag::Color StringToColor(const QString& value, const pag::Color& defaultValue) {
-  if (value.isEmpty()) {
-    return defaultValue;
-  }
-  auto split = value.split(',');
-  if (split.size() != 3) {
+static pag::Color ArrayToColor(const QJsonArray& array, const pag::Color& defaultValue) {
+  if (array.size() != 3) {
     return defaultValue;
   }
   pag::Color color = {};
-  color.red = static_cast<uint8_t>(split[0].toDouble() * 255);
-  color.green = static_cast<uint8_t>(split[1].toDouble() * 255);
-  color.blue = static_cast<uint8_t>(split[2].toDouble() * 255);
+  color.red = static_cast<uint8_t>(array[0].toString().toDouble() * 255);
+  color.green = static_cast<uint8_t>(array[1].toString().toDouble() * 255);
+  color.blue = static_cast<uint8_t>(array[2].toString().toDouble() * 255);
   return color;
 }
 
@@ -224,19 +217,19 @@ static pag::TextDocumentHandle ParseTextDocument(const AEGP_StreamVal2&, const Q
       static_cast<float>(obj.value("baselineShift").toDouble(textDocument->baselineShift));
   textDocument->boxText = obj.value("boxText").toBool(textDocument->boxText);
   textDocument->boxTextPos =
-      StringToPoint(obj.value("boxTextPos").toString(), textDocument->boxTextPos);
+      ArraryToPoint(obj.value("boxTextPos").toArray(), textDocument->boxTextPos);
   textDocument->boxTextSize =
-      StringToPoint(obj.value("boxTextSize").toString(), textDocument->boxTextSize);
+      ArraryToPoint(obj.value("boxTextSize").toArray(), textDocument->boxTextSize);
   textDocument->fauxBold = obj.value("fauxBold").toBool(textDocument->fauxBold);
   textDocument->fauxItalic = obj.value("fauxItalic").toBool(textDocument->fauxItalic);
   textDocument->fillColor =
-      StringToColor(obj.value("fillColor").toString(), textDocument->fillColor);
+      ArrayToColor(obj.value("fillColor").toArray(), textDocument->fillColor);
   textDocument->fontFamily = obj.value("fontFamily").toString("").toStdString();
   textDocument->fontStyle = obj.value("fontStyle").toString("").toStdString();
   textDocument->fontSize =
       static_cast<float>(obj.value("fontSize").toDouble(textDocument->fontSize));
   textDocument->strokeColor =
-      StringToColor(obj.value("strokeColor").toString(), textDocument->strokeColor);
+      ArrayToColor(obj.value("strokeColor").toArray(), textDocument->strokeColor);
   textDocument->strokeOverFill = obj.value("strokeOverFill").toBool(textDocument->strokeOverFill);
   textDocument->strokeWidth =
       static_cast<float>(obj.value("strokeWidth").toDouble(textDocument->strokeWidth));
@@ -253,7 +246,7 @@ static pag::TextDocumentHandle ParseTextDocument(const AEGP_StreamVal2&, const Q
   float lineHeight =
       textDocument->leading == 0 ? roundf(textDocument->fontSize * 1.2f) : textDocument->leading;
   textDocument->firstBaseLine = AEStringToTextFirstBaseLine(
-      obj.value("baseLineLocs").toString(), lineHeight, textDocument->baselineShift,
+      obj.value("baselineLocs").toArray(), lineHeight, textDocument->baselineShift,
       textDocument->direction == pag::TextDirection::Vertical);
 
   if (!outPath.empty()) {
