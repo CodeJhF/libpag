@@ -119,7 +119,7 @@ static pag::Color ParseColor(const AEGP_StreamVal2& streamValue, const QVariantM
   pag::Color color = {};
   color.red = static_cast<uint8_t>(lround(streamValue.color.redF * 255));
   color.green = static_cast<uint8_t>(lround(streamValue.color.greenF * 255));
-  color.blue = static_cast<uint8_t>(lround(streamValue.color.blueF * 255 + 0.5));
+  color.blue = static_cast<uint8_t>(lround(streamValue.color.blueF * 255));
   return color;
 }
 
@@ -133,26 +133,25 @@ static pag::PathHandle ParsePath(const AEGP_StreamVal2& streamValue, const QVari
   }
 
   AEGP_MaskVertex lastVertex = {};
-  for (int index = 0; index < numSegment; index++) {
+  for (int index = 0; index <= numSegment; index++) {
     AEGP_MaskVertex vertex = {};
     AEHelper::GetSuites()->MaskOutlineSuite3()->AEGP_GetMaskOutlineVertexInfo(stream, index,
                                                                               &vertex);
+    auto x = static_cast<float>(vertex.x);
+    auto y = static_cast<float>(vertex.y);
     if (index == 0) {
-      path->moveTo(static_cast<float>(vertex.x), static_cast<float>(vertex.y));
+      path->moveTo(x, y);
     } else {
       if (lastVertex.tan_out_x != 0 || lastVertex.tan_out_y != 0 || vertex.tan_in_x != 0 ||
           vertex.tan_in_y != 0) {
-        path->verbs.push_back(pag::PathDataVerb::CurveTo);
-        path->points.emplace_back(
-            pag::Point::Make(static_cast<float>(lastVertex.x + lastVertex.tan_out_x),
-                             static_cast<float>(lastVertex.y + lastVertex.tan_out_y)));
-        path->points.emplace_back(pag::Point::Make(static_cast<float>(vertex.tan_in_x + vertex.x),
-                                                   static_cast<float>(vertex.tan_in_y + vertex.y)));
+        auto controlX1 = static_cast<float>(lastVertex.x + lastVertex.tan_out_x);
+        auto controlY1 = static_cast<float>(lastVertex.y + lastVertex.tan_out_y);
+        auto controlX2 = static_cast<float>(vertex.tan_in_x + vertex.x);
+        auto controlY2 = static_cast<float>(vertex.tan_in_y + vertex.y);
+        path->cubicTo(controlX1, controlY1, controlX2, controlY2, x, y);
       } else {
-        path->verbs.push_back(pag::PathDataVerb::LineTo);
+        path->lineTo(x, y);
       }
-      path->points.emplace_back(
-          pag::Point::Make(static_cast<float>(vertex.x), static_cast<float>(vertex.y)));
     }
     lastVertex = vertex;
   }
@@ -222,8 +221,7 @@ static pag::TextDocumentHandle ParseTextDocument(const AEGP_StreamVal2&, const Q
       ArraryToPoint(obj.value("boxTextSize").toArray(), textDocument->boxTextSize);
   textDocument->fauxBold = obj.value("fauxBold").toBool(textDocument->fauxBold);
   textDocument->fauxItalic = obj.value("fauxItalic").toBool(textDocument->fauxItalic);
-  textDocument->fillColor =
-      ArrayToColor(obj.value("fillColor").toArray(), textDocument->fillColor);
+  textDocument->fillColor = ArrayToColor(obj.value("fillColor").toArray(), textDocument->fillColor);
   textDocument->fontFamily = obj.value("fontFamily").toString("").toStdString();
   textDocument->fontStyle = obj.value("fontStyle").toString("").toStdString();
   textDocument->fontSize =

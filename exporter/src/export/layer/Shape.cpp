@@ -65,7 +65,7 @@ static pag::ShapeElement* GetShapeGroup(const AEGP_StreamRefH& streamH) {
   transform->position =
       GetProperty(transformStreamH, "ADBE Vector Position", AEStreamParser::PointParser);
   transform->scale =
-      GetProperty(transformStreamH, "ADBE Vector Scale", AEStreamParser::PointParser);
+      GetProperty(transformStreamH, "ADBE Vector Scale", AEStreamParser::ScaleParser);
   transform->skew = GetProperty(transformStreamH, "ADBE Vector Skew", AEStreamParser::FloatParser);
   transform->skewAxis =
       GetProperty(transformStreamH, "ADBE Vector Skew Axis", AEStreamParser::FloatParser);
