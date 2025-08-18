@@ -21,6 +21,7 @@
         <file>images/export-error.png</file>
         <file>images/export-success.png</file>
         <file>images/export-waiting.png</file>
+        <file>images/right-arrow.png</file>
 
         <!-- qml -->
         <file>qml/AlertDialog.qml</file>
@@ -28,6 +29,9 @@
         <file>qml/ExportingPanel.qml</file>
         <file>qml/CompositionSettingPage.qml</file>
         <file>qml/PAGComboBox.qml</file>
+        <file>qml/PAGListView.qml</file>
+        <file>qml/TextHelper.qml</file>
+        <file>qml/ErrorTextArea.qml</file>
         <file>qml/PAGRectangle.qml</file>
         <file>qml/PAGTabButton.qml</file>
         <file>qml/PAGTextInput.qml</file>
@@ -40,6 +44,9 @@
         <file>qml/ExportCompositionsProgress.qml</file>
         <file>qml/ProgressListView.qml</file>
         <file>qml/ConfigWindow.qml</file>
+        <file>qml/AlertWarning.qml</file>
+        <file>qml/AlertError.qml</file>
+        <file>qml/PAGViewerInstall.qml</file>
 
         <!-- JavaScript -->
         <file>scripts/GetTextDocument.js</file>

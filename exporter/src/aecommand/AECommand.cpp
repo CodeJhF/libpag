@@ -17,9 +17,13 @@
 /////////////////////////////////////////////////////////////////////////////////////////////////
 
 #include "AECommand.h"
+#include "export/PAGExport.h"
+#include "platform/PlatformHelper.h"
+#include "ui/AlertInfoModel.h"
 #include "ui/WindowManager.h"
 #include "utils/AEHelper.h"
 #include "utils/AEResource.h"
+#include "utils/AlertInfo.h"
 namespace exporter {
 
 AEGP_Command AECommand::PAGExporterCMD = 0L;

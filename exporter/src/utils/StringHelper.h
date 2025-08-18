@@ -72,4 +72,6 @@ bool IsEndWidthSuffix(const std::string& str, const std::string& suffix);
 
 QString ColorToQString(pag::Color color);
 
+void EnsureStringSuffix(std::string& filePath, const std::string& suffix);
+
 }  // namespace StringHelper

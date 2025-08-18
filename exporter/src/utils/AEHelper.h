@@ -130,6 +130,10 @@ bool IsStreamHidden(const AEGP_StreamRefH& streamH);
 
 bool IsStreamActive(const AEGP_StreamRefH& streamH);
 
+QString GetProjectPath();
+
+AEGP_StreamRefH GetMarkerStreamFromLayer(const AEGP_LayerH& layerH);
+
 void DeleteStream(AEGP_StreamRefH streamRefH);
 
 AEGP_StreamRefH GetMarkerStreamFromLayer(const AEGP_LayerH& layerH);
