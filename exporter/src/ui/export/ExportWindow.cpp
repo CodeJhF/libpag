@@ -28,7 +28,7 @@
 namespace exporter {
 
 ExportWindow::ExportWindow(QApplication* app, const std::string& outputPath, QObject* parent)
-    : BaseWindow(app, parent), outputPath(outputPath) {
+    : BaseWindow(app, parent), showAlertInfo(outputPath.empty()), outputPath(outputPath) {
   init();
 }
 
@@ -91,6 +91,7 @@ void ExportWindow::init() {
   }
 
   pagExport = std::make_unique<PAGExport>(itemH, outputPath, true);
+  pagExport->session->showAlertInfo = showAlertInfo;
 
   QQmlContext* context = engine->rootContext();
   QQmlEngine::setObjectOwnership(this, QQmlEngine::CppOwnership);

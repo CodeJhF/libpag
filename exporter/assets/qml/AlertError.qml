@@ -67,11 +67,11 @@ PAGWindow {
                     sourceSize.width: 20
                     sourceSize.height: 20
                     fillMode: Image.PreserveAspectFit
-                    source: "qrc:/images/export-wrong.png"
+                    source: "qrc:/images/export-error.png"
                 }
 
                 Text {
-                    text: "Export failed due to error:"
+                    text: qsTr("Export failed due to error:")
                     color: "#cccccc"
                     font.pixelSize: 16
                     font.family: "PingFang SC"
@@ -116,7 +116,7 @@ PAGWindow {
 
                     Text {
                         id: cancelButtonText
-                        text: "Cancel and Modify"
+                        text: qsTr("Cancel and Modify")
                         color: "#ffffff"
                         font.pixelSize: 14
                         font.family: "PingFang SC"
@@ -131,8 +131,8 @@ PAGWindow {
                         cursorShape: Qt.PointingHandCursor
 
                         onClicked: {
-                            if (mainWindow.model) {
-                                mainWindow.model.cancelAndModify();
+                            if (alertWindow) {
+                                alertWindow.cancelAndModify();
                             }
                         }
                     }

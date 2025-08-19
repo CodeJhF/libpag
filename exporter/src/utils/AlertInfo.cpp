@@ -23,6 +23,7 @@
 #include "AEHelper.h"
 #include "base/utils/EnumClassHash.h"
 #include "ui/WindowManager.h"
+#include "ui/alert/AlertWindow.h"
 
 namespace exporter {
 
@@ -586,11 +587,11 @@ bool AlertInfoManager::showAlertInfo(bool showWarning, bool showError) {
   for (auto info : warnings) {
     saveWarnings.emplace_back(info);
   }
-  auto ret = (errors.size() > 0);
-  if (ret && showError) {
+  bool ret = true;
+  if (!errors.empty() && showError) {
     ret = WindowManager::GetInstance().showErrors(errors);
   }
-  if (!ret && showWarning) {
+  if (ret && showWarning) {
     ret = WindowManager::GetInstance().showWarnings(warnings);
   }
   warningList.clear();

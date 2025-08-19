@@ -26,7 +26,7 @@ PAGWindow {
     titleFontSize: 14
     modality: Qt.ApplicationModal
 
-    property var alertDataModel: (typeof alertModel !== 'undefined') ? alertModel : null
+    property var alertDataModel: (typeof alertInfoModel !== 'undefined') ? alertInfoModel : null
 
     property QtObject model: QtObject {
         function viewAllRules() {
@@ -98,7 +98,7 @@ PAGWindow {
 
                     Text {
                         id: rulesButtonText
-                        text: "Click to View All Validation Rules"
+                        text: qsTr("Click to View All Validation Rules")
                         color: "#ffffff"
                         font.pixelSize: 14
                         font.family: "PingFang SC"
@@ -171,7 +171,7 @@ PAGWindow {
 
                     Text {
                         id: continueButtonText
-                        text: "Continue Exporting"
+                        text: qsTr("Continue Exporting")
                         color: "#ffffff"
                         font.pixelSize: 14
                         font.family: "PingFang SC"
@@ -186,8 +186,8 @@ PAGWindow {
                         cursorShape: Qt.PointingHandCursor
 
                         onClicked: {
-                            if (mainWindow.model) {
-                                mainWindow.model.continueExport();
+                            if (alertWindow) {
+                                alertWindow.continueExport();
                             }
                         }
                     }
@@ -203,7 +203,7 @@ PAGWindow {
 
                     Text {
                         id: cancelButtonText
-                        text: "Cancel and Modify"
+                        text: qsTr("Cancel and Modify")
                         color: "#ffffff"
                         font.pixelSize: 14
                         font.family: "PingFang SC"
@@ -218,8 +218,8 @@ PAGWindow {
                         cursorShape: Qt.PointingHandCursor
 
                         onClicked: {
-                            if (mainWindow.model) {
-                                mainWindow.model.cancelAndModify();
+                            if (alertWindow) {
+                                alertWindow.cancelAndModify();
                             }
                         }
                     }

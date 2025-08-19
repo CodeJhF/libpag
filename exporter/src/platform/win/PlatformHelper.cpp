@@ -138,7 +138,7 @@ static void StartPreview(const std::string& pagFilePath) {
   if (!FileHelper::FileIsExist(pagFilePath)) {
     QString errorMsg =
         QString::fromUtf8(Messages::FILE_NOT_EXIST) + QString::fromStdString(pagFilePath);
-    // WindowManager::GetInstance().showSimpleError(errorMsg);
+    WindowManager::GetInstance().showSimpleError(errorMsg);
     return;
   }
 
@@ -146,7 +146,7 @@ static void StartPreview(const std::string& pagFilePath) {
   if (pagViewerPath.empty()) {
     QString errorMsg =
         QString::fromUtf8(Messages::PAGVIEWER_NOT_FOUND) + QString::fromStdString(pagFilePath);
-    // WindowManager::GetInstance().showSimpleError(errorMsg);
+    WindowManager::GetInstance().showSimpleError(errorMsg);
     return;
   }
 
@@ -165,7 +165,7 @@ static void StartPreview(const std::string& pagFilePath) {
   } else {
     QString errorMsg =
         QString::fromUtf8(Messages::PREVIEW_LAUNCH_FAILED) + QString::number(GetLastError());
-    // WindowManager::GetInstance().showSimpleError(errorMsg);
+    WindowManager::GetInstance().showSimpleError(errorMsg);
   }
 }
 

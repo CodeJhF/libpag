@@ -277,6 +277,7 @@ static void GetVideoSequence(const std::shared_ptr<PAGExportSession>& session,
 
           if (!session->videoAlphaDetected) {
             if (hasAlpha != ImageHasAlpha(curData.data(), seqStride, seqWidth, seqHeight)) {
+              hasAlpha = !hasAlpha;
               session->videoAlphaDetected = true;
               break;
             }

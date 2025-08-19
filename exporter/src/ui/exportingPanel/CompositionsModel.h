@@ -22,6 +22,7 @@
 #include <QQmlEngine>
 #include "ProgressListModel.h"
 #include "export/PAGExport.h"
+#include "ui/AlertInfoModel.h"
 #include "utils/AEResource.h"
 
 namespace exporter {
@@ -57,7 +58,7 @@ class CompositionsModel : public QAbstractListModel {
   Q_INVOKABLE bool getAllSelected() const;
   Q_INVOKABLE bool getCanExport() const;
   Q_INVOKABLE bool getExportAudio() const;
-  Q_INVOKABLE void setIsSelected(int index, bool isSelected);
+  Q_INVOKABLE void setIsSelected(int index, bool isSelected, bool isAllSelected = false);
   Q_INVOKABLE void setIsUnfold(int index, bool isUnfold);
   Q_INVOKABLE void setSavePath(int index, const QString& savePath);
   Q_INVOKABLE void setAllSelected(bool allSelected);
@@ -80,6 +81,7 @@ class CompositionsModel : public QAbstractListModel {
  protected:
   void updateCompositionLevel();
   void updateAllSelectedNum();
+  void updateAlertInfos();
   QHash<int, QByteArray> roleNames() const override;
 
  private:
@@ -88,6 +90,7 @@ class CompositionsModel : public QAbstractListModel {
   size_t allSelectedNum = 0;
   QQmlEngine* engine = nullptr;
   std::unique_ptr<PAGExport> pagExport = nullptr;
+  std::unique_ptr<AlertInfoModel> alertInfoModel = nullptr;
   std::vector<std::unique_ptr<PAGExport>> pagExports = {};
   std::unique_ptr<ProgressListModel> progressListModel = nullptr;
   std::vector<std::shared_ptr<AEResource>> resources = {};

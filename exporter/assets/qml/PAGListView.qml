@@ -23,7 +23,7 @@ Rectangle {
     property string openIconPath: isPreview ? "../images/folder-unfold.png" : "qrc:/images/folder-unfold.png"
     property string rightArrowIconPath: isPreview ? "../images/right-arrow.png" : "qrc:/images/right-arrow.png"
     property string bmpIconPath: isPreview ? "../images/bmp.png" : "qrc:/images/bmp.png"
-    property string warnIconPath: isPreview ? "../images/export-warning.png" : "qrc:/images/export-warning.png"
+    property string warnIconPath: isPreview ? "../images/warning.png" : "qrc:/images/warning.png"
     property var model: null
     property bool showLocationBtn: false
 
@@ -154,7 +154,7 @@ Rectangle {
                     font.pixelSize: 12
                     font.family: fontFamily
                     anchors.centerIn: parent
-                    text: qsTr("定位")
+                    text: qsTr("Locate")
                     font.bold: true
                     color: "#FFFFFF"
                 }

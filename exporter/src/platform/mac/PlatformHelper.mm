@@ -101,7 +101,7 @@ static void StartPreview(const std::string& pagFilePath) {
                                               encoding:NSUTF8StringEncoding];
     if (!nsFilePath) {
       QString errorMsg = QString::fromUtf8(Messages::FILE_PATH_ENCODING_ERROR);
-      // WindowManager::GetInstance().showSimpleError(errorMsg);
+      WindowManager::GetInstance().showSimpleError(errorMsg);
       return;
     }
 
@@ -109,7 +109,7 @@ static void StartPreview(const std::string& pagFilePath) {
     if (![fileManager fileExistsAtPath:nsFilePath]) {
       QString errorMsg =
           QString::fromUtf8(Messages::FILE_NOT_EXIST) + QString::fromStdString(pagFilePath);
-      // WindowManager::GetInstance().showSimpleError(errorMsg);
+      WindowManager::GetInstance().showSimpleError(errorMsg);
       return;
     }
 
@@ -125,14 +125,14 @@ static void StartPreview(const std::string& pagFilePath) {
 
     if (!appURL) {
       QString errorMsg = QString::fromUtf8(Messages::PAGVIEWER_NOT_FOUND_MAC);
-      // WindowManager::GetInstance().showSimpleError(errorMsg);
+      WindowManager::GetInstance().showSimpleError(errorMsg);
       return;
     }
 
     NSURL* fileURL = [NSURL fileURLWithPath:nsFilePath];
     if (!fileURL) {
       QString errorMsg = QString::fromUtf8(Messages::INVALID_FILE_PATH);
-      // WindowManager::GetInstance().showSimpleError(errorMsg);
+      WindowManager::GetInstance().showSimpleError(errorMsg);
       return;
     }
 
@@ -148,7 +148,7 @@ static void StartPreview(const std::string& pagFilePath) {
                                   QString errorMsg =
                                       QString::fromUtf8(Messages::PAGVIEWER_OPEN_FAILED) +
                                       QString::fromUtf8([error.localizedDescription UTF8String]);
-                                  // WindowManager::GetInstance().showSimpleError(errorMsg);
+                                  WindowManager::GetInstance().showSimpleError(errorMsg);
                                 });
                               }
                             }];
@@ -162,11 +162,11 @@ void PreviewPAGFile(std::string pagFilePath) {
   auto installer = std::make_unique<PAGViewerInstaller>(config);
 
   if (!installer->isPAGViewerInstalled()) {
-    // bool installSuccess = WindowManager::GetInstance().showPAGViewerInstallDialog(pagFilePath);
+    bool installSuccess = WindowManager::GetInstance().showPAGViewerInstallDialog(pagFilePath);
 
-    // if (!installSuccess) {
-    return;
-    // }
+    if (!installSuccess) {
+      return;
+    }
   }
   StartPreview(pagFilePath);
 }

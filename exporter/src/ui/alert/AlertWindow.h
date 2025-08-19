@@ -18,32 +18,30 @@
 
 #pragma once
 
-#include <QApplication>
-#include <QQmlApplicationEngine>
-#include <QQuickWindow>
-#include "export/PAGExport.h"
+#include "ui/AlertInfoModel.h"
 #include "ui/BaseWindow.h"
-#include "utils/AEHelper.h"
 
 namespace exporter {
 
-class ExportWindow : public BaseWindow {
+class AlertWindow : public BaseWindow {
   Q_OBJECT
  public:
-  explicit ExportWindow(QApplication* app, const std::string& outputPath = "",
-                        QObject* parent = nullptr);
+  explicit AlertWindow(QApplication* app, QObject* parent = nullptr);
 
-  void show() override;
+  bool showWarnings(const std::vector<AlertInfo>& infos);
+  bool showErrors(const std::vector<AlertInfo>& infos, const QString& errorMessage = "");
   void onWindowClosing() override;
 
- private:
-  std::string getOutputPath();
-  void init();
+  Q_INVOKABLE void continueExport();
+  Q_INVOKABLE void cancelAndModify();
 
-  bool showAlertInfo = false;
-  AEGP_ItemH itemH = nullptr;
-  std::string outputPath = "";
-  std::unique_ptr<PAGExport> pagExport = nullptr;
+ private:
+  void init(const std::vector<AlertInfo>& infos);
+  void wait() const;
+
+  bool continue_ = false;
+  bool cancel = false;
+  std::unique_ptr<AlertInfoModel> alertInfoModel = nullptr;
 };
 
 }  // namespace exporter

@@ -50,6 +50,7 @@ class PAGExportSession {
 
   bool videoHasAlpha = false;
   bool videoAlphaDetected = false;
+  bool showAlertInfo = false;
   bool stopExport = false;
   bool exportAudio = false;
   bool hardwareEncode = false;

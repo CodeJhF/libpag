@@ -59,8 +59,8 @@ void ExportingPanelWindow::init() {
   QQuickWindow::setTextRenderType(QQuickWindow::TextRenderType::NativeTextRendering);
 
   resources = AEResource::getAEResourceList();
-  compositionsModel->setAEResources(resources);
   compositionsModel->setQmlEngine(engine.get());
+  compositionsModel->setAEResources(resources);
 }
 
 ExportCompositionInfoModel* ExportingPanelWindow::getCompositionInfoModel(int row) {

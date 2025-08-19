@@ -23,12 +23,13 @@
 #include <QTranslator>
 #include <QtGui/QFont>
 #include <QtQuick/QQuickWindow>
+#include <memory>
+#include "AlertInfoModel.h"
+#include "PAGViewerInstallModel.h"
+#include "alert/AlertWindow.h"
 #include "config/ConfigFile.h"
 #include "config/ConfigModel.h"
 #include "platform/PlatformHelper.h"
-#include "PAGViewerInstallModel.h"
-#include <memory>
-#include "AlertInfoModel.h"
 #include "utils/AEHelper.h"
 #include "utils/FileHelper.h"
 #include "utils/StringHelper.h"
@@ -83,6 +84,40 @@ void WindowManager::showExportWindow() {
   app->exec();
 }
 
+bool WindowManager::showWarnings(const std::vector<AlertInfo>& infos) {
+  if (infos.empty()) {
+    return true;
+  }
+
+  init();
+  std::unique_ptr<AlertWindow> alertWindow = std::make_unique<AlertWindow>(app.get());
+  return alertWindow->showWarnings(infos);
+}
+
+bool WindowManager::showErrors(const std::vector<AlertInfo>& infos) {
+  if (infos.empty()) {
+    return false;
+  }
+
+  init();
+  std::unique_ptr<AlertWindow> alertWindow = std::make_unique<AlertWindow>(app.get());
+  return alertWindow->showErrors(infos);
+}
+
+bool WindowManager::showSimpleError(const QString& errorMessage) {
+  if (errorMessage.isEmpty()) {
+    return false;
+  }
+  init();
+  std::unique_ptr<AlertWindow> alertWindow = std::make_unique<AlertWindow>(app.get());
+  return alertWindow->showErrors({}, errorMessage);
+}
+
+bool WindowManager::showPAGViewerInstallDialog(const std::string& pagFilePath) {
+  auto installModel = std::make_unique<PAGViewerInstallModel>();
+  return installModel->showInstallDialog(pagFilePath);
+}
+
 void WindowManager::initializeQtEnvironment() {
   QApplication::setAttribute(Qt::AA_PluginApplication, true);
   QSurfaceFormat defaultFormat = QSurfaceFormat();
@@ -105,30 +140,6 @@ void WindowManager::initializeQtEnvironment() {
   app->setObjectName("PAG-Exporter");
   QQuickWindow::setGraphicsApi(QSGRendererInterface::OpenGL);
   QQuickStyle::setStyle("Universal");
-}
-
-bool WindowManager::showWarnings(std::vector<AlertInfo>& infos) {
-  if (infos.empty()) {
-    return false;
-  }
-  static std::unique_ptr<AlertInfoModel> alertModel = nullptr;
-  if (!alertModel) {
-    alertModel = std::make_unique<AlertInfoModel>();
-  }
-  alertModel->showWarnings(infos);
-  return true;
-}
-
-bool WindowManager::showErrors(std::vector<AlertInfo>& infos) {
-  if (infos.empty()) {
-    return false;
-  }
-  static std::unique_ptr<AlertInfoModel> alertModel = nullptr;
-  if (!alertModel) {
-    alertModel = std::make_unique<AlertInfoModel>();
-  }
-  alertModel->showErrors(infos);
-  return true;
 }
 
 void WindowManager::init() {
@@ -158,21 +169,8 @@ void WindowManager::init() {
   if (exportingPanelWindow != nullptr && exportingPanelWindow->isWaitToDestory()) {
     exportingPanelWindow.reset();
   }
-}
-
-bool WindowManager::showSimpleError(const QString& message) {
-  static std::unique_ptr<AlertInfoModel> alertModel = nullptr;
-  if (!alertModel) {
-    alertModel = std::make_unique<AlertInfoModel>();
-  }
-  alertModel->setErrorMessage(message);
-  bool result = alertModel->showErrors({});
-  return result;
-}
-
-bool WindowManager::showPAGViewerInstallDialog(const std::string& pagFilePath) {
-  auto installModel = std::make_unique<PAGViewerInstallModel>();
-  return installModel->showInstallDialog(pagFilePath);
+  AlertInfoManager::GetInstance().warningList.clear();
+  AlertInfoManager::GetInstance().saveWarnings.clear();
 }
 
 }  // namespace exporter

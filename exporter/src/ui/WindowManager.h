@@ -42,10 +42,9 @@ class WindowManager {
 
   void showExportWindow();
 
-  bool showWarnings(std::vector<std::string>& infos);
-  bool showWarnings(std::vector<AlertInfo>& infos);
+  bool showWarnings(const std::vector<AlertInfo>& infos);
 
-  bool showErrors(std::vector<AlertInfo>& infos);
+  bool showErrors(const std::vector<AlertInfo>& infos);
 
   bool showSimpleError(const QString& message);
 

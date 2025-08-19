@@ -275,11 +275,17 @@ PAGWindow {
             font.pixelSize: 15
             font.family: "PingFang SC"
             color: "#FFFFFF"
-            visible: true
+            visible: alertInfoModel.count <= 0
             anchors.centerIn: parent
         }
 
-        // add error info display
+        PAGListView {
+            id: errorInfoListView
+            visible: alertInfoModel.count > 0
+            anchors.fill: parent
+            model: alertInfoModel
+            showLocationBtn: true
+        }
     }
 
     Rectangle {

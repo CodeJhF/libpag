@@ -30,6 +30,7 @@ namespace exporter {
 
 CompositionsModel::CompositionsModel(QObject* parent) : QAbstractListModel(parent) {
   progressListModel = std::make_unique<ProgressListModel>();
+  alertInfoModel = std::make_unique<AlertInfoModel>();
 }
 
 void CompositionsModel::setAEResources(const std::vector<std::shared_ptr<AEResource>>& resources) {
@@ -45,6 +46,7 @@ void CompositionsModel::setAEResources(const std::vector<std::shared_ptr<AEResou
   updateAllSelectedNum();
   beginResetModel();
   endResetModel();
+  updateAlertInfos();
 }
 
 void CompositionsModel::setQmlEngine(QQmlEngine* engine) {
@@ -52,6 +54,7 @@ void CompositionsModel::setQmlEngine(QQmlEngine* engine) {
   if (engine != nullptr) {
     QQmlContext* context = engine->rootContext();
     context->setContextProperty("progressListModel", progressListModel.get());
+    context->setContextProperty("alertInfoModel", alertInfoModel.get());
   }
 }
 
@@ -67,7 +70,7 @@ bool CompositionsModel::getExportAudio() const {
   return exportAudio;
 }
 
-void CompositionsModel::setIsSelected(int index, bool isSelected) {
+void CompositionsModel::setIsSelected(int index, bool isSelected, bool isAllSelected) {
   if (index < 0 || static_cast<size_t>(index) >= compositions.size()) {
     return;
   }
@@ -81,6 +84,9 @@ void CompositionsModel::setIsSelected(int index, bool isSelected) {
                      {static_cast<int>(ExportCompositionModelRoles::IsSelectedRole)});
   Q_EMIT allSelectedChanged(getAllSelected());
   Q_EMIT canExportChanged(getCanExport());
+  if (!isAllSelected) {
+    updateAlertInfos();
+  }
 }
 
 void CompositionsModel::setIsUnfold(int index, bool isUnfold) {
@@ -141,8 +147,9 @@ void CompositionsModel::setSavePath(int index, const QString& savePath) {
 
 void CompositionsModel::setAllSelected(bool allSelected) {
   for (size_t index = 0; index < compositions.size(); index++) {
-    setIsSelected(static_cast<int>(index), allSelected);
+    setIsSelected(static_cast<int>(index), allSelected, true);
   }
+  updateAlertInfos();
 }
 
 void CompositionsModel::setSerachText(const QString& searchText) {
@@ -311,6 +318,24 @@ void CompositionsModel::updateAllSelectedNum() {
     }
   }
   Q_EMIT allSelectedChanged(getAllSelected());
+}
+
+void CompositionsModel::updateAlertInfos() {
+  if (alertInfoModel == nullptr) {
+    return;
+  }
+  AlertInfoManager::GetInstance().warningList.clear();
+  for (const auto& resource : resources) {
+    if (resource->type != AEResourceType::Composition) {
+      continue;
+    }
+    if (!resource->isExport) {
+      continue;
+    }
+    PAGExport::ExportFile(resource->itemH, "./tmp.pag", false, false);
+  }
+  alertInfoModel->setAlertInfos(AlertInfoManager::GetInstance().warningList);
+  AlertInfoManager::GetInstance().warningList.clear();
 }
 
 QHash<int, QByteArray> CompositionsModel::roleNames() const {

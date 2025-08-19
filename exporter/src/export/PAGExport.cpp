@@ -253,9 +253,9 @@ std::shared_ptr<pag::File> PAGExport::exportAsFile() {
 
   std::vector<pag::ImageBytes*> images = getRefImages(compositions);
   CheckBeforeExport(session, compositions, images);
-  // TODO: add alertinfo window check
 
-  if (session->stopExport) {
+  if (session->stopExport ||
+      (session->showAlertInfo && !AlertInfoManager::GetInstance().showAlertInfo())) {
     return nullptr;
   }
 
@@ -283,11 +283,13 @@ std::shared_ptr<pag::File> PAGExport::exportAsFile() {
 
   CheckGraphicsMemory(session, pagFile);
 
+  if (session->showAlertInfo && !AlertInfoManager::GetInstance().showAlertInfo()) {
+    return nullptr;
+  }
+
   Marker::ExportTimeStretch(pagFile, session, itemH);
   Marker::ExportLayerEditable(pagFile, session, itemH);
   Marker::ExportImageFillMode(pagFile, itemH);
-
-  // TODO: show alertinfo and add markers
 
   session->unsetCurrent();
 
