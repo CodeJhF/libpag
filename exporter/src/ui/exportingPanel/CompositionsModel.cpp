@@ -332,7 +332,8 @@ void CompositionsModel::updateAlertInfos() {
     if (!resource->isExport) {
       continue;
     }
-    PAGExport::ExportFile(resource->itemH, "./tmp.pag", false, false);
+    std::string tempPagPath = FileHelper::JoinPaths(GetTempFolderPath(), "tmp.pag");
+    PAGExport::ExportFile(resource->itemH, tempPagPath, false, false);
   }
   alertInfoModel->setAlertInfos(AlertInfoManager::GetInstance().warningList);
   AlertInfoManager::GetInstance().warningList.clear();

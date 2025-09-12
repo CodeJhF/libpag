@@ -29,6 +29,7 @@
 #include "utils/AEHelper.h"
 #include "utils/AEResource.h"
 #include "utils/StringHelper.h"
+#include "utils/FileHelper.h"
 
 namespace exporter {
 
@@ -140,7 +141,8 @@ void ExportingPanelWindow::updateCompositionSetting(int row) {
   }
   const auto& resource = resources[row];
   if (sessionMap.find(resource->ID) == sessionMap.end()) {
-    auto session = std::make_shared<PAGExportSession>(resource->itemH, "./tmp.pag");
+    std::string tempPagPath = FileHelper::JoinPaths(GetTempFolderPath(), "tmp.pag");
+    auto session = std::make_shared<PAGExportSession>(resource->itemH, tempPagPath);
     session->exportAudio = false;
     session->enableRunScript = false;
     ExportComposition(session, resource->itemH);

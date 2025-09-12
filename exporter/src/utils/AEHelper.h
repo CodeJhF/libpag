@@ -33,6 +33,12 @@ enum class ImageFillMode {
   Zoom,
 };
 
+struct AEVersion {
+  static int32_t MajorVerison;
+  static int32_t MinorVersion;
+  int32_t MAJORVERSION = 123;
+};
+
 /* Common Interface */
 std::shared_ptr<AEGP_SuiteHandler> GetSuites();
 
@@ -61,6 +67,10 @@ std::string RunScript(const std::string& scriptText);
 void RunScriptPreWarm();
 
 bool CheckAeVersion();
+
+void SetMajorVersion(const int32_t majorVersion);
+
+void setMinorVersion(const int32_t minorVersion);
 
 void RegisterTextDocumentScript();
 

@@ -119,8 +119,8 @@ void GetImageDiffRect(ImageRect& rect, const uint8_t* preImage, const uint8_t* c
   } else {
     rect.xPos = 0;
     rect.yPos = 0;
-    rect.width = 1;
-    rect.height = 1;
+    rect.width = 0;
+    rect.height = 0;
   }
 }
 

@@ -271,7 +271,7 @@ static pag::TextAnimatorColorProperties* GetTextAnimatorColorProperties(
     AEGP_StreamRefH childStreamH = nullptr;
     Suites->DynamicStreamSuite4()->AEGP_GetNewStreamRefByIndex(PluginID, streamH, index,
                                                                &childStreamH);
-    if (!AEHelper::IsStreamHidden(childStreamH) && AEHelper::IsStreamActive(childStreamH)) {
+    if (!AEHelper::IsStreamHidden(childStreamH) || AEHelper::IsStreamActive(childStreamH)) {
       auto type = GetTextAnimatorPropertiesType(childStreamH);
       switch (type) {
         case TextAnimatorPropertiesType::FillColor:

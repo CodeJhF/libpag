@@ -28,6 +28,7 @@ typedef enum {
   FRAME_TYPE_AUTO = -1,
   FRAME_TYPE_P = 0,
   FRAME_TYPE_I = 1,
+  FRAME_TYPE_B = 2,
 } FrameType;
 
 class VideoEncoder {
@@ -58,6 +59,7 @@ class PAGEncoder {
   void encodeRGBA(uint8_t* data, int dataStride, FrameType frameType);
   int encodeHeaders(uint8_t* header[], int headerSize[]);
   int getEncodedData(uint8_t** outData, FrameType* outFrameType, int64_t* outFrameIndex);
+  void close();
 
  private:
   const int paddingX = 4;

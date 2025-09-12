@@ -37,6 +37,10 @@ std::string AeVersion = "";
 
 int32_t MAJORVERSION = 23;
 
+// Static member definitions
+int32_t AEVersion::MajorVerison = 0;
+int32_t AEVersion::MinorVersion = 0;
+
 std::string GetDocumentsFolderPath() {
   if (DocumentsFolderPath.empty()) {
     DocumentsFolderPath = RunScript("Folder.myDocuments.fsName;");
@@ -260,7 +264,7 @@ void RunScriptPreWarm() {
 
 bool CheckAeVersion() {
   int32_t majorVersion = 0;
-  if (AeVersion.empty()) {
+  if (AeVersion.empty() || AEVersion::MajorVerison == 0) {
     return false;
   }
   try {
@@ -282,6 +286,14 @@ bool CheckAeVersion() {
     return true;
   }
   return false;
+}
+
+void SetMajorVersion(const int32_t majorVersion) {
+  AEVersion::MajorVerison = majorVersion;
+}
+
+void setMinorVersion(const int32_t minorVersion) {
+  AEVersion::MinorVersion = minorVersion;
 }
 
 void RegisterTextDocumentScript() {

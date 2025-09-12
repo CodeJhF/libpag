@@ -405,6 +405,9 @@ void PAGExport::exportRescaleImages() const {
     if (session->configParam.isTagCodeEnable(pag::TagCode::ImageBytesV2)) {
       auto point = GetImageMaxScale(mainComposition, image->id);
       factor = std::max(point.x, point.y);
+      if (factor <= 0.0f) {
+        factor = 1.0f;
+      }
       factor *= session->configParam.imagePixelRatio;
       if (factor > 1.0) {
         factor = 1.0;
@@ -442,10 +445,11 @@ void PAGExport::exportRescaleBitmapCompositions(
 
 void PAGExport::exportRescaleVideoCompositions(std::vector<pag::Composition*>& compositions) const {
   auto mainComposition = compositions[compositions.size() - 1];
-  for (auto composition : compositions) {
+  for (size_t i = 0; i < compositions.size(); ++i) {
     if (session->stopExport) {
       break;
     }
+    auto composition = compositions[i];
     ScopedAssign<pag::ID> compID(session->compID, composition->id);
     if (composition->type() == pag::CompositionType::Video) {
       auto point = GetBitmapCompositionMaxScale(mainComposition, composition->id);

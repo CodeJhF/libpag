@@ -18,7 +18,7 @@ Rectangle {
     property var titleIconMarginTop: -2
     property var fontFamily: "PingFang SC"
 
-    property string errorIconPath: isPreview ? "../images/export-wrong.png" : "qrc:/images/export-wrong.png"
+    property string errorIconPath: isPreview ? "../images/export-error.png" : "qrc:/images/export-error.png"
     property string foldIconPath: isPreview ? "../images/folder-fold.png" : "qrc:/images/folder-fold.png"
     property string openIconPath: isPreview ? "../images/folder-unfold.png" : "qrc:/images/folder-unfold.png"
     property string rightArrowIconPath: isPreview ? "../images/right-arrow.png" : "qrc:/images/right-arrow.png"

@@ -390,6 +390,12 @@ std::vector<pag::Layer*> ExportLayers(const std::shared_ptr<PAGExportSession>& s
     return layers;
   }
 
+  if (AEHelper::CheckAeVersion()) {
+    pagToAELayer.clear();
+    aeToPagLayer.clear();
+    ifCopyMatlayer = false;
+  }
+
   for (int index = 0; index < numLayers; index++) {
     AEGP_LayerH layerH = nullptr;
     if (AEHelper::GetSuites()->LayerSuite6()->AEGP_GetCompLayerByIndex(compH, index, &layerH) !=
@@ -416,6 +422,10 @@ std::vector<pag::Layer*> ExportLayers(const std::shared_ptr<PAGExportSession>& s
       layers.push_back(layer->trackMatteLayer);
     }
     layers.push_back(layer);
+
+    if (AEHelper::CheckAeVersion()) {
+      aeToPagLayer[layerH] = layer;
+    }
 
     AEGP_LayerFlags layerFlags = AEHelper::GetLayerFlags(layerH);
     if (layerType == ExportLayerType::Audio || layerType == ExportLayerType::Unknown) {

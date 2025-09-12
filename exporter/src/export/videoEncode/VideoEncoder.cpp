@@ -135,8 +135,11 @@ int PAGEncoder::encodeHeaders(uint8_t* header[], int headerSize[]) {
 }
 
 int PAGEncoder::getEncodedData(uint8_t** outData, FrameType* outFrameType, int64_t* outFrameIndex) {
-  enc->close();
   return enc->getEncodedFrame(true, outData, outFrameType, outFrameIndex);
+}
+
+void PAGEncoder::close() {
+  enc->close();
 }
 
 }  // namespace exporter

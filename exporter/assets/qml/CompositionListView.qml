@@ -227,11 +227,16 @@ ListView {
                                     });
                                     if (settingColumn.subWindow) {
                                         settingColumn.subWindow.closing.connect(function () {
-                                            if (settingColumn.subWindow) {
-                                                settingColumn.subWindow.destroy();
-                                                settingColumn.subWindow = null;
-                                                compositionsModel.updateNames();
-                                            }
+                                            Qt.callLater(function() {
+                                                if (settingColumn.subWindow && !settingColumn.subWindow.destroyed) {
+                                                    if(settingColumn.subWindow.close){
+                                                        settingColumn.subWindow.close();
+                                                    }
+                                                    settingColumn.subWindow.destroy();
+                                                    settingColumn.subWindow = null;
+                                                    compositionsModel.updateNames();
+                                                }
+                                            });
                                         });
                                         settingColumn.subWindow.show();
                                     }
@@ -266,7 +271,11 @@ ListView {
                                     let progressWindow = component.createObject(parentWindow, {});
                                     if (progressWindow) {
                                         progressWindow.closing.connect(function () {
-                                            progressWindow.destroy();
+                                            Qt.callLater(function() {
+                                                if (progressWindow && !progressWindow.destroyed) {
+                                                    progressWindow.deleteLater();
+                                                }
+                                            });
                                             parentWindow.show();
                                         });
                                         progressWindow.show();

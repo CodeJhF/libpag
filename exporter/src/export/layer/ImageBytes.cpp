@@ -74,13 +74,13 @@ void GetImageBytesActaully(const std::shared_ptr<PAGExportSession>& session,
   auto scaledWidth = static_cast<int>(ceil(rect.width * factor));
   auto scaledHeight = static_cast<int>(ceil(rect.height * factor));
   if (scaledWidth == rect.width && scaledHeight == rect.height) {
-    data = rgbaBytes + rect.yPos * rowBytesLength + rect.xPos * 4;
-    theStride = rowBytesLength;
+    data = rgbaBytes + rect.yPos * stride + rect.xPos * 4;
+    theStride = stride;
   } else {
     theStride = scaledWidth * 4;
     scaledRGBA = new uint8_t[theStride * scaledHeight + theStride * 2];
-    ScaleCoreGraphics(scaledRGBA, theStride, rgbaBytes + rect.yPos * rowBytesLength + rect.xPos * 4,
-                      rowBytesLength, scaledWidth, scaledHeight, rect.width, rect.height);
+    ScaleCoreGraphics(scaledRGBA, theStride, rgbaBytes + rect.yPos * stride + rect.xPos * 4,
+                      stride, scaledWidth, scaledHeight, rect.width, rect.height);
     data = scaledRGBA;
   }
 

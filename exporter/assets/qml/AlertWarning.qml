@@ -33,7 +33,7 @@ PAGWindow {
             console.log("View All Validation Rules clicked");
             console.log("Alert count:", (alertDataModel ? alertDataModel.rowCount() : 0));
             if(alertDataModel){
-                alertDataModel.jumpToUrl();
+                alertDataModel.JumpToUrl();
             }
         }
 

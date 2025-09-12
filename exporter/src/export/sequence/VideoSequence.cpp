@@ -101,6 +101,7 @@ static void ClipVideoComposition(const std::shared_ptr<PAGExportSession>& sessio
     A_long height = 0;
     A_u_long stride = 0;
     A_u_long rowBytesLength = 0;
+    data = nullptr;
     AEHelper::GetRenderFrame(data, rowBytesLength, stride, width, height, renderOptions);
     if (compWidth == width && compHeight == height) {
       bool isVisible = IsFrameVisible(visibleRanges, frame,
@@ -274,6 +275,10 @@ static void GetVideoSequence(const std::shared_ptr<PAGExportSession>& session,
                        seqWidth, seqHeight);
             }
           }
+          else {
+            CopyRGBA(curData.data(), seqStride, renderRgbaBytes + renderOffset, renderStride,
+                     seqWidth, seqHeight);
+          }
 
           if (!session->videoAlphaDetected) {
             if (hasAlpha != ImageHasAlpha(curData.data(), seqStride, seqWidth, seqHeight)) {
@@ -319,7 +324,9 @@ static void GetVideoSequence(const std::shared_ptr<PAGExportSession>& session,
       continue;
     }
 
-    do {
+    pagEncoder->close();
+
+    while (!session->stopExport && sequence->frames.size() < static_cast<size_t>(duration)) {
       FrameType frameType = FRAME_TYPE_AUTO;
       int64_t index = 0;
       pag::ByteData* videoBytes = GetEncodedVideoFrame(pagEncoder.get(), &frameType, &index);
@@ -332,7 +339,7 @@ static void GetVideoSequence(const std::shared_ptr<PAGExportSession>& session,
       videoFrame->frame = index;
       videoFrame->fileBytes = videoBytes;
       sequence->frames.push_back(videoFrame);
-    } while (!session->stopExport);
+    }
 
     pag::MP4BoxHelper::WriteMP4Header(sequence);
     composition->sequences.push_back(sequence);
@@ -411,7 +418,7 @@ static void RebuildVideoComposition(const std::shared_ptr<PAGExportSession>& ses
   newComposition->height = composition->height;
   newComposition->duration = composition->duration;
   newComposition->frameRate = composition->frameRate;
-  newComposition->id = composition->id;
+  newComposition->id = GetCompositionUniqueID(session->compositions);
   newComposition->backgroundColor = composition->backgroundColor;
 
   newComposition->audioBytes = composition->audioBytes;

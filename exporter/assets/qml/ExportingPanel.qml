@@ -275,15 +275,15 @@ PAGWindow {
             font.pixelSize: 15
             font.family: "PingFang SC"
             color: "#FFFFFF"
-            visible: alertInfoModel.count <= 0
+            visible: (typeof alertInfoModel !== 'undefined' && alertInfoModel) ? alertInfoModel.count <= 0 : true
             anchors.centerIn: parent
         }
 
         PAGListView {
             id: errorInfoListView
-            visible: alertInfoModel.count > 0
+            visible: (typeof alertInfoModel !== 'undefined' && alertInfoModel) ? alertInfoModel.count > 0 : false
             anchors.fill: parent
-            model: alertInfoModel
+            model: (typeof alertInfoModel !== 'undefined') ? alertInfoModel : null
             showLocationBtn: true
         }
     }
@@ -419,7 +419,7 @@ PAGWindow {
                         let progressListWindow = component.createObject(this, {});
                         if (progressListWindow) {
                             progressListWindow.closing.connect(function () {
-                                progressListWindow.destroy();
+                                progressListWindow.deleteLater();
                                 window.show();
                             });
                             window.hide();
