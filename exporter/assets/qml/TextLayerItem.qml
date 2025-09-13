@@ -114,6 +114,7 @@ Rectangle {
         anchors.top: titleDivider.bottom
         anchors.bottom: parent.bottom
         anchors.left: parent.left
+        clip: true
 
         ScrollBar.vertical: ScrollBar {
             policy: ScrollBar.AsNeeded

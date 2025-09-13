@@ -148,7 +148,7 @@ void ExportingPanelWindow::updateCompositionSetting(int row) {
     ExportComposition(session, resource->itemH);
     sessionMap[resource->ID] = session;
   }
-  viewLayers(resource, sessionMap[resource->ID]->layerHMap);
+  viewLayers(resource);
   auto frameImageProvider = new ExportFrameImageProvider();
   frameImageProvider->setAEResource(resource);
   auto compositionInfoModel = std::make_unique<ExportCompositionInfoModel>(frameImageProvider);
@@ -182,8 +182,7 @@ Q_INVOKABLE bool ExportingPanelWindow::isAEWindowActive() {
   return IsAEWindowActive();
 }
 
-void ExportingPanelWindow::viewLayers(const std::shared_ptr<AEResource>& resource,
-                                      const std::unordered_map<pag::ID, AEGP_LayerH>& layerHMap) {
+void ExportingPanelWindow::viewLayers(const std::shared_ptr<AEResource>& resource) {
   if (!resource->composition.children.empty() || !resource->composition.textLayers.empty() ||
       !resource->composition.imageLayers.empty()) {
     return;
@@ -203,16 +202,13 @@ void ExportingPanelWindow::viewLayers(const std::shared_ptr<AEResource>& resourc
 
     AEResource::Layer layer;
     layer.layerID = AEHelper::GetLayerID(layerH);
-    if (layerHMap.find(layer.layerID) == layerHMap.end()) {
-      continue;
-    }
     layer.name = AEHelper::GetLayerName(layerH);
     layer.layerH = layerH;
     AEGP_ItemH layerItemH = nullptr;
     ExportLayerType layerType = GetLayerType(layerH);
     if (layerType == ExportLayerType::Text) {
       resource->composition.textLayers.push_back(layer);
-    } else if (layerType == ExportLayerType::Image) {
+    } else if (layerType == ExportLayerType::Image || layerType == ExportLayerType::Video) {
       layerItemH = AEHelper::GetLayerItemH(layerH);
       auto iter = std::find_if(
           resource->composition.imageLayers.begin(), resource->composition.imageLayers.end(),
@@ -231,7 +227,7 @@ void ExportingPanelWindow::viewLayers(const std::shared_ptr<AEResource>& resourc
   }
 
   for (const auto& child : resource->composition.children) {
-    viewLayers(child, layerHMap);
+    viewLayers(child);
   }
 }
 

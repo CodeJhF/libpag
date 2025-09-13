@@ -195,6 +195,7 @@ static void GetVideoSequence(const std::shared_ptr<PAGExportSession>& session,
 
   composition->sequences.clear();
 
+  bool needToScale = true;
   float factor = compositionFactor;
   float frameRate = std::min(session->configParam.frameRate, composition->frameRate);
   auto duration =
@@ -211,19 +212,18 @@ static void GetVideoSequence(const std::shared_ptr<PAGExportSession>& session,
 
   if (factor > 0.99) {
     factor = 1.0;
+    needToScale = false;
   }
 
   int seqWidth = static_cast<int>(ceil(static_cast<float>(right - left) * factor));
   int seqHeight = static_cast<int>(ceil(static_cast<float>(bottom - top) * factor));
   int seqStride = SIZE_ALIGN(seqWidth) * 4;
-  bool needToScale = factor != 1.0;
   std::vector<uint8_t> preData(seqStride * SIZE_ALIGN(seqHeight) + seqStride * 2);
   std::vector<uint8_t> curData(seqStride * SIZE_ALIGN(seqHeight) + seqStride * 2);
 
   A_u_long renderStride = SIZE_ALIGN(composition->width) * 4;
   A_u_long renderOffset = top * renderStride + left * 4;
   std::vector<uint8_t> rgbaData(renderStride * SIZE_ALIGN(composition->height) + renderStride * 2);
-  uint8_t* renderRgbaBytes = needToScale ? rgbaData.data() : curData.data();
 
   std::vector<pag::TimeRange> visibleRanges = {};
   auto mainComposition = session->compositions[session->compositions.size() - 1];
@@ -253,6 +253,7 @@ static void GetVideoSequence(const std::shared_ptr<PAGExportSession>& session,
     bool lastFrameIsStatic = true;
     pag::TimeRange staticTimeRange = {-1, -1};
     for (pag::Frame frame = 0; frame < duration && !session->stopExport; frame++) {
+      uint8_t* renderRgbaBytes = needToScale ? rgbaData.data() : curData.data();
       AEHelper::SetRenderTime(renderOptions, frameRate, frame);
 
       A_long compWidth = 0;
@@ -274,10 +275,6 @@ static void GetVideoSequence(const std::shared_ptr<PAGExportSession>& session,
               CopyRGBA(curData.data(), seqStride, renderRgbaBytes + renderOffset, renderStride,
                        seqWidth, seqHeight);
             }
-          }
-          else {
-            CopyRGBA(curData.data(), seqStride, renderRgbaBytes + renderOffset, renderStride,
-                     seqWidth, seqHeight);
           }
 
           if (!session->videoAlphaDetected) {
