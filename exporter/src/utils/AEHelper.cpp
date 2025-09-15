@@ -632,7 +632,7 @@ bool IsStreamActive(const AEGP_StreamRefH& streamH) {
   return (flags & AEGP_DynStreamFlag_ACTIVE_EYEBALL) > 0;
 }
 
-AEGP_StreamRefH GetMarkerStreamFromLayer(const AEGP_LayerH& layerH) {
+AEGP_StreamRefH GetLayerMarkerStream(const AEGP_LayerH& layerH) {
   if (layerH == nullptr) {
     return nullptr;
   }
@@ -643,11 +643,11 @@ AEGP_StreamRefH GetMarkerStreamFromLayer(const AEGP_LayerH& layerH) {
                                                  &streamRefH);
   return streamRefH;
 }
-AEGP_StreamRefH GetMarkerStreamFromItem(const AEGP_ItemH& itemH) {
+AEGP_StreamRefH GetItemMarkerStream(const AEGP_ItemH& itemH) {
   auto compH = GetItemCompH(itemH);
-  return GetMarkerStreamFromComposition(compH);
+  return GetCompositionMarkerStream(compH);
 }
-AEGP_StreamRefH GetMarkerStreamFromComposition(const AEGP_CompH& compH) {
+AEGP_StreamRefH GetCompositionMarkerStream(const AEGP_CompH& compH) {
   if (compH == nullptr) {
     return nullptr;
   }

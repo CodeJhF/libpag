@@ -115,7 +115,7 @@ std::vector<pag::Marker*> Marker::ExportMarkers(const std::shared_ptr<PAGExportS
   const auto& suites = AEHelper::GetSuites();
   auto pluginID = AEHelper::GetPluginID();
 
-  StreamWrapper streamWrapper(AEHelper::GetMarkerStreamFromLayer(layerH));
+  StreamWrapper streamWrapper(AEHelper::GetLayerMarkerStream(layerH));
   AEGP_StreamRefH streamH = streamWrapper.get();
   if (!streamH) {
     return {};
@@ -279,7 +279,7 @@ std::string Marker::GetMarkerFromComposition(const AEGP_ItemH& itemH, const std:
 }
 
 void Marker::DeleteAllTimeStretchInfo(const AEGP_ItemH& itemH) {
-  AEGP_StreamRefH markerStreamH = AEHelper::GetMarkerStreamFromItem(itemH);
+  AEGP_StreamRefH markerStreamH = AEHelper::GetItemMarkerStream(itemH);
   if (markerStreamH == nullptr) {
     return;
   }
@@ -708,7 +708,7 @@ std::optional<nlohmann::json> Marker::FindMarkerFromComposition(const AEGP_ItemH
     return std::nullopt;
   }
 
-  AEGP_StreamRefH markerStreamH = AEHelper::GetMarkerStreamFromItem(itemH);
+  AEGP_StreamRefH markerStreamH = AEHelper::GetItemMarkerStream(itemH);
   if (markerStreamH == nullptr) {
     return std::nullopt;
   }
@@ -723,7 +723,7 @@ std::optional<nlohmann::json> Marker::FindMarkerFromLayer(const AEGP_LayerH& lay
   if (layerH == nullptr) {
     return std::nullopt;
   }
-  AEGP_StreamRefH markerStreamH = AEHelper::GetMarkerStreamFromLayer(layerH);
+  AEGP_StreamRefH markerStreamH = AEHelper::GetLayerMarkerStream(layerH);
   if (markerStreamH == nullptr) {
     return std::nullopt;
   }
@@ -777,7 +777,7 @@ void Marker::DeleteMarkerFromComposition(const AEGP_ItemH& itemH, const std::str
     return;
   }
 
-  auto markerStreamH = AEHelper::GetMarkerStreamFromItem(itemH);
+  auto markerStreamH = AEHelper::GetItemMarkerStream(itemH);
   DeleteMarkerFromStream(markerStreamH, key);
   AEHelper::DeleteStream(markerStreamH);
 }
@@ -787,7 +787,7 @@ void Marker::DeleteMarkerFromLayer(const AEGP_LayerH& layerH, const std::string&
     return;
   }
 
-  auto markerStreamH = AEHelper::GetMarkerStreamFromLayer(layerH);
+  auto markerStreamH = AEHelper::GetLayerMarkerStream(layerH);
   DeleteMarkerFromStream(markerStreamH, key);
   AEHelper::DeleteStream(markerStreamH);
 }
@@ -831,7 +831,7 @@ void Marker::AddMarkerToComposition(const AEGP_ItemH& itemH, const std::string& 
   if (itemH == nullptr) {
     return;
   }
-  auto markerStreamH = AEHelper::GetMarkerStreamFromItem(itemH);
+  auto markerStreamH = AEHelper::GetItemMarkerStream(itemH);
   if (markerStreamH == nullptr) {
     return;
   }
@@ -846,7 +846,7 @@ void Marker::AddMarkerToLayer(const AEGP_LayerH& layerH, const std::string& key,
   if (layerH == nullptr) {
     return;
   }
-  auto markerStreamH = AEHelper::GetMarkerStreamFromLayer(layerH);
+  auto markerStreamH = AEHelper::GetLayerMarkerStream(layerH);
   if (markerStreamH == nullptr) {
     return;
   }
@@ -860,7 +860,7 @@ std::optional<TimeStretchInfo> Marker::GetTimeStretchInfo(const AEGP_ItemH& item
   const auto& suites = AEHelper::GetSuites();
   auto pluginID = AEHelper::GetPluginID();
 
-  AEGP_StreamRefH markerStreamH = AEHelper::GetMarkerStreamFromItem(itemH);
+  AEGP_StreamRefH markerStreamH = AEHelper::GetItemMarkerStream(itemH);
   if (!markerStreamH) {
     return std::nullopt;
   }
