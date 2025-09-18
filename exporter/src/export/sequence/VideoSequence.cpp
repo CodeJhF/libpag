@@ -312,7 +312,7 @@ static void GetVideoSequence(const std::shared_ptr<PAGExportSession>& session,
         session->pushWarning(AlertInfoType::ExportRenderError);
       }
 
-      session->progressModel.addProgress();
+      session->progressModel.addProgress(0.5);
       std::swap(curData, preData);
     }
 
@@ -337,6 +337,7 @@ static void GetVideoSequence(const std::shared_ptr<PAGExportSession>& session,
       videoFrame->frame = index;
       videoFrame->fileBytes = videoBytes;
       sequence->frames.push_back(videoFrame);
+      session->progressModel.addProgress(0.5);
     }
 
     pag::MP4BoxHelper::WriteMP4Header(sequence);
