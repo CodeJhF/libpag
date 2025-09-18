@@ -218,6 +218,7 @@ static void GetVideoSequence(const std::shared_ptr<PAGExportSession>& session,
   int seqWidth = static_cast<int>(ceil(static_cast<float>(right - left) * factor));
   int seqHeight = static_cast<int>(ceil(static_cast<float>(bottom - top) * factor));
   int seqStride = SIZE_ALIGN(seqWidth) * 4;
+  bool sizeChanged = seqWidth != composition->width || seqHeight != composition->height;
   std::vector<uint8_t> preData(seqStride * SIZE_ALIGN(seqHeight) + seqStride * 2);
   std::vector<uint8_t> curData(seqStride * SIZE_ALIGN(seqHeight) + seqStride * 2);
 
@@ -253,7 +254,7 @@ static void GetVideoSequence(const std::shared_ptr<PAGExportSession>& session,
     bool lastFrameIsStatic = true;
     pag::TimeRange staticTimeRange = {-1, -1};
     for (pag::Frame frame = 0; frame < duration && !session->stopExport; frame++) {
-      uint8_t* renderRgbaBytes = needToScale ? rgbaData.data() : curData.data();
+      uint8_t* renderRgbaBytes = sizeChanged ? rgbaData.data() : curData.data();
       AEHelper::SetRenderTime(renderOptions, frameRate, frame);
 
       A_long compWidth = 0;
@@ -267,7 +268,7 @@ static void GetVideoSequence(const std::shared_ptr<PAGExportSession>& session,
         if (!currentFrameIsVisible) {
           std::fill(curData.begin(), curData.end(), 128);
         } else {
-          if (seqWidth != composition->width || seqHeight != composition->height) {
+          if (sizeChanged) {
             if (needToScale) {
               ScaleCoreGraphics(curData.data(), seqStride, renderRgbaBytes + renderOffset,
                                 renderStride, seqWidth, seqHeight, right - left, bottom - top);

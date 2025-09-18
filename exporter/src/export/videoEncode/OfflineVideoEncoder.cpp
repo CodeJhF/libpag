@@ -22,6 +22,8 @@
 #ifndef WIN32
 #include <unistd.h>
 #endif
+#include <QDir>
+#include <QProcess>
 #include <QFile>
 #include <QJsonDocument>
 #include <QJsonObject>
@@ -120,10 +122,22 @@ bool OfflineVideoEncoder::open(int width, int height, double frameRate, bool has
           .toStdString();
   FileHelper::WriteTextFile(encodeParamFilePath, paramStr);
 
-  std::string toolPath = FileHelper::JoinPaths(GetH264EncoderToolsFolder(), "H264EncoderTools");
-  std::string cmd =
-      QString(R"('%1' '%2/' &)").arg(toolPath.data()).arg(GetOfflineFolder().data()).toStdString();
-  system(cmd.data());
+  QString toolExecutable =
+     QString::fromStdString(FileHelper::JoinPaths(GetH264EncoderToolsFolder(), "H264EncoderTools"));
+#ifdef _WIN32
+  if (!toolExecutable.endsWith(".exe")) {
+    toolExecutable.append(".exe");
+  }
+#endif
+  toolExecutable = QDir::toNativeSeparators(toolExecutable);
+  QString offlineFolderPath = QString::fromStdString(GetOfflineFolder());
+  offlineFolderPath = QDir::toNativeSeparators(offlineFolderPath);
+  if (!offlineFolderPath.endsWith(QDir::separator())) {
+    offlineFolderPath.append(QDir::separator());
+  }
+  QStringList arguments;
+  arguments << offlineFolderPath;
+  QProcess::startDetached(toolExecutable, arguments);
 
   return true;
 }

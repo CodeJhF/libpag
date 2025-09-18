@@ -275,6 +275,10 @@ std::shared_ptr<pag::File> PAGExport::exportAsFile() {
     ClearLayerName(compositions.back());
   }
 
+  if (!session->exportActually) {
+	  return nullptr;
+  }
+
   auto pagFile = pag::Codec::VerifyAndMake(compositions, images);
   if (pagFile == nullptr) {
     session->pushWarning(AlertInfoType::PAGVerifyError);
@@ -385,6 +389,9 @@ std::vector<pag::ImageBytes*> PAGExport::getRefImages(
 }
 
 void PAGExport::exportResources(std::vector<pag::Composition*>& compositions) {
+	if (!session->exportActually) {
+		return;
+	}
   exportRescaleImages();
   exportRescaleBitmapCompositions(compositions);
   exportRescaleVideoCompositions(compositions);

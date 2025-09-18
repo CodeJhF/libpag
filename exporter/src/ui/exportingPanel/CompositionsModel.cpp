@@ -333,7 +333,9 @@ void CompositionsModel::updateAlertInfos() {
       continue;
     }
     std::string tempPagPath = FileHelper::JoinPaths(GetTempFolderPath(), "tmp.pag");
-    PAGExport::ExportFile(resource->itemH, tempPagPath, false, false);
+	  std::shared_ptr<PAGExport> pagExport = std::make_shared<PAGExport>(resource->itemH, tempPagPath, false, false);
+	  pagExport->session->exportActually = false;
+    PAGExport::ExportFile(pagExport.get());
   }
   alertInfoModel->setAlertInfos(AlertInfoManager::GetInstance().warningList);
   AlertInfoManager::GetInstance().warningList.clear();
