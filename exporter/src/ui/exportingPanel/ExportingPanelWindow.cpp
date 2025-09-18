@@ -143,10 +143,12 @@ void ExportingPanelWindow::updateCompositionSetting(int row) {
   if (sessionMap.find(resource->ID) == sessionMap.end()) {
     std::string tempPagPath = FileHelper::JoinPaths(GetTempFolderPath(), "tmp.pag");
     auto session = std::make_shared<PAGExportSession>(resource->itemH, tempPagPath);
+    session->setCurrent();
     session->exportAudio = false;
     session->enableRunScript = false;
     ExportComposition(session, resource->itemH);
     sessionMap[resource->ID] = session;
+    session->unsetCurrent();
   }
   viewLayers(resource);
   auto frameImageProvider = new ExportFrameImageProvider();
