@@ -105,6 +105,7 @@ ListView {
             height: 22
             font.pixelSize: 14
             font.family: "PingFang SC"
+            verticalAlignment: Text.AlignVCenter
             color: "#FFFFFF"
             anchors.left: statusIcon.right
             anchors.leftMargin: 12
@@ -155,6 +156,7 @@ ListView {
                 height: 22
                 font.pixelSize: 14
                 font.family: "PingFang SC"
+                verticalAlignment: Text.AlignVCenter
                 color: "#FFFFFF"
                 anchors.left: progressBar.right
                 anchors.leftMargin: 8
