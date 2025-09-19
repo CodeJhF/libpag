@@ -28,16 +28,37 @@ namespace StringHelper {
 const std::string CompositionBmpSuffix = "_bmp";
 
 std::string AeMemoryHandleToString(const AEGP_MemHandle& handle) {
-  const auto& suites = AEHelper::GetSuites();
-  char16_t* str = nullptr;
-  suites->MemorySuite1()->AEGP_LockMemHandle(handle, reinterpret_cast<void**>(&str));
+  if (handle == nullptr) {
+    return "";
+  }
 
-  std::string u8str = Utf16ToUtf8(str);
-  if (u8str.empty()) {
-    LOGE("AeMemoryHandleToString failed!");
+  const auto& suites = AEHelper::GetSuites();
+  if (suites == nullptr) {
+    LOGE("AeMemoryHandleToString failed: suites not initialized.");
+    return "";
+  }
+
+  char16_t* str = nullptr;
+  auto err = suites->MemorySuite1()->AEGP_LockMemHandle(handle, reinterpret_cast<void**>(&str));
+  if (err != A_Err_NONE || str == nullptr) {
+    LOGE("AeMemoryHandleToString failed: AEGP_LockMemHandle error=%d", err);
+    return "";
+  }
+
+  bool hasContent = str != nullptr && str[0] != u'\0';
+  std::string u8str;
+  try {
+    u8str = Utf16ToUtf8(str);
+  } catch (const std::exception& e) {
+    LOGE("AeMemoryHandleToString failed: %s", e.what());
   }
 
   suites->MemorySuite1()->AEGP_UnlockMemHandle(handle);
+
+  if (u8str.empty() && hasContent) {
+    LOGE("AeMemoryHandleToString failed to convert UTF-16 content.");
+  }
+
   return u8str;
 }
 
@@ -264,43 +285,8 @@ std::string Utf16ToUtf8(const char16_t* u16str) {
   if (u16str == nullptr) {
     return "";
   }
-  std::string u8str;
-  u8str.reserve(wcslen(reinterpret_cast<const wchar_t*>(u16str)) * 3);
-
-  try {
-    while (*u16str) {
-      char32_t codePoint = *u16str++;
-      if (codePoint >= 0xD800 && codePoint <= 0xDBFF && *u16str) {
-        char32_t lowSurrogate = *u16str++;
-        if (lowSurrogate >= 0xDC00 && lowSurrogate <= 0xDFFF) {
-          codePoint = 0x10000 + ((codePoint - 0xD800) << 10) + (lowSurrogate - 0xDC00);
-        } else {
-          continue;
-        }
-      }
-
-      if (codePoint <= 0x7F) {
-        u8str.push_back(static_cast<char>(codePoint));
-      } else if (codePoint <= 0x7FF) {
-        u8str.push_back(static_cast<char>(0xC0 | (codePoint >> 6)));
-        u8str.push_back(static_cast<char>(0x80 | (codePoint & 0x3F)));
-      } else if (codePoint <= 0xFFFF) {
-        u8str.push_back(static_cast<char>(0xE0 | (codePoint >> 12)));
-        u8str.push_back(static_cast<char>(0x80 | ((codePoint >> 6) & 0x3F)));
-        u8str.push_back(static_cast<char>(0x80 | (codePoint & 0x3F)));
-      } else if (codePoint <= 0x10FFFF) {
-        u8str.push_back(static_cast<char>(0xF0 | (codePoint >> 18)));
-        u8str.push_back(static_cast<char>(0x80 | ((codePoint >> 12) & 0x3F)));
-        u8str.push_back(static_cast<char>(0x80 | ((codePoint >> 6) & 0x3F)));
-        u8str.push_back(static_cast<char>(0x80 | (codePoint & 0x3F)));
-      }
-    }
-  } catch (const std::exception& e) {
-    LOGE("Utf16ToUtf8 failed: %s", e.what());
-    return "";
-  }
-
-  return u8str;
+  QString qString = QString::fromUtf16(u16str);
+  return qString.toUtf8().toStdString();
 }
 
 std::u16string Utf8ToUtf16(const std::string& u8str) {

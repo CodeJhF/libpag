@@ -416,7 +416,7 @@ static pag::TextAnimator* GetTextAnimator(const AEGP_StreamRefH& streamH) {
       auto type = GetTextAnimatorType(childStreamH);
       if (type == TextAnimatorType::Selectors) {
         auto selectors = GetTextSelectors(childStreamH);
-        animator->selectors.insert(selectors.begin(), selectors.end(), animator->selectors.end());
+        animator->selectors.insert(animator->selectors.end(), selectors.begin(), selectors.end());
       } else if (type == TextAnimatorType::AnimatorProperties) {
         animator->colorProperties = GetTextAnimatorColorProperties(childStreamH);
         animator->typographyProperties = GetTextAnimatorTypographyProperties(childStreamH);
