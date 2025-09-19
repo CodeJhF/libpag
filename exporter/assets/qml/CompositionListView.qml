@@ -101,7 +101,9 @@ ListView {
                         anchors.fill: parent
                         cursorShape: Qt.PointingHandCursor
                         onClicked: {
-                            model.setIsSelected(row, !isSelected);
+                           Qt.callLater(function() {
+                               model.setIsSelected(row, !isSelected);
+                           });
                         }
                     }
                 }
@@ -273,7 +275,7 @@ ListView {
                                         progressWindow.closing.connect(function () {
                                             Qt.callLater(function() {
                                                 if (progressWindow && !progressWindow.destroyed) {
-                                                    progressWindow.deleteLater();
+                                                    progressWindow.destroy();
                                                 }
                                             });
                                             parentWindow.show();

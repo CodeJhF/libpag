@@ -419,7 +419,7 @@ PAGWindow {
                         let progressListWindow = component.createObject(this, {});
                         if (progressListWindow) {
                             progressListWindow.closing.connect(function () {
-                                progressListWindow.deleteLater();
+                                progressListWindow.close();
                                 window.show();
                             });
                             window.hide();
