@@ -211,7 +211,7 @@ PAGWindow {
                                     color: "transparent"
 
                                     Text {
-                                        text: "General"
+                                        text: qsTr("General")
                                         color: tabBar.currentIndex === 0 ? "#ffffff" : "#888888"
                                         font.pixelSize: 15
                                         font.family: "PingFang SC"
@@ -238,7 +238,7 @@ PAGWindow {
                                     color: "transparent"
 
                                     Text {
-                                        text: "BMP Composition"
+                                        text: qsTr("BMP Composition")
                                         color: tabBar.currentIndex === 1 ? "#ffffff" : "#888888"
                                         font.pixelSize: 15
                                         font.family: "PingFang SC"
@@ -281,7 +281,7 @@ PAGWindow {
                                         rowSpacing: 12
 
                                         Text {
-                                            text: "Language:"
+                                            text: qsTr("Language:")
                                             color: "#cccccc"
                                             font.pixelSize: 14
                                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
@@ -295,7 +295,7 @@ PAGWindow {
                                         }
 
                                         Text {
-                                            text: "Export Use Case:"
+                                            text: qsTr("Export Use Case:")
                                             color: "#cccccc"
                                             font.pixelSize: 14
                                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
@@ -309,7 +309,7 @@ PAGWindow {
                                         }
 
                                         Text {
-                                            text: "Export Version Control:"
+                                            text: qsTr("Export Version Control:")
                                             color: "#cccccc"
                                             font.pixelSize: 14
                                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
@@ -332,7 +332,7 @@ PAGWindow {
                                         }
 
                                         Text {
-                                            text: "TAG Level:"
+                                            text: qsTr("TAG Level:")
                                             color: "#cccccc"
                                             font.pixelSize: 14
                                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
@@ -362,7 +362,7 @@ PAGWindow {
                                         }
 
                                         Text {
-                                            text: "Bitmap Compression Quality:"
+                                            text: qsTr("Bitmap Compression Quality:")
                                             color: "#cccccc"
                                             font.pixelSize: 14
                                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
@@ -387,7 +387,7 @@ PAGWindow {
                                         }
 
                                         Text {
-                                            text: "Bitmap Pixel Density:"
+                                            text: qsTr("Bitmap Pixel Density:")
                                             color: "#cccccc"
                                             font.pixelSize: 14
                                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
@@ -413,7 +413,7 @@ PAGWindow {
                                         }
 
                                         Text {
-                                            text: "Export Layer Name:"
+                                            text: qsTr("Export Layer Name:")
                                             color: "#cccccc"
                                             font.pixelSize: 14
                                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
@@ -427,7 +427,7 @@ PAGWindow {
                                         }
 
                                         Text {
-                                            text: "Export Fonts:"
+                                            text: qsTr("Export Fonts:")
                                             color: "#cccccc"
                                             font.pixelSize: 14
                                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
@@ -454,7 +454,7 @@ PAGWindow {
                                             radius: 6
 
                                             Text {
-                                                text: "Reset Default"
+                                                text: qsTr("Reset Default")
                                                 color: "#cccccc"
                                                 font.pixelSize: 14
                                                 anchors.centerIn: parent
@@ -494,7 +494,7 @@ PAGWindow {
                                         rowSpacing: 12
 
                                         Text {
-                                            text: "Bitmap Quality:"
+                                            text: qsTr("Bitmap Quality:")
                                             color: "#cccccc"
                                             font.pixelSize: 14
                                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
@@ -508,7 +508,7 @@ PAGWindow {
                                         }
 
                                         Text {
-                                            text: "Image Quality:"
+                                            text: qsTr("Image Quality:")
                                             color: "#cccccc"
                                             font.pixelSize: 14
                                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
@@ -533,7 +533,7 @@ PAGWindow {
                                         }
 
                                         Text {
-                                            text: "Export Size Limit（Short Size）:"
+                                            text: qsTr("Export Size Limit（Short Size）:")
                                             color: "#cccccc"
                                             font.pixelSize: 14
                                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
@@ -555,7 +555,7 @@ PAGWindow {
                                         }
 
                                         Text {
-                                            text: "Maximum Frame Rate:"
+                                            text: qsTr("Maximum Frame Rate:")
                                             color: "#cccccc"
                                             font.pixelSize: 14
                                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
@@ -581,7 +581,7 @@ PAGWindow {
                                         }
 
                                         Text {
-                                            text: "Keyframe Interval:"
+                                            text: qsTr("Keyframe Interval:")
                                             color: "#cccccc"
                                             font.pixelSize: 14
                                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
@@ -620,7 +620,7 @@ PAGWindow {
                                             radius: 6
 
                                             Text {
-                                                text: "Reset Default"
+                                                text: qsTr("Reset Default")
                                                 color: "#cccccc"
                                                 font.pixelSize: 14
                                                 anchors.centerIn: parent
@@ -671,7 +671,7 @@ PAGWindow {
                     radius: 6
 
                     Text {
-                        text: "Cancel"
+                        text: qsTr("Cancel")
                         color: "#cccccc"
                         font.pixelSize: 14
                         anchors.centerIn: parent
@@ -700,7 +700,7 @@ PAGWindow {
                     radius: 6
 
                     Text {
-                        text: "OK"
+                        text: qsTr("OK")
                         color: "#ffffff"
                         font.pixelSize: 14
                         font.bold: true
