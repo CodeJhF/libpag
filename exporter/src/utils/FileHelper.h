@@ -19,6 +19,7 @@
 #pragma once
 #include <filesystem>
 #include <string>
+#include <QString>
 
 namespace FileHelper {
 
