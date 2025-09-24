@@ -58,7 +58,7 @@
 <context>
     <name>CompositionListView</name>
     <message>
-        <location filename="../qml/CompositionListView.qml" line="291"/>
+        <location filename="../qml/CompositionListView.qml" line="302"/>
         <source>Select Save Path</source>
         <translation>选择存储路径</translation>
     </message>
@@ -102,6 +102,97 @@
         <location filename="../qml/ConfigWindow.qml" line="12"/>
         <source>PAG Config</source>
         <translation>配置面板</translation>
+    </message>
+    <message>
+        <location filename="../qml/ConfigWindow.qml" line="214"/>
+        <source>General</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/ConfigWindow.qml" line="241"/>
+        <source>BMP Composition</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/ConfigWindow.qml" line="284"/>
+        <source>Language:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/ConfigWindow.qml" line="298"/>
+        <source>Export Use Case:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/ConfigWindow.qml" line="312"/>
+        <source>Export Version Control:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/ConfigWindow.qml" line="335"/>
+        <source>TAG Level:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/ConfigWindow.qml" line="365"/>
+        <source>Bitmap Compression Quality:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/ConfigWindow.qml" line="390"/>
+        <source>Bitmap Pixel Density:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/ConfigWindow.qml" line="416"/>
+        <source>Export Layer Name:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/ConfigWindow.qml" line="430"/>
+        <source>Export Fonts:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/ConfigWindow.qml" line="457"/>
+        <location filename="../qml/ConfigWindow.qml" line="623"/>
+        <source>Reset Default</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/ConfigWindow.qml" line="497"/>
+        <source>Bitmap Quality:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/ConfigWindow.qml" line="511"/>
+        <source>Image Quality:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/ConfigWindow.qml" line="536"/>
+        <source>Export Size Limit（Short Size）:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/ConfigWindow.qml" line="558"/>
+        <source>Maximum Frame Rate:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/ConfigWindow.qml" line="584"/>
+        <source>Keyframe Interval:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/ConfigWindow.qml" line="674"/>
+        <source>Cancel</source>
+        <translation type="unfinished">取消</translation>
+    </message>
+    <message>
+        <location filename="../qml/ConfigWindow.qml" line="703"/>
+        <source>OK</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -238,7 +329,7 @@
 <context>
     <name>ProgressListView</name>
     <message>
-        <location filename="../qml/ProgressListView.qml" line="179"/>
+        <location filename="../qml/ProgressListView.qml" line="181"/>
         <source>View</source>
         <translation>查看</translation>
     </message>
