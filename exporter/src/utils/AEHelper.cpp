@@ -615,7 +615,7 @@ bool IsStaticComposition(const AEGP_CompH& compH) {
 }
 
 std::string GetStreamMatchName(const AEGP_StreamRefH& streamH) {
-  char matchName[200];
+  char matchName[200] = {0};
   Suites->DynamicStreamSuite4()->AEGP_GetMatchName(streamH, matchName);
   return matchName;
 }

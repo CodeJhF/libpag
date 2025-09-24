@@ -38,7 +38,7 @@ void ExportWindow::show() {
   }
   BaseWindow::show();
 
-  bool result = PAGExport::ExportFile(pagExport.get());
+  bool result = pagExport->exportFile();
   if (result) {
     pagExport->session->progressModel.setExportStatus(ProgressModel::ExportStatus::Success);
   } else {
@@ -90,8 +90,12 @@ void ExportWindow::init() {
     }
   }
 
-  pagExport = std::make_unique<PAGExport>(itemH, outputPath, true);
-  pagExport->session->showAlertInfo = showAlertInfo;
+  PAGExportConfigParam configParam = {};
+  configParam.exportAudio = true;
+  configParam.activeItemH = itemH;
+  configParam.outputPath = outputPath;
+  configParam.showAlertInfo = showAlertInfo;
+  pagExport = std::make_unique<PAGExport>(configParam);
 
   QQmlContext* context = engine->rootContext();
   QQmlEngine::setObjectOwnership(this, QQmlEngine::CppOwnership);

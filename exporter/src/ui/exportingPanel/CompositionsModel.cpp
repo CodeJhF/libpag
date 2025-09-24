@@ -191,13 +191,17 @@ void CompositionsModel::exportSelectedCompositions() {
       continue;
     }
     std::string outputPath = FileHelper::JoinPaths(resource->savePath, resource->name + ".pag");
-    auto pagExport = std::make_unique<PAGExport>(resource->itemH, outputPath, exportAudio);
+    PAGExportConfigParam configParam = {};
+    configParam.exportAudio = exportAudio;
+    configParam.activeItemH = resource->itemH;
+    configParam.outputPath = outputPath;
+    auto pagExport = std::make_unique<PAGExport>(configParam);
     progressListModel->addSession(pagExport->session);
     pagExports.push_back(std::move(pagExport));
   }
 
   for (auto& pagExport : pagExports) {
-    bool result = PAGExport::ExportFile(pagExport.get());
+    bool result = pagExport->exportFile();
     if (result) {
       pagExport->session->progressModel.setExportStatus(ProgressModel::ExportStatus::Success);
     } else {
@@ -215,7 +219,11 @@ void CompositionsModel::prepareForPreview(int row) {
   const auto& composition = compositions[row];
   const auto& resource = composition->resource;
   std::string outputPath = FileHelper::JoinPaths(GetTempFolderPath(), ".previewTmp.pag");
-  pagExport = std::make_unique<PAGExport>(resource->itemH, outputPath, exportAudio);
+  PAGExportConfigParam configParam = {};
+  configParam.exportAudio = exportAudio;
+  configParam.activeItemH = resource->itemH;
+  configParam.outputPath = outputPath;
+  pagExport = std::make_unique<PAGExport>(configParam);
   QQmlContext* context = engine->rootContext();
   context->setContextProperty("progressModel", &pagExport->session->progressModel);
   context->setContextProperty("exportWindow", this);
@@ -228,7 +236,7 @@ void CompositionsModel::previewComposition(int row) {
   if (pagExport == nullptr) {
     return;
   }
-  bool result = PAGExport::ExportFile(pagExport.get());
+  bool result = pagExport->exportFile();
   if (result) {
     pagExport->session->progressModel.setExportStatus(ProgressModel::ExportStatus::Success);
   } else {
@@ -333,9 +341,14 @@ void CompositionsModel::updateAlertInfos() {
       continue;
     }
     std::string tempPagPath = FileHelper::JoinPaths(GetTempFolderPath(), "tmp.pag");
-	  std::shared_ptr<PAGExport> pagExport = std::make_shared<PAGExport>(resource->itemH, tempPagPath, false, false);
-	  pagExport->session->exportActually = false;
-    PAGExport::ExportFile(pagExport.get());
+    PAGExportConfigParam configParam = {};
+    configParam.exportAudio = false;
+    configParam.hardwareEncode = false;
+    configParam.exportActually = false;
+    configParam.activeItemH = resource->itemH;
+    configParam.outputPath = tempPagPath;
+	  std::shared_ptr<PAGExport> pagExport = std::make_shared<PAGExport>(configParam);
+    pagExport->exportFile();
   }
   alertInfoModel->setAlertInfos(AlertInfoManager::GetInstance().warningList);
   AlertInfoManager::GetInstance().warningList.clear();
