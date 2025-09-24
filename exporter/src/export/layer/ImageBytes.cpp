@@ -23,7 +23,7 @@
 
 namespace exporter {
 
-static void GetVideoLayerRenderImage(uint8*& rgbaBytes, A_u_long& rowBytesLength, A_u_long& stride,
+static void GetVideoLayerRenderImage(uint8** rgbaBytes, A_u_long& rowBytesLength, A_u_long& stride,
                                      A_long& width, A_long& height, const AEGP_LayerH& layerH) {
   const auto& Suites = AEHelper::GetSuites();
   const auto& PluginID = AEHelper::GetPluginID();
@@ -34,7 +34,7 @@ static void GetVideoLayerRenderImage(uint8*& rgbaBytes, A_u_long& rowBytesLength
   Suites->LayerRenderOptionsSuite2()->AEGP_Dispose(renderOptions);
 }
 
-static void GetImageLayerRenderImage(uint8*& rgbaBytes, A_u_long& rowBytesLength, A_u_long& stride,
+static void GetImageLayerRenderImage(uint8** rgbaBytes, A_u_long& rowBytesLength, A_u_long& stride,
                                      A_long& width, A_long& height, const AEGP_LayerH& layerH) {
   const auto& Suites = AEHelper::GetSuites();
   const auto& PluginID = AEHelper::GetPluginID();
@@ -55,9 +55,9 @@ void GetImageBytesActaully(const std::shared_ptr<PAGExportSession>& session,
   A_u_long stride = 0;
   uint8* rgbaBytes = nullptr;
   if (isVideo) {
-    GetVideoLayerRenderImage(rgbaBytes, rowBytesLength, stride, width, height, layerH);
+    GetVideoLayerRenderImage(&rgbaBytes, rowBytesLength, stride, width, height, layerH);
   } else {
-    GetImageLayerRenderImage(rgbaBytes, rowBytesLength, stride, width, height, layerH);
+    GetImageLayerRenderImage(&rgbaBytes, rowBytesLength, stride, width, height, layerH);
   }
   if (width < 0 || height < 0 || rgbaBytes == nullptr) {
     return;

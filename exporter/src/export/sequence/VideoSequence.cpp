@@ -102,7 +102,7 @@ static void ClipVideoComposition(const std::shared_ptr<PAGExportSession>& sessio
     A_u_long stride = 0;
     A_u_long rowBytesLength = 0;
     data = nullptr;
-    AEHelper::GetRenderFrame(data, rowBytesLength, stride, width, height, renderOptions);
+    AEHelper::GetRenderFrame(&data, rowBytesLength, stride, width, height, renderOptions);
     if (compWidth == width && compHeight == height) {
       bool isVisible = IsFrameVisible(visibleRanges, frame,
                                       static_cast<float>(mainComposition->frameRate / frameRate));
@@ -260,7 +260,7 @@ static void GetVideoSequence(const std::shared_ptr<PAGExportSession>& session,
       A_long compWidth = 0;
       A_long compHeight = 0;
       A_u_long compBytesLength = 0;
-      AEHelper::GetRenderFrame(renderRgbaBytes, compBytesLength, renderStride, compWidth,
+      AEHelper::GetRenderFrame(&renderRgbaBytes, compBytesLength, renderStride, compWidth,
                                compHeight, renderOptions);
       if (compWidth == composition->width && compHeight == composition->height) {
         bool currentFrameIsVisible =

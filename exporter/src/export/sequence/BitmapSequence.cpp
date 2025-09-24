@@ -101,7 +101,7 @@ void GetBitmapSequence(const std::shared_ptr<PAGExportSession>& session,
     A_u_long compBytesLength = 0;
 
     AEHelper::SetRenderTime(renderOptions, frameRate, frame);
-    AEHelper::GetRenderFrame(curRGBABytes, compBytesLength, compStride, compWidth, compHeight,
+    AEHelper::GetRenderFrame(&curRGBABytes, compBytesLength, compStride, compWidth, compHeight,
                              renderOptions);
 
     auto bitmapFrame = new pag::BitmapFrame();
