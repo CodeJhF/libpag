@@ -51,7 +51,8 @@ static QString ScaleModeToQString(pag::PAGScaleMode mode) {
   }
 }
 
-ExportImageLayerModel::ExportImageLayerModel(QObject* parent) : QAbstractListModel(parent) {
+ExportImageLayerModel::ExportImageLayerModel(GetSessionHandler getSessionHandler, QObject* parent)
+    : QAbstractListModel(parent), getSessionHandler(getSessionHandler) {
 }
 
 void ExportImageLayerModel::setAEResource(const std::shared_ptr<AEResource>& resource) {
@@ -69,7 +70,11 @@ void ExportImageLayerModel::refreshData(const std::shared_ptr<AEResource>& resou
   if (resource->isExportAsBmp) {
     return;
   }
+  auto session = getSessionHandler(this->resource->ID);
   for (const auto& layer : resource->composition.imageLayers) {
+    if (session != nullptr && session->layerHMap.find(layer.layerID) == session->layerHMap.end()) {
+      continue;
+    }
     auto iter = std::find_if(items.begin(), items.end(), [&](const AEResource::Layer& item) {
       return AEHelper::GetLayerItemH(layer.layerH) == AEHelper::GetLayerItemH(item.layerH);
     });

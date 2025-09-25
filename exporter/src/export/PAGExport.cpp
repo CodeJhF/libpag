@@ -158,7 +158,10 @@ static bool ValidatePAGFile(uint8_t* data, size_t size) {
   return res;
 }
 
-PAGExport::PAGExport(const PAGExportConfigParam& configParam) : itemH(configParam.activeItemH), session(std::make_shared<PAGExportSession>(configParam.activeItemH, configParam.outputPath)), timeSetter(configParam.activeItemH, -100.0f) {
+PAGExport::PAGExport(const PAGExportConfigParam& configParam)
+    : itemH(configParam.activeItemH),
+      session(std::make_shared<PAGExportSession>(configParam.activeItemH, configParam.outputPath)),
+      timeSetter(configParam.activeItemH, -100.0f) {
   session->exportAudio = configParam.exportAudio;
   session->hardwareEncode = configParam.hardwareEncode;
   session->exportActually = configParam.exportActually;
@@ -181,7 +184,7 @@ bool PAGExport::exportFile() {
   if (!FileHelper::WriteToFile(session->outputPath, reinterpret_cast<char*>(bytes->data()),
                                static_cast<std::streamsize>(bytes->length()))) {
     return false;
-                               }
+  }
 
   if (!ValidatePAGFile(bytes->data(), bytes->length())) {
     return false;
@@ -240,7 +243,7 @@ std::shared_ptr<pag::File> PAGExport::exportAsFile() {
   }
 
   if (!session->exportActually) {
-	  return nullptr;
+    return nullptr;
   }
 
   auto pagFile = pag::Codec::VerifyAndMake(compositions, images);
@@ -353,9 +356,9 @@ std::vector<pag::ImageBytes*> PAGExport::getRefImages(
 }
 
 void PAGExport::exportResources(std::vector<pag::Composition*>& compositions) {
-	if (!session->exportActually) {
-		return;
-	}
+  if (!session->exportActually) {
+    return;
+  }
   exportRescaleImages();
   exportRescaleBitmapCompositions(compositions);
   exportRescaleVideoCompositions(compositions);

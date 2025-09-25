@@ -137,7 +137,8 @@ void GetRenderFrame(uint8** rgbaBytes, A_u_long& rowBytesLength, A_u_long& strid
       stride = 4 * width;
       *rgbaBytes = new uint8_t[stride * height + stride * 2];
     }
-    exporter::ConvertARGBToRGBA(&(pixels->alpha), width, height, rowBytesLength, *rgbaBytes, stride);
+    exporter::ConvertARGBToRGBA(&(pixels->alpha), width, height, rowBytesLength, *rgbaBytes,
+                                stride);
   }
   Suites->RenderSuite5()->AEGP_CheckinFrame(frameReceipt);
 }
@@ -164,7 +165,8 @@ void GetLayerRenderFrame(uint8** rgbaBytes, A_u_long& rowBytesLength, A_u_long& 
       stride = rowBytesLength;
       *rgbaBytes = new uint8_t[stride * height + stride * 2];
     }
-    exporter::ConvertARGBToRGBA(&(pixels->alpha), width, height, rowBytesLength, *rgbaBytes, stride);
+    exporter::ConvertARGBToRGBA(&(pixels->alpha), width, height, rowBytesLength, *rgbaBytes,
+                                stride);
   }
   Suites->RenderSuite5()->AEGP_CheckinFrame(frameReceipt);
 }

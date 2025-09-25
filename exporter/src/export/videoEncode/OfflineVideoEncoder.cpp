@@ -23,10 +23,10 @@
 #include <unistd.h>
 #endif
 #include <QDir>
-#include <QProcess>
 #include <QFile>
 #include <QJsonDocument>
 #include <QJsonObject>
+#include <QProcess>
 #include <QString>
 #include <thread>
 #include "utils/FileHelper.h"
@@ -122,8 +122,8 @@ bool OfflineVideoEncoder::open(int width, int height, double frameRate, bool has
           .toStdString();
   FileHelper::WriteTextFile(encodeParamFilePath, paramStr);
 
-  QString toolExecutable =
-     QString::fromStdString(FileHelper::JoinPaths(GetH264EncoderToolsFolder(), "H264EncoderTools"));
+  QString toolExecutable = QString::fromStdString(
+      FileHelper::JoinPaths(GetH264EncoderToolsFolder(), "H264EncoderTools"));
 #ifdef _WIN32
   if (!toolExecutable.endsWith(".exe")) {
     toolExecutable.append(".exe");

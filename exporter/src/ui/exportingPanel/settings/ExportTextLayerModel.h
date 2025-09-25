@@ -19,6 +19,7 @@
 #pragma once
 
 #include <QAbstractListModel>
+#include "ExportCompositionInfoModel.h"
 #include "utils/AEResource.h"
 
 namespace exporter {
@@ -33,7 +34,7 @@ class ExportTextLayerModel : public QAbstractListModel {
 
   enum class ExportTextLayerModelRoles { NumberRole = Qt::UserRole + 1, NameRole, IsEditableRole };
 
-  explicit ExportTextLayerModel(QObject* parent = nullptr);
+  explicit ExportTextLayerModel(GetSessionHandler getSessionHandler, QObject* parent = nullptr);
 
   Q_PROPERTY(bool isAllEditable READ getAllEditable NOTIFY allEditableChanged WRITE setAllEditable)
 
@@ -58,6 +59,7 @@ class ExportTextLayerModel : public QAbstractListModel {
   size_t editableItemNum = 0;
   std::shared_ptr<AEResource> resource = nullptr;
   std::vector<Data> items = {};
+  GetSessionHandler getSessionHandler = nullptr;
 };
 
 }  // namespace exporter

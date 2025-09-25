@@ -28,8 +28,8 @@
 #include "src/export/ExportLayer.h"
 #include "utils/AEHelper.h"
 #include "utils/AEResource.h"
-#include "utils/StringHelper.h"
 #include "utils/FileHelper.h"
+#include "utils/StringHelper.h"
 
 namespace exporter {
 
@@ -80,16 +80,9 @@ ExportCompositionInfoModel* ExportingPanelWindow::getCompositionInfoModel(int ro
 
 QString ExportingPanelWindow::getBackgroundColor(int row) const {
   const auto& resource = resources[row];
-  A_long id = resource->ID;
-  if (sessionMap.find(id) == sessionMap.end()) {
-    return "transparent";
-  }
-  const auto& session = sessionMap.at(id);
-  if (session->compositions.empty()) {
-    return "transparent";
-  }
-  auto& mainComposition = session->compositions[session->compositions.size() - 1];
-  return StringHelper::ColorToQString(mainComposition->backgroundColor);
+  AEGP_CompH compH = AEHelper::GetItemCompH(resource->itemH);
+  auto color = AEHelper::GetCompBackgroundColor(compH);
+  return StringHelper::ColorToQString(color);
 }
 
 ExportFrameImageProvider* ExportingPanelWindow::getImageProvider(A_long ID) {
@@ -140,24 +133,21 @@ void ExportingPanelWindow::updateCompositionSetting(int row) {
     return;
   }
   const auto& resource = resources[row];
-  if (sessionMap.find(resource->ID) == sessionMap.end()) {
-    std::string tempPagPath = FileHelper::JoinPaths(GetTempFolderPath(), "tmp.pag");
-    auto session = std::make_shared<PAGExportSession>(resource->itemH, tempPagPath);
-    session->setCurrent();
-    session->exportAudio = false;
-    session->enableRunScript = false;
-    ExportComposition(session, resource->itemH);
-    sessionMap[resource->ID] = session;
-    session->unsetCurrent();
-  }
+  updateSession(resource->ID);
   viewLayers(resource);
+  auto getSessionHandler = std::function<std::shared_ptr<PAGExportSession>(A_long ID)>(
+      [this](A_long ID) -> std::shared_ptr<PAGExportSession> { return this->getSession(ID); });
+  auto updateSessionHandler =
+      std::function<void(A_long ID)>([this](A_long ID) -> void { this->updateSession(ID); });
+
   auto frameImageProvider = new ExportFrameImageProvider();
   frameImageProvider->setAEResource(resource);
-  auto compositionInfoModel = std::make_unique<ExportCompositionInfoModel>(frameImageProvider);
+  auto compositionInfoModel = std::make_unique<ExportCompositionInfoModel>(
+      frameImageProvider, getSessionHandler, updateSessionHandler);
   compositionInfoModel->setAEResource(resource);
-  auto textLayerModel = std::make_unique<ExportTextLayerModel>();
+  auto textLayerModel = std::make_unique<ExportTextLayerModel>(getSessionHandler);
   textLayerModel->setAEResource(resource);
-  auto imageLayerModel = std::make_unique<ExportImageLayerModel>();
+  auto imageLayerModel = std::make_unique<ExportImageLayerModel>(getSessionHandler);
   imageLayerModel->setAEResource(resource);
   auto timeStretchModel = std::make_unique<ExportTimeStretchModel>();
   timeStretchModel->setAEResource(resource);
@@ -231,6 +221,31 @@ void ExportingPanelWindow::viewLayers(const std::shared_ptr<AEResource>& resourc
   for (const auto& child : resource->composition.children) {
     viewLayers(child);
   }
+}
+
+std::shared_ptr<PAGExportSession> ExportingPanelWindow::getSession(A_long ID) {
+  auto iter = sessionMap.find(ID);
+  if (iter == sessionMap.end()) {
+    return nullptr;
+  }
+  return iter->second;
+}
+
+void ExportingPanelWindow::updateSession(A_long ID) {
+  auto iter = std::find_if(resources.begin(), resources.end(),
+                           [&](const auto& resource) { return resource->ID == ID; });
+  if (iter == resources.end()) {
+    return;
+  }
+  const auto& resource = *iter;
+  std::string tempPagPath = FileHelper::JoinPaths(GetTempFolderPath(), "tmp.pag");
+  auto session = std::make_shared<PAGExportSession>(resource->itemH, tempPagPath);
+  session->setCurrent();
+  session->exportAudio = false;
+  session->enableRunScript = false;
+  ExportComposition(session, resource->itemH);
+  sessionMap[resource->ID] = session;
+  session->unsetCurrent();
 }
 
 }  // namespace exporter

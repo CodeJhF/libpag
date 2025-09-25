@@ -19,6 +19,7 @@
 #pragma once
 
 #include <QAbstractListModel>
+#include "ExportCompositionInfoModel.h"
 #include "utils/AEResource.h"
 
 namespace exporter {
@@ -33,7 +34,7 @@ class ExportImageLayerModel : public QAbstractListModel {
     IsEditableRole
   };
 
-  explicit ExportImageLayerModel(QObject* parent = nullptr);
+  explicit ExportImageLayerModel(GetSessionHandler getSessionHandler, QObject* parent = nullptr);
 
   Q_PROPERTY(bool isAllEditable READ getAllEditable NOTIFY allEditableChanged WRITE setAllEditable)
 
@@ -60,6 +61,7 @@ class ExportImageLayerModel : public QAbstractListModel {
   size_t editableItemNum = 0;
   std::shared_ptr<AEResource> resource = nullptr;
   std::vector<AEResource::Layer> items = {};
+  GetSessionHandler getSessionHandler = nullptr;
 };
 
 }  // namespace exporter

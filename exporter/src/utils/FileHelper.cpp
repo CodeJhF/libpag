@@ -19,8 +19,8 @@
 #include "FileHelper.h"
 #include <QDesktopServices>
 #include <QDir>
-#include <QUrl>
 #include <QString>
+#include <QUrl>
 #include <filesystem>
 #include <fstream>
 #include <iostream>
@@ -66,7 +66,7 @@ size_t GetFileSize(const std::string& fileName) {
     return 0;
   }
   std::error_code ec;
- auto ret = fs::file_size(Utf8ToPath(fileName), ec);
+  auto ret = fs::file_size(Utf8ToPath(fileName), ec);
   return ec ? 0 : ret;
 }
 

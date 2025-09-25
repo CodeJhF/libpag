@@ -101,9 +101,10 @@ static bool Point3DOnLine(const BezierPoint& point1, const BezierPoint& point2,
          PointOnLine(point1.y, point1.z, point2.y, point2.z, point3.y, point3.z, precision);
 }
 
-static float GetCubicLength(float startX, float startY, float startZ, float controlX1, float controlY1,
-                    float controlZ1, float controlX2, float controlY2, float controlZ2, float endX,
-                    float endY, float endZ, float precision = 0.005f) {
+static float GetCubicLength(float startX, float startY, float startZ, float controlX1,
+                            float controlY1, float controlZ1, float controlX2, float controlY2,
+                            float controlZ2, float endX, float endY, float endZ,
+                            float precision = 0.005f) {
   BezierPoint start(startX, startY, startZ);
   BezierPoint control1(controlX1, controlY1, controlZ1);
   BezierPoint control2(controlX2, controlY2, controlZ2);
@@ -132,7 +133,7 @@ static float GetCurveLength(const AEGP_StreamValue2& lastValue, const AEGP_Strea
   auto controlY2 = static_cast<float>(endY + currentIn.val.three_d.y);
   auto controlZ2 = static_cast<float>(endY + currentIn.val.three_d.z);
   return GetCubicLength(startX, startY, startZ, controlX1, controlY1, controlZ1, controlX2,
-                                controlY2, controlZ2, endX, endY, endZ);
+                        controlY2, controlZ2, endX, endY, endZ);
 }
 
 std::vector<float> GetAverageSpeed(AEGP_StreamRefH streamH, int index, int dimensionality) {

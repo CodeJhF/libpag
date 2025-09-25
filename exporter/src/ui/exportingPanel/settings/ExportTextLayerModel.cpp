@@ -21,7 +21,8 @@
 
 namespace exporter {
 
-ExportTextLayerModel::ExportTextLayerModel(QObject* parent) : QAbstractListModel(parent) {
+ExportTextLayerModel::ExportTextLayerModel(GetSessionHandler getSessionHandler, QObject* parent)
+    : QAbstractListModel(parent), getSessionHandler(getSessionHandler) {
 }
 
 void ExportTextLayerModel::setAEResource(const std::shared_ptr<AEResource>& resource) {
@@ -39,7 +40,11 @@ void ExportTextLayerModel::refreshData(const std::shared_ptr<AEResource>& resour
   if (resource->isExportAsBmp) {
     return;
   }
+  auto session = getSessionHandler(this->resource->ID);
   for (const auto& layer : resource->composition.textLayers) {
+    if (session != nullptr && session->layerHMap.find(layer.layerID) == session->layerHMap.end()) {
+      continue;
+    }
     Data item = {layer.layerID, layer.name.data()};
     items.push_back(item);
     if (this->resource->composition.textLayerFlagMap.find(layer.layerID) ==

@@ -39,6 +39,8 @@ class ExportingPanelWindow : public BaseWindow {
   explicit ExportingPanelWindow(QApplication* app, QObject* parent = nullptr);
 
   void viewLayers(const std::shared_ptr<AEResource>& resource);
+  std::shared_ptr<PAGExportSession> getSession(int row);
+  void updateSession(int row);
 
   Q_INVOKABLE exporter::ExportTextLayerModel* getTextLayerModel(int row);
   Q_INVOKABLE exporter::ExportImageLayerModel* getImageLayerModel(int row);

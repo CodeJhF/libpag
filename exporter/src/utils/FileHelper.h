@@ -17,12 +17,11 @@
 /////////////////////////////////////////////////////////////////////////////////////////////////
 
 #pragma once
+#include <QString>
 #include <filesystem>
 #include <string>
-#include <QString>
 
 namespace FileHelper {
-
 
 inline std::filesystem::path Utf8ToPath(const std::string& utf8) {
 #ifdef _WIN32

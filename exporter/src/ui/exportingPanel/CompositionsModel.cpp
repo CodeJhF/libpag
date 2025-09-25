@@ -347,7 +347,7 @@ void CompositionsModel::updateAlertInfos() {
     configParam.exportActually = false;
     configParam.activeItemH = resource->itemH;
     configParam.outputPath = tempPagPath;
-	  std::shared_ptr<PAGExport> pagExport = std::make_shared<PAGExport>(configParam);
+    std::shared_ptr<PAGExport> pagExport = std::make_shared<PAGExport>(configParam);
     pagExport->exportFile();
   }
   alertInfoModel->setAlertInfos(AlertInfoManager::GetInstance().warningList);

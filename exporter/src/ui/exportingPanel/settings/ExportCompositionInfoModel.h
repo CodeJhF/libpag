@@ -21,8 +21,12 @@
 #include <QAbstractListModel>
 #include "ExportFrameImageProvider.h"
 #include "utils/AEResource.h"
+#include "utils/PAGExportSession.h"
 
 namespace exporter {
+
+using GetSessionHandler = std::function<std::shared_ptr<PAGExportSession>(A_long ID)>;
+using UpdateSessionHandler = std::function<void(A_long ID)>;
 
 class ExportCompositionInfoModel : public QAbstractListModel {
   Q_OBJECT
@@ -50,6 +54,8 @@ class ExportCompositionInfoModel : public QAbstractListModel {
   Q_PROPERTY(QString imageProviderName READ getImageProviderName NOTIFY imageProviderNameChanged)
 
   explicit ExportCompositionInfoModel(ExportFrameImageProvider* imageProvider,
+                                      GetSessionHandler getSessionHandler,
+                                      UpdateSessionHandler updateSessionHandler,
                                       QObject* parent = nullptr);
   void setAEResource(const std::shared_ptr<AEResource>& resource);
   void refreshData(int parentIndex, const std::shared_ptr<AEResource>& resource);
@@ -86,6 +92,8 @@ class ExportCompositionInfoModel : public QAbstractListModel {
   ExportFrameImageProvider* imageProvider = nullptr;
   std::shared_ptr<AEResource> resource = nullptr;
   std::vector<Data> items = {};
+  GetSessionHandler getSessionHandler = nullptr;
+  UpdateSessionHandler updateSessionHandler = nullptr;
 };
 
 }  // namespace exporter

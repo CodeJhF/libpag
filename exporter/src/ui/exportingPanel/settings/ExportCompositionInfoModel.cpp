@@ -24,8 +24,11 @@
 namespace exporter {
 
 ExportCompositionInfoModel::ExportCompositionInfoModel(ExportFrameImageProvider* imageProvider,
+                                                       GetSessionHandler getSessionHandler,
+                                                       UpdateSessionHandler updateSessionHandler,
                                                        QObject* parent)
-    : QAbstractListModel(parent), imageProvider(imageProvider) {
+    : QAbstractListModel(parent), imageProvider(imageProvider),
+      getSessionHandler(getSessionHandler), updateSessionHandler(updateSessionHandler) {
 }
 
 void ExportCompositionInfoModel::setAEResource(const std::shared_ptr<AEResource>& resource) {
@@ -43,6 +46,10 @@ void ExportCompositionInfoModel::setAEResource(const std::shared_ptr<AEResource>
 
 void ExportCompositionInfoModel::refreshData(int parentIndex,
                                              const std::shared_ptr<AEResource>& resource) {
+  auto session = getSessionHandler(this->resource->ID);
+  if (session == nullptr || session->itemHMap.find(resource->ID) == session->itemHMap.end()) {
+    return;
+  }
   if (parentIndex == -1) {
     items.clear();
     Data item = {0, parentIndex, true, resource};
@@ -120,6 +127,7 @@ void ExportCompositionInfoModel::setExportAsBmp(int row, bool exportAsBmp) {
   }
   Data& item = items[row];
   item.resource->isExportAsBmp = exportAsBmp;
+  updateSessionHandler(resource->ID);
   this->resource->composition.exportAsBmpMap[item.resource->ID] = exportAsBmp;
   if (exportAsBmp) {
     std::string newName = item.resource->name + StringHelper::CompositionBmpSuffix;

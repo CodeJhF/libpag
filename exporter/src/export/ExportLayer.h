@@ -43,8 +43,8 @@ ExportLayerType GetLayerType(const AEGP_LayerH& layerH);
 std::vector<pag::Layer*> ExportLayers(const std::shared_ptr<PAGExportSession>& session,
                                       const AEGP_CompH& compH);
 
-static std::unordered_map<pag::Layer*,AEGP_LayerH> pagToAELayer;
-static std::unordered_map<AEGP_LayerH,pag::Layer*> aeToPagLayer;
-static bool ifCopyMatlayer=false;
+static std::unordered_map<pag::Layer*, AEGP_LayerH> pagToAELayer;
+static std::unordered_map<AEGP_LayerH, pag::Layer*> aeToPagLayer;
+static bool ifCopyMatlayer = false;
 
 }  // namespace exporter
