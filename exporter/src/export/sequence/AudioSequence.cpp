@@ -19,6 +19,7 @@
 #include "AudioSequence.h"
 #include "ffaudio.h"
 #include "utils/PAGExportSession.h"
+#include "utils/PAGExportSessionManager.h"
 
 namespace exporter {
 
@@ -83,7 +84,7 @@ void GetAudioSequence(const AEGP_ItemH& itemH, const std::string& outputPath,
             (startSamples / soundFormat2.sample_rateF) * composition->frameRate);
         Suites->SoundDataSuite1()->AEGP_UnlockSoundDataSamples(soundData);
       } else {
-        PAGExportSession::RecordWarning(AlertInfoType::AudioEncodeFail);
+        PAGExportSessionManager::GetInstance()->recordWarning(AlertInfoType::AudioEncodeFail);
       }
       delete muxer;
     }

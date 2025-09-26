@@ -23,6 +23,7 @@
 #include "utils/AETypeTransform.h"
 #include "utils/FileHelper.h"
 #include "utils/PAGExportSession.h"
+#include "utils/PAGExportSessionManager.h"
 
 namespace exporter {
 
@@ -255,7 +256,7 @@ static pag::TextDocumentHandle ParseTextDocument(const AEGP_StreamVal2&, const Q
     FileHelper::CopyFile(fontSrcPath, fontDstPath);
     size_t fontSize = FileHelper::GetFileSize(fontDstPath);
     if (fontSize > 30 * 1024 * 1024) {
-      PAGExportSession::RecordWarning(
+      PAGExportSessionManager::GetInstance()->recordWarning(
           AlertInfoType::FontFileTooBig,
           textDocument->fontFamily + ", " + std::to_string(fontSize / 1024 / 1024) + "MB");
     }
@@ -266,13 +267,14 @@ static pag::TextDocumentHandle ParseTextDocument(const AEGP_StreamVal2&, const Q
 
 pag::GradientColorHandle ParseGradientColor(const AEGP_StreamVal2&, const QVariantMap& map) {
   int index = map.value("index", 0).toInt();
-  return PAGExportSession::GetGradientColors(
+  return PAGExportSessionManager::GetInstance()->getGradientColors(
       {"ADBE Vector Graphic - G-Fill", "ADBE Vector Graphic - G-Stroke"}, index);
 }
 
 pag::GradientColorHandle ParseGradientOverlayColor(const AEGP_StreamVal2&, const QVariantMap& map) {
   int index = map.value("index", 0).toInt();
-  return PAGExportSession::GetGradientColors({"gradientFill/gradient"}, index);
+  return PAGExportSessionManager::GetInstance()->getGradientColors({"gradientFill/gradient"},
+                                                                   index);
 }
 
 int ParseShapeDirection(const AEGP_StreamVal2& streamValue, const QVariantMap&) {
@@ -295,7 +297,7 @@ pag::GradientFillType ParseGradientOverlayType(const AEGP_StreamVal2& streamValu
 pag::GradientColorHandle ParseOuterGlowGradientColor(const AEGP_StreamVal2&,
                                                      const QVariantMap& map) {
   int index = map.value("index", 0).toInt();
-  return PAGExportSession::GetGradientColors({"outerGlow/gradient"}, index);
+  return PAGExportSessionManager::GetInstance()->getGradientColors({"outerGlow/gradient"}, index);
 }
 
 pag::StrokePosition ParseStrokePosition(const AEGP_StreamVal2& streamValue, const QVariantMap&) {

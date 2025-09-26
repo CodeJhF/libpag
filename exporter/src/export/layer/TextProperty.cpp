@@ -20,6 +20,7 @@
 #include "base/keyframes/SpatialPointKeyframe.h"
 #include "export/stream/StreamProperty.h"
 #include "rendering/graphics/Text.h"
+#include "utils/PAGExportSessionManager.h"
 
 namespace exporter {
 
@@ -219,7 +220,7 @@ static void CheckTextDirection(pag::Property<pag::TextDocumentHandle>* textDocum
   }
 
   if (hasVerticalText && tagLevel < static_cast<uint16_t>(pag::TagCode::TextSourceV3)) {
-    PAGExportSession::RecordWarning(AlertInfoType::TagLevelVerticalText);
+    PAGExportSessionManager::GetInstance()->recordWarning(AlertInfoType::TagLevelVerticalText);
   }
 }
 
