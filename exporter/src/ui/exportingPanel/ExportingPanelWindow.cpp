@@ -29,6 +29,7 @@
 #include "utils/AEHelper.h"
 #include "utils/AEResource.h"
 #include "utils/FileHelper.h"
+#include "utils/PAGExportSessionManager.h"
 #include "utils/StringHelper.h"
 
 namespace exporter {
@@ -240,12 +241,12 @@ void ExportingPanelWindow::updateSession(A_long ID) {
   const auto& resource = *iter;
   std::string tempPagPath = FileHelper::JoinPaths(GetTempFolderPath(), "tmp.pag");
   auto session = std::make_shared<PAGExportSession>(resource->itemH, tempPagPath);
-  session->setCurrent();
+  PAGExportSessionManager::GetInstance()->setCurrentSession(session);
   session->exportAudio = false;
   session->enableRunScript = false;
   ExportComposition(session, resource->itemH);
   sessionMap[resource->ID] = session;
-  session->unsetCurrent();
+  PAGExportSessionManager::GetInstance()->unsetCurrentSession(session);
 }
 
 }  // namespace exporter

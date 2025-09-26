@@ -28,6 +28,7 @@
 #include "utils/AEHelper.h"
 #include "utils/AETypeTransform.h"
 #include "utils/FileHelper.h"
+#include "utils/PAGExportSessionManager.h"
 #include "utils/UniqueID.h"
 
 namespace exporter {
@@ -195,7 +196,8 @@ bool PAGExport::exportFile() {
 
 std::shared_ptr<pag::File> PAGExport::exportAsFile() {
   auto id = AEHelper::GetItemID(itemH);
-  session->setCurrent();
+
+  PAGExportSessionManager::GetInstance()->setCurrentSession(session);
   ScopedAssign<pag::ID> arCI(session->compID, id);
 
   ExportComposition(session, itemH);
@@ -262,7 +264,7 @@ std::shared_ptr<pag::File> PAGExport::exportAsFile() {
   Marker::ExportLayerEditable(pagFile, session, itemH);
   Marker::ExportImageFillMode(pagFile, itemH);
 
-  session->unsetCurrent();
+  PAGExportSessionManager::GetInstance()->setCurrentSession(session);
 
   return pagFile;
 }
