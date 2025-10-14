@@ -23,26 +23,49 @@
 
 namespace exporter {
 
-static void GetVideoLayerRenderImage(uint8** rgbaBytes, A_u_long& rowBytesLength, A_u_long& stride,
-                                     A_long& width, A_long& height, const AEGP_LayerH& layerH) {
+static void GetVideoLayerRenderImageSize(const AEGP_LayerH& layerH, A_u_long& srcStride,
+                                         A_long& width, A_long& height) {
   const auto& Suites = AEHelper::GetSuites();
   const auto& PluginID = AEHelper::GetPluginID();
 
   AEGP_LayerRenderOptionsH renderOptions = nullptr;
   Suites->LayerRenderOptionsSuite2()->AEGP_NewFromLayer(PluginID, layerH, &renderOptions);
-  AEHelper::GetLayerRenderFrame(rgbaBytes, rowBytesLength, stride, width, height, renderOptions);
+  AEHelper::GetLayerRenderFrameSize(renderOptions, srcStride, width, height);
   Suites->LayerRenderOptionsSuite2()->AEGP_Dispose(renderOptions);
 }
 
-static void GetImageLayerRenderImage(uint8** rgbaBytes, A_u_long& rowBytesLength, A_u_long& stride,
-                                     A_long& width, A_long& height, const AEGP_LayerH& layerH) {
+static void GetVideoLayerRenderImage(uint8* rgbaBytes, A_u_long srcStride, A_u_long dstStride,
+                                     A_long width, A_long height, const AEGP_LayerH& layerH) {
+  const auto& Suites = AEHelper::GetSuites();
+  const auto& PluginID = AEHelper::GetPluginID();
+
+  AEGP_LayerRenderOptionsH renderOptions = nullptr;
+  Suites->LayerRenderOptionsSuite2()->AEGP_NewFromLayer(PluginID, layerH, &renderOptions);
+  AEHelper::GetLayerRenderFrame(rgbaBytes, srcStride, dstStride, width, height, renderOptions);
+  Suites->LayerRenderOptionsSuite2()->AEGP_Dispose(renderOptions);
+}
+
+static void GetImageLayerRenderImageSize(const AEGP_LayerH& layerH, A_u_long& srcStride,
+                                         A_long& width, A_long& height) {
   const auto& Suites = AEHelper::GetSuites();
   const auto& PluginID = AEHelper::GetPluginID();
 
   AEGP_ItemH itemH = AEHelper::GetLayerItemH(layerH);
   AEGP_RenderOptionsH renderOptions = nullptr;
   Suites->RenderOptionsSuite3()->AEGP_NewFromItem(PluginID, itemH, &renderOptions);
-  AEHelper::GetRenderFrame(rgbaBytes, rowBytesLength, stride, width, height, renderOptions);
+  AEHelper::GetRenderFrameSize(renderOptions, srcStride, width, height);
+  Suites->RenderOptionsSuite3()->AEGP_Dispose(renderOptions);
+}
+
+static void GetImageLayerRenderImage(uint8* rgbaBytes, A_u_long srcStride, A_u_long dstStride,
+                                     A_long width, A_long height, const AEGP_LayerH& layerH) {
+  const auto& Suites = AEHelper::GetSuites();
+  const auto& PluginID = AEHelper::GetPluginID();
+
+  AEGP_ItemH itemH = AEHelper::GetLayerItemH(layerH);
+  AEGP_RenderOptionsH renderOptions = nullptr;
+  Suites->RenderOptionsSuite3()->AEGP_NewFromItem(PluginID, itemH, &renderOptions);
+  AEHelper::GetRenderFrame(rgbaBytes, srcStride, dstStride, width, height, renderOptions);
   Suites->RenderOptionsSuite3()->AEGP_Dispose(renderOptions);
 }
 
@@ -51,13 +74,19 @@ void GetImageBytesActaully(const std::shared_ptr<PAGExportSession>& session,
                            float factor) {
   A_long width = 0;
   A_long height = 0;
-  A_u_long rowBytesLength = 0;
-  A_u_long stride = 0;
+  A_u_long srcStride = 0;
+  A_u_long dstStride = 0;
   uint8* rgbaBytes = nullptr;
   if (isVideo) {
-    GetVideoLayerRenderImage(&rgbaBytes, rowBytesLength, stride, width, height, layerH);
+    GetVideoLayerRenderImageSize(layerH, srcStride, width, height);
+    dstStride = width * 4;
+    rgbaBytes = new uint8[dstStride * height];
+    GetVideoLayerRenderImage(rgbaBytes, srcStride, dstStride, width, height, layerH);
   } else {
-    GetImageLayerRenderImage(&rgbaBytes, rowBytesLength, stride, width, height, layerH);
+    GetImageLayerRenderImageSize(layerH, srcStride, width, height);
+    dstStride = width * 4;
+    rgbaBytes = new uint8[dstStride * height];
+    GetImageLayerRenderImage(rgbaBytes, srcStride, dstStride, width, height, layerH);
   }
   if (width < 0 || height < 0 || rgbaBytes == nullptr) {
     return;
@@ -65,7 +94,7 @@ void GetImageBytesActaully(const std::shared_ptr<PAGExportSession>& session,
 
   ImageRect rect = {0, 0, width, height};
   if (session->configParam.isTagCodeEnable(pag::TagCode::ImageBytesV3)) {
-    ClipTransparentEdge(rect, rgbaBytes, width, height, stride);
+    ClipTransparentEdge(rect, rgbaBytes, width, height, dstStride);
   }
 
   uint8_t* data = nullptr;
@@ -74,13 +103,13 @@ void GetImageBytesActaully(const std::shared_ptr<PAGExportSession>& session,
   auto scaledWidth = static_cast<int>(ceil(rect.width * factor));
   auto scaledHeight = static_cast<int>(ceil(rect.height * factor));
   if (scaledWidth == rect.width && scaledHeight == rect.height) {
-    data = rgbaBytes + rect.yPos * stride + rect.xPos * 4;
-    theStride = stride;
+    data = rgbaBytes + rect.yPos * dstStride + rect.xPos * 4;
+    theStride = dstStride;
   } else {
     theStride = scaledWidth * 4;
     scaledRGBA = new uint8_t[theStride * scaledHeight + theStride * 2];
-    ScaleCoreGraphics(scaledRGBA, theStride, rgbaBytes + rect.yPos * stride + rect.xPos * 4, stride,
-                      scaledWidth, scaledHeight, rect.width, rect.height);
+    ScaleCoreGraphics(scaledRGBA, theStride, rgbaBytes + rect.yPos * dstStride + rect.xPos * 4,
+                      dstStride, scaledWidth, scaledHeight, rect.width, rect.height);
     data = scaledRGBA;
   }
 
