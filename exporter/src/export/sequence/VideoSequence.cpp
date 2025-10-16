@@ -348,12 +348,21 @@ static void GetVideoSequence(const std::shared_ptr<PAGExportSession>& session,
   Suites->RenderOptionsSuite3()->AEGP_Dispose(renderOptions);
 }
 
+struct PreComposeReferenceContext {
+  pag::Composition* original = nullptr;
+  pag::Composition* replacement = nullptr;
+};
+
 static void ProcessLayerReference(const std::shared_ptr<PAGExportSession>&, pag::Layer* layer,
                                   void* ctx) {
-  auto newComposition = static_cast<pag::Composition*>(ctx);
-  auto preComposeLayer = static_cast<pag::PreComposeLayer*>(layer);
-  if (preComposeLayer->composition->id == newComposition->id) {
-    preComposeLayer->composition = newComposition;
+  if (ctx == nullptr || layer->type() != pag::LayerType::PreCompose) {
+    return;
+  }
+  auto* context = static_cast<PreComposeReferenceContext*>(ctx);
+  auto* preComposeLayer = static_cast<pag::PreComposeLayer*>(layer);
+  if (preComposeLayer->composition == context->original &&
+      preComposeLayer->containingComposition != context->replacement) {
+    preComposeLayer->composition = context->replacement;
   }
 }
 
@@ -412,12 +421,19 @@ static void RebuildVideoComposition(const std::shared_ptr<PAGExportSession>& ses
   newLayer->startTime = 0;
   newLayer->duration = composition->duration;
 
+  auto originalID = composition->id;
+  AEGP_ItemH originalItemH = nullptr;
+  auto itemIter = session->itemHMap.find(originalID);
+  if (itemIter != session->itemHMap.end()) {
+    originalItemH = itemIter->second;
+  }
+
   newComposition->layers.push_back(newLayer);
   newComposition->width = composition->width;
   newComposition->height = composition->height;
   newComposition->duration = composition->duration;
   newComposition->frameRate = composition->frameRate;
-  newComposition->id = GetCompositionUniqueID(session->compositions);
+  newComposition->id = originalID;
   newComposition->backgroundColor = composition->backgroundColor;
 
   newComposition->audioBytes = composition->audioBytes;
@@ -431,10 +447,21 @@ static void RebuildVideoComposition(const std::shared_ptr<PAGExportSession>& ses
     compositions.insert(iter + 1, newComposition);
   }
 
-  Helper::TraversalLayers(session, compositions, pag::LayerType::PreCompose, &ProcessLayerReference,
-                          newComposition);
+  auto sessionIter =
+      std::find(session->compositions.begin(), session->compositions.end(), composition);
+  if (sessionIter != session->compositions.end()) {
+    session->compositions.insert(sessionIter + 1, newComposition);
+  }
+
+  PreComposeReferenceContext context{composition, newComposition};
+  Helper::TraversalLayers(session, compositions, pag::LayerType::PreCompose,
+                          &ProcessLayerReference, &context);
 
   composition->id = GetCompositionUniqueID(session->compositions);
+  if (originalItemH != nullptr) {
+    session->itemHMap[newComposition->id] = originalItemH;
+    session->itemHMap[composition->id] = originalItemH;
+  }
   composition->width = right - left;
   composition->height = bottom - top;
   AdjustMainCompositionParam(newComposition, composition, compositions);

@@ -25,17 +25,18 @@ namespace fs = std::filesystem;
 namespace exporter {
 
 ScopedTimeSetter::ScopedTimeSetter(const AEGP_ItemH& itemHandle, float time)
-    : itemHandle(itemHandle) {
+    : address(itemHandle), itemHandle(itemHandle) {
   const auto& suites = AEHelper::GetSuites();
   suites->ItemSuite8()->AEGP_GetItemCurrentTime(itemHandle, &orgTime);
 
   A_Time newTime = {static_cast<A_long>(time * 100), 100};
   suites->ItemSuite8()->AEGP_SetItemCurrentTime(itemHandle, &newTime);
+
 }
 
 ScopedTimeSetter::~ScopedTimeSetter() {
   const auto& suites = AEHelper::GetSuites();
-  if (itemHandle == nullptr) {
+  if (itemHandle == nullptr || itemHandle != address) {
     return;
   }
   suites->ItemSuite8()->AEGP_SetItemCurrentTime(itemHandle, &orgTime);

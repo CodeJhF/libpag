@@ -20,6 +20,8 @@
 #include "base/keyframes/SpatialPointKeyframe.h"
 #include "export/stream/StreamProperty.h"
 #include "rendering/graphics/Text.h"
+#include "rendering/renderers/TextAnimatorRenderer.h"
+#include "rendering/renderers/TextRenderer.h"
 #include "utils/PAGExportSessionManager.h"
 
 namespace exporter {
@@ -480,6 +482,106 @@ static pag::TextPathOptions* GetTextPathOptions(const AEGP_StreamRefH& streamH) 
   return pathOptions;
 }
 
+template <typename T>
+static void ModifyPropertyKeyframe(pag::Property<T>* property) {
+  if (property == nullptr || !property->animatable()) {
+    return;
+  }
+
+  auto* animatableProperty = static_cast<pag::AnimatableProperty<T>*>(property);
+  auto& keyFrames = animatableProperty->keyframes;
+
+  for (auto*& keyFrame : keyFrames) {
+    auto* newKeyFrame = new pag::SingleEaseKeyframe<T>();
+    *static_cast<pag::Keyframe<T>*>(newKeyFrame) = *keyFrame;
+    newKeyFrame->initialize();
+    keyFrame = newKeyFrame;
+  }
+}
+
+static void ModififyAnimatorKeyFrames(std::vector<pag::TextAnimator*>* animators) {
+  if (animators == nullptr) {
+    return;
+  }
+
+  for (auto* animator : *animators) {
+    if (animator == nullptr) {
+      return;
+    }
+
+    for (auto* selector : animator->selectors) {
+      if (selector == nullptr || selector->type() != pag::TextSelectorType::Range) {
+        continue;
+      }
+
+      auto* rangeSelector = static_cast<pag::TextRangeSelector*>(selector);
+      ModifyPropertyKeyframe(rangeSelector->start);
+      ModifyPropertyKeyframe(rangeSelector->end);
+      ModifyPropertyKeyframe(rangeSelector->offset);
+      ModifyPropertyKeyframe(rangeSelector->amount);
+    }
+  }
+}
+
+static void AdjustFirstBaseLine(pag::TextDocumentHandle textDocument, bool hasBias) {
+  if (textDocument->boxTextPos.x <=  0.001f || textDocument->boxTextPos.y <= 0.001f) {
+    textDocument->firstBaseLine = 0.0f;
+    return;
+  }
+
+  if (textDocument->direction == pag::TextDirection::Vertical) {
+    auto rightLine = textDocument->boxTextPos.x + textDocument->boxTextSize.x;
+    float fontHeight = rightLine + textDocument->firstBaseLine;
+
+    bool needToAdjust = hasBias || fontHeight < textDocument->fontSize / 3.0f || fontHeight > textDocument->fontSize;
+    if (needToAdjust) {
+      float newHeight = textDocument->fontSize * 0.4f;
+      textDocument->fontSize = rightLine - newHeight;
+    }
+  }
+  else {
+    float fontHeight = textDocument->firstBaseLine - textDocument->boxTextPos.y;
+    bool needToAdjust = hasBias || fontHeight < textDocument->fontSize * 0.2f || fontHeight > textDocument->fontSize;
+    if (needToAdjust) {
+      float ascend = 0.0f;
+      float descent = 0.0f;
+      pag::CalculateTextAscentAndDescent(textDocument.get(), &ascend, &descent);
+
+      auto factor = -ascend / (descent - ascend);
+      float newHeight = textDocument->fontSize * factor * 0.9f;
+      textDocument->firstBaseLine = textDocument->boxTextPos.y + newHeight;
+    }
+  }
+}
+
+static void GetFirstBaseLineByPos(pag::TextDocumentHandle textDocument,
+                                  std::vector<pag::TextAnimator*>* animators, pag::Frame frame) {
+  bool hasBias = false;
+  auto position = pag::TextAnimatorRenderer::GetPositionFromAnimators(animators, textDocument.get(), frame, 0, &hasBias);
+  bool isVertical = (textDocument->direction == pag::TextDirection::Vertical);
+  textDocument->firstBaseLine -= isVertical ? position.x : position.y;
+  AdjustFirstBaseLine(textDocument, hasBias);
+}
+
+static void GetFirstBaseLinesByPos(pag::Property<pag::TextDocumentHandle>* sourceText,
+                                   std::vector<pag::TextAnimator*>* animators) {
+  if (animators == nullptr || animators->empty()) {
+    return;
+  }
+
+  ModififyAnimatorKeyFrames(animators);
+  if (!sourceText->animatable()) {
+    GetFirstBaseLineByPos(sourceText->value, animators, 0);
+    return;
+  }
+
+  auto* animatableText = reinterpret_cast<pag::AnimatableProperty<pag::TextDocumentHandle>*>(sourceText);
+  for (const auto* keyFrame : animatableText->keyframes) {
+    GetFirstBaseLineByPos(keyFrame->startValue, animators, keyFrame->startTime);
+    GetFirstBaseLineByPos(keyFrame->endValue, animators, keyFrame->endTime);
+  }
+}
+
 void GetTextProperties(const std::shared_ptr<PAGExportSession>& session, const AEGP_LayerH& layerH,
                        pag::TextLayer* layer) {
   const auto& Suites = AEHelper::GetSuites();
@@ -534,6 +636,7 @@ void GetTextProperties(const std::shared_ptr<PAGExportSession>& session, const A
     }
     Suites->StreamSuite4()->AEGP_DisposeStream(streamH);
   }
+  GetFirstBaseLinesByPos(layer->sourceText, &layer->animators);
 
   Suites->StreamSuite4()->AEGP_DisposeStream(rootStream);
 }
