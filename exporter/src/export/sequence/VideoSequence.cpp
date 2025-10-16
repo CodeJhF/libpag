@@ -99,15 +99,16 @@ static void ClipVideoComposition(const std::shared_ptr<PAGExportSession>& sessio
 
     A_long width = 0;
     A_long height = 0;
-    A_u_long stride = 0;
-    A_u_long rowBytesLength = 0;
+    A_u_long srcStride = 0;
+    A_u_long dstStride = 0;
     data = nullptr;
-    AEHelper::GetRenderFrame(&data, rowBytesLength, stride, width, height, renderOptions);
+    AEHelper::GetRenderFrameSize(renderOptions, srcStride, width, height);
+    AEHelper::GetRenderFrame(data, srcStride, dstStride, width, height, renderOptions);
     if (compWidth == width && compHeight == height) {
       bool isVisible = IsFrameVisible(visibleRanges, frame,
                                       static_cast<float>(mainComposition->frameRate / frameRate));
       if (isVisible) {
-        GetOpaqueRect(left, top, right, bottom, data, width, height, stride);
+        GetOpaqueRect(left, top, right, bottom, data, width, height, dstStride);
         if (right - left >= width && bottom - top >= height) {
           break;
         }
@@ -260,7 +261,8 @@ static void GetVideoSequence(const std::shared_ptr<PAGExportSession>& session,
       A_long compWidth = 0;
       A_long compHeight = 0;
       A_u_long compBytesLength = 0;
-      AEHelper::GetRenderFrame(&renderRgbaBytes, compBytesLength, renderStride, compWidth,
+      AEHelper::GetRenderFrameSize(renderOptions, compBytesLength, compWidth, compHeight);
+      AEHelper::GetRenderFrame(renderRgbaBytes, compBytesLength, renderStride, compWidth,
                                compHeight, renderOptions);
       if (compWidth == composition->width && compHeight == composition->height) {
         bool currentFrameIsVisible =
@@ -454,8 +456,8 @@ static void RebuildVideoComposition(const std::shared_ptr<PAGExportSession>& ses
   }
 
   PreComposeReferenceContext context{composition, newComposition};
-  Helper::TraversalLayers(session, compositions, pag::LayerType::PreCompose,
-                          &ProcessLayerReference, &context);
+  Helper::TraversalLayers(session, compositions, pag::LayerType::PreCompose, &ProcessLayerReference,
+                          &context);
 
   composition->id = GetCompositionUniqueID(session->compositions);
   if (originalItemH != nullptr) {
