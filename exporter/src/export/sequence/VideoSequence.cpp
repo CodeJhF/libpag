@@ -69,6 +69,12 @@ static bool IsFrameVisible(std::vector<pag::TimeRange>& ranges, pag::Frame frame
                      });
 }
 
+static bool IsFrameExport(const pag::TimeRange& range, pag::Frame frame, float frameRateFactor) {
+  auto frame1 = static_cast<pag::Frame>(frame * frameRateFactor);
+  auto frame2 = static_cast<pag::Frame>(ceil(frame * frameRateFactor));
+  return (frame1 >= range.start && frame1 <= range.end) || (frame2 >= range.start && frame2 <= range.end);
+}
+
 static void ClipVideoComposition(const std::shared_ptr<PAGExportSession>& session,
                                  pag::VideoComposition* composition, int& left, int& top,
                                  int& right, int& bottom) {
@@ -229,6 +235,18 @@ static void GetVideoSequence(const std::shared_ptr<PAGExportSession>& session,
   std::vector<pag::TimeRange> visibleRanges = {};
   auto mainComposition = session->compositions[session->compositions.size() - 1];
   GetVisibleRanges(visibleRanges, composition->id, mainComposition, 0, mainComposition->duration);
+  pag::TimeRange maxVisibleRange = {-1, -1};
+  if (!visibleRanges.empty()) {
+    maxVisibleRange = visibleRanges[0];
+  }
+  for (const auto& range : visibleRanges) {
+    if (range.start < maxVisibleRange.start) {
+      maxVisibleRange.start = range.start;
+    }
+    if (range.end > maxVisibleRange.end) {
+      maxVisibleRange.end = range.end;
+    }
+  }
 
   AEGP_ItemH itemH = session->itemHMap[composition->id];
   AEGP_RenderOptionsH renderOptions = nullptr;
@@ -236,6 +254,8 @@ static void GetVideoSequence(const std::shared_ptr<PAGExportSession>& session,
   Suites->RenderOptionsSuite3()->AEGP_SetWorldType(renderOptions, AEGP_WorldType_8);
   while (!session->stopExport) {
     auto sequence = new pag::VideoSequence();
+    pag::Frame firstExportFrame = -1;
+    pag::Frame exportFrameNum = 0;
 
     bool hasAlpha = session->videoHasAlpha;
     sequence->composition = composition;
@@ -254,6 +274,13 @@ static void GetVideoSequence(const std::shared_ptr<PAGExportSession>& session,
     bool lastFrameIsStatic = true;
     pag::TimeRange staticTimeRange = {-1, -1};
     for (pag::Frame frame = 0; frame < duration && !session->stopExport; frame++) {
+      if (!IsFrameExport(maxVisibleRange, frame, mainComposition->frameRate / frameRate)) {
+        continue;
+      }
+      if (firstExportFrame == -1) {
+        firstExportFrame = frame;
+        session->videoCompositionStartTime[composition->uniqueID] = frame;
+      }
       uint8_t* renderRgbaBytes = sizeChanged ? rgbaData.data() : curData.data();
       AEHelper::SetRenderTime(renderOptions, frameRate, frame);
 
@@ -295,9 +322,10 @@ static void GetVideoSequence(const std::shared_ptr<PAGExportSession>& session,
         FrameType frameType = GetFrameType(currentFrameIsStatic, lastFrameIsStatic,
                                            currentFrameIsVisible, lastFrameIsVisible);
         EncodeVideoFrame(pagEncoder.get(), curData.data(), seqStride, frameType);
+        exportFrameNum++;
 
         if (!currentFrameIsStatic) {
-          if (lastFrameIsStatic && frame > 0) {
+          if (lastFrameIsStatic && firstExportFrame != frame) {
             staticTimeRange.end = frame - 1;
             sequence->staticTimeRanges.push_back(staticTimeRange);
           }
@@ -324,7 +352,7 @@ static void GetVideoSequence(const std::shared_ptr<PAGExportSession>& session,
 
     pagEncoder->close();
 
-    while (!session->stopExport && sequence->frames.size() < static_cast<size_t>(duration)) {
+    while (!session->stopExport && sequence->frames.size() < static_cast<size_t>(exportFrameNum)) {
       FrameType frameType = FRAME_TYPE_AUTO;
       int64_t index = 0;
       pag::ByteData* videoBytes = GetEncodedVideoFrame(pagEncoder.get(), &frameType, &index);
