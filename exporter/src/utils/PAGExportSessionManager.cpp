@@ -15,31 +15,35 @@
 //  and limitations under the license.
 //
 /////////////////////////////////////////////////////////////////////////////////////////////////
-#include "ScopedHelper.h"
-#include <filesystem>
-#include <fstream>
-#include <iostream>
-#include "AEHelper.h"
-namespace fs = std::filesystem;
+
+#include "PAGExportSessionManager.h"
+#include "AETypeTransform.h"
 
 namespace exporter {
 
-ScopedTimeSetter::ScopedTimeSetter(const AEGP_ItemH& itemHandle, float time)
-    : address(itemHandle), itemHandle(itemHandle) {
-  const auto& suites = AEHelper::GetSuites();
-  suites->ItemSuite8()->AEGP_GetItemCurrentTime(itemHandle, &orgTime);
-
-  A_Time newTime = {static_cast<A_long>(time * 100), 100};
-  suites->ItemSuite8()->AEGP_SetItemCurrentTime(itemHandle, &newTime);
-
+void PAGExportSessionManager::setCurrentSession(const std::shared_ptr<PAGExportSession>& session) {
+  currentSession = session;
 }
 
-ScopedTimeSetter::~ScopedTimeSetter() {
-  const auto& suites = AEHelper::GetSuites();
-  if (itemHandle == nullptr || itemHandle != address) {
-    return;
+void PAGExportSessionManager::unsetCurrentSession(
+    const std::shared_ptr<PAGExportSession>& session) {
+  if (currentSession == session) {
+    currentSession = nullptr;
   }
-  suites->ItemSuite8()->AEGP_SetItemCurrentTime(itemHandle, &orgTime);
+}
+
+void PAGExportSessionManager::recordWarning(AlertInfoType type, const std::string& addInfo) {
+  if (currentSession) {
+    currentSession->pushWarning(type, addInfo);
+  }
+}
+
+pag::GradientColorHandle PAGExportSessionManager::getGradientColors(
+    const std::vector<std::string>& matchNames, int index) {
+  if (currentSession) {
+    return currentSession->GetGradientColorsFromFileBytes(matchNames, index);
+  }
+  return AEHelper::GetDefaultGradientColors();
 }
 
 }  // namespace exporter

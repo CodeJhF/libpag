@@ -19,6 +19,7 @@
 #include "LayerStyle.h"
 #include "export/stream/StreamProperty.h"
 #include "utils/PAGExportSession.h"
+#include "utils/PAGExportSessionManager.h"
 
 namespace exporter {
 
@@ -155,8 +156,8 @@ static pag::LayerStyle* GetLayerStyleByType(const AEGP_StreamRefH& streamH, AELa
     case AELayerStyleType::BlendOptionsGroup:
       break;
     default:
-      PAGExportSession::RecordWarning(AlertInfoType::UnsupportedLayerStyle,
-                                      GetLayerStyleName(type));
+      PAGExportSessionManager::GetInstance()->recordWarning(AlertInfoType::UnsupportedLayerStyle,
+                                                            GetLayerStyleName(type));
       break;
   }
   return layerStyle;

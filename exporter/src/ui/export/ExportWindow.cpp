@@ -67,9 +67,18 @@ std::string ExportWindow::getOutputPath() {
 
   QDir dir(AEHelper::GetProjectPath());
   QString defaultPath = dir.filePath(itemName.data());
-  QString selectPath = QFileDialog::getSaveFileName(
-      QApplication::topLevelWidgets().value(0), QObject::tr("Select Storage Path"), defaultPath);
-  return selectPath.toStdString();
+  QFileDialog dialog(QApplication::topLevelWidgets().value(0), QObject::tr("Select Storage Path"), defaultPath);
+  dialog.setAcceptMode(QFileDialog::AcceptSave);
+  dialog.setDefaultSuffix("pag");
+
+  if (dialog.exec() == QDialog::Accepted) {
+    QStringList selectedFiles = dialog.selectedFiles();
+    if (!selectedFiles.isEmpty()) {
+      return selectedFiles.first().toStdString();
+    }
+  }
+
+  return "";
 }
 
 void ExportWindow::init() {

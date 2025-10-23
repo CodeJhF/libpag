@@ -94,12 +94,12 @@ PAGWindow {
         target: progressModel || null
         function onExportFinished() {
             window.close();
-            Qt.callLater(function() { window.deleteLater(); });
+            Qt.callLater(() => window.destroy());
         }
 
         function onExportFailed() {
             window.close();
-            Qt.callLater(function() { window.deleteLater(); });
+            Qt.callLater(() => window.destroy());
         }
     }
 }

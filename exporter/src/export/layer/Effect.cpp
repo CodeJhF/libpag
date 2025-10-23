@@ -22,6 +22,7 @@
 #include "export/stream/StreamProperty.h"
 #include "utils/AEHelper.h"
 #include "utils/PAGExportSession.h"
+#include "utils/PAGExportSessionManager.h"
 
 namespace exporter {
 enum class AEEffectType {
@@ -340,8 +341,8 @@ static pag::Effect* GetEffectByType(const AEGP_StreamRefH& streamH, AEEffectType
       effect = GetHueSaturationEffect(streamH);
       break;
     case AEEffectType::Unknown:
-      PAGExportSession::RecordWarning(AlertInfoType::UnsupportedEffects,
-                                      AEHelper::GetStreamMatchName(streamH));
+      PAGExportSessionManager::GetInstance()->recordWarning(AlertInfoType::UnsupportedEffects,
+                                                            AEHelper::GetStreamMatchName(streamH));
       break;
     default:
       break;
@@ -428,7 +429,7 @@ void GetTextBackground(const AEGP_StreamRefH& streamH,
 pag::ImageFillRule* GetImageFillRuleV2(const AEGP_StreamRefH& streamH, float frameRate,
                                        uint16_t tagLevel) {
   if (tagLevel < static_cast<uint16_t>(pag::TagCode::ImageFillRule)) {
-    PAGExportSession::RecordWarning(AlertInfoType::TagLevelImageFillRule);
+    PAGExportSessionManager::GetInstance()->recordWarning(AlertInfoType::TagLevelImageFillRule);
     return nullptr;
   }
 
@@ -447,7 +448,7 @@ pag::ImageFillRule* GetImageFillRuleV2(const AEGP_StreamRefH& streamH, float fra
         keyFrame->interpolationType = pag::KeyframeInterpolationType::Linear;
       }
     }
-    PAGExportSession::RecordWarning(AlertInfoType::TagLevelImageFillRuleV2);
+    PAGExportSessionManager::GetInstance()->recordWarning(AlertInfoType::TagLevelImageFillRuleV2);
   }
 
   return imageFillRule;
@@ -456,7 +457,7 @@ pag::ImageFillRule* GetImageFillRuleV2(const AEGP_StreamRefH& streamH, float fra
 pag::ImageFillRule* GetImageFillRule(const AEGP_StreamRefH& streamH, float frameRate,
                                      uint16_t tagLevel) {
   if (tagLevel < static_cast<uint16_t>(pag::TagCode::ImageFillRule)) {
-    PAGExportSession::RecordWarning(AlertInfoType::TagLevelImageFillRule);
+    PAGExportSessionManager::GetInstance()->recordWarning(AlertInfoType::TagLevelImageFillRule);
     return nullptr;
   }
 
@@ -505,7 +506,8 @@ void GetAttachment(const AEGP_EffectRefH& effectH, float frameRate, pag::Layer* 
       if (layer->type() == pag::LayerType::Text) {
         GetTextBackground(effectStreamH, static_cast<pag::TextLayer*>(layer)->sourceText);
       } else {
-        PAGExportSession::RecordWarning(AlertInfoType::TextBackgroundOnlyTextLayer);
+        PAGExportSessionManager::GetInstance()->recordWarning(
+            AlertInfoType::TextBackgroundOnlyTextLayer);
       }
       break;
     case AEEffectType::ImageFillRule:
@@ -516,10 +518,12 @@ void GetAttachment(const AEGP_EffectRefH& effectH, float frameRate, pag::Layer* 
           static_cast<pag::ImageLayer*>(layer)->imageFillRule =
               func(effectStreamH, frameRate, tagLevel);
         } else {
-          PAGExportSession::RecordWarning(AlertInfoType::ImageFillRuleOnlyOne);
+          PAGExportSessionManager::GetInstance()->recordWarning(
+              AlertInfoType::ImageFillRuleOnlyOne);
         }
       } else {
-        PAGExportSession::RecordWarning(AlertInfoType::ImageFillRuleOnlyImageLayer);
+        PAGExportSessionManager::GetInstance()->recordWarning(
+            AlertInfoType::ImageFillRuleOnlyImageLayer);
       }
       break;
     default:

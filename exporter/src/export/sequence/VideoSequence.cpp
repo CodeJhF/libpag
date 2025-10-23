@@ -105,15 +105,16 @@ static void ClipVideoComposition(const std::shared_ptr<PAGExportSession>& sessio
 
     A_long width = 0;
     A_long height = 0;
-    A_u_long stride = 0;
-    A_u_long rowBytesLength = 0;
+    A_u_long srcStride = 0;
+    A_u_long dstStride = 0;
     data = nullptr;
-    AEHelper::GetRenderFrame(&data, rowBytesLength, stride, width, height, renderOptions);
+    AEHelper::GetRenderFrameSize(renderOptions, srcStride, width, height);
+    AEHelper::GetRenderFrame(data, srcStride, dstStride, width, height, renderOptions);
     if (compWidth == width && compHeight == height) {
       bool isVisible = IsFrameVisible(visibleRanges, frame,
                                       static_cast<float>(mainComposition->frameRate / frameRate));
       if (isVisible) {
-        GetOpaqueRect(left, top, right, bottom, data, width, height, stride);
+        GetOpaqueRect(left, top, right, bottom, data, width, height, dstStride);
         if (right - left >= width && bottom - top >= height) {
           break;
         }
@@ -287,7 +288,8 @@ static void GetVideoSequence(const std::shared_ptr<PAGExportSession>& session,
       A_long compWidth = 0;
       A_long compHeight = 0;
       A_u_long compBytesLength = 0;
-      AEHelper::GetRenderFrame(&renderRgbaBytes, compBytesLength, renderStride, compWidth,
+      AEHelper::GetRenderFrameSize(renderOptions, compBytesLength, compWidth, compHeight);
+      AEHelper::GetRenderFrame(renderRgbaBytes, compBytesLength, renderStride, compWidth,
                                compHeight, renderOptions);
       if (compWidth == composition->width && compHeight == composition->height) {
         bool currentFrameIsVisible =
@@ -376,12 +378,21 @@ static void GetVideoSequence(const std::shared_ptr<PAGExportSession>& session,
   Suites->RenderOptionsSuite3()->AEGP_Dispose(renderOptions);
 }
 
+struct PreComposeReferenceContext {
+  pag::Composition* original = nullptr;
+  pag::Composition* replacement = nullptr;
+};
+
 static void ProcessLayerReference(const std::shared_ptr<PAGExportSession>&, pag::Layer* layer,
                                   void* ctx) {
-  auto newComposition = static_cast<pag::Composition*>(ctx);
-  auto preComposeLayer = static_cast<pag::PreComposeLayer*>(layer);
-  if (preComposeLayer->composition->id == newComposition->id) {
-    preComposeLayer->composition = newComposition;
+  if (ctx == nullptr || layer->type() != pag::LayerType::PreCompose) {
+    return;
+  }
+  auto* context = static_cast<PreComposeReferenceContext*>(ctx);
+  auto* preComposeLayer = static_cast<pag::PreComposeLayer*>(layer);
+  if (preComposeLayer->composition == context->original &&
+      preComposeLayer->containingComposition != context->replacement) {
+    preComposeLayer->composition = context->replacement;
   }
 }
 
@@ -440,12 +451,19 @@ static void RebuildVideoComposition(const std::shared_ptr<PAGExportSession>& ses
   newLayer->startTime = 0;
   newLayer->duration = composition->duration;
 
+  auto originalID = composition->id;
+  AEGP_ItemH originalItemH = nullptr;
+  auto itemIter = session->itemHMap.find(originalID);
+  if (itemIter != session->itemHMap.end()) {
+    originalItemH = itemIter->second;
+  }
+
   newComposition->layers.push_back(newLayer);
   newComposition->width = composition->width;
   newComposition->height = composition->height;
   newComposition->duration = composition->duration;
   newComposition->frameRate = composition->frameRate;
-  newComposition->id = GetCompositionUniqueID(session->compositions);
+  newComposition->id = originalID;
   newComposition->backgroundColor = composition->backgroundColor;
 
   newComposition->audioBytes = composition->audioBytes;
@@ -459,10 +477,21 @@ static void RebuildVideoComposition(const std::shared_ptr<PAGExportSession>& ses
     compositions.insert(iter + 1, newComposition);
   }
 
+  auto sessionIter =
+      std::find(session->compositions.begin(), session->compositions.end(), composition);
+  if (sessionIter != session->compositions.end()) {
+    session->compositions.insert(sessionIter + 1, newComposition);
+  }
+
+  PreComposeReferenceContext context{composition, newComposition};
   Helper::TraversalLayers(session, compositions, pag::LayerType::PreCompose, &ProcessLayerReference,
-                          newComposition);
+                          &context);
 
   composition->id = GetCompositionUniqueID(session->compositions);
+  if (originalItemH != nullptr) {
+    session->itemHMap[newComposition->id] = originalItemH;
+    session->itemHMap[composition->id] = originalItemH;
+  }
   composition->width = right - left;
   composition->height = bottom - top;
   AdjustMainCompositionParam(newComposition, composition, compositions);

@@ -18,6 +18,7 @@
 
 #include "StreamProperty.h"
 #include "utils/Helper.h"
+#include "utils/PAGExportSessionManager.h"
 
 namespace exporter {
 
@@ -231,7 +232,7 @@ void CheckStreamExpression(AEGP_StreamRefH stream) {
     A_Boolean flag = false;
     Suites->StreamSuite4()->AEGP_GetExpressionState(PluginID, stream, &flag);
     if (flag) {
-      PAGExportSession::RecordWarning(AlertInfoType::Expression);
+      PAGExportSessionManager::GetInstance()->recordWarning(AlertInfoType::Expression);
     }
   }
 }
