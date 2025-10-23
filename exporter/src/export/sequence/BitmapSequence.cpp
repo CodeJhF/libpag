@@ -88,7 +88,6 @@ void GetBitmapSequence(const std::shared_ptr<PAGExportSession>& session,
   std::vector<uint8_t> preData(stride * height + stride * 2);
   std::vector<uint8_t> curData(stride * height + stride * 2);
   std::vector<uint8_t> rgbaData(compStride * composition->height + compStride * 2);
-  uint8_t* curRGBABytes = needToScale ? rgbaData.data() : curData.data();
 
   ImageRect lastKeyFrameDiffRect = {0, 0, width, height};
   pag::Frame lastKeyFrame = 0;
@@ -99,6 +98,7 @@ void GetBitmapSequence(const std::shared_ptr<PAGExportSession>& session,
     A_long compWidth = 0;
     A_long compHeight = 0;
     A_u_long compBytesLength = 0;
+    uint8_t* curRGBABytes = needToScale ? rgbaData.data() : curData.data();
 
     AEHelper::SetRenderTime(renderOptions, frameRate, frame);
     AEHelper::GetRenderFrameSize(renderOptions, compBytesLength, compWidth, compHeight);
@@ -120,16 +120,20 @@ void GetBitmapSequence(const std::shared_ptr<PAGExportSession>& session,
       bool isKeyFrame = IsKeyFrame(frame, lastKeyFrame, diffRect.width * diffRect.height,
                                    width * height, session->configParam.bitmapKeyFrameInterval);
       if (isKeyFrame) {
-        lastKeyFrame = frame;
+
         diffRect.xPos = 0;
         diffRect.yPos = 0;
         diffRect.width = width;
         diffRect.height = height;
+        lastKeyFrame = frame;
         ClipTransparentEdge(diffRect, curData.data(), width, height, stride);
         encodeRect = diffRect;
       } else if (diffRect.width > 0 && diffRect.height > 0) {
         ExpandRectRange(encodeRect, diffRect, lastKeyFrameDiffRect, width, height, 4);
       }
+      bitmapFrame->isKeyframe = isKeyFrame;
+      encodeRect = diffRect;
+
 
       if (diffRect.width > 0 && diffRect.height > 0) {
         uint8_t* data = curData.data() + encodeRect.yPos * stride + encodeRect.xPos * 4;
