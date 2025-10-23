@@ -134,7 +134,6 @@ void GetBitmapSequence(const std::shared_ptr<PAGExportSession>& session,
       bitmapFrame->isKeyframe = isKeyFrame;
       encodeRect = diffRect;
 
-
       if (diffRect.width > 0 && diffRect.height > 0) {
         uint8_t* data = curData.data() + encodeRect.yPos * stride + encodeRect.xPos * 4;
         pag::ByteData* bitmapBytes = EncodeImageData(data, encodeRect.width, encodeRect.height,

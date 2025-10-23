@@ -38,15 +38,15 @@ void ProgressListModel::addSession(const std::shared_ptr<PAGExportSession>& sess
                        {static_cast<int>(ProgressListModelRoles::StatusRole)});
     Q_EMIT exportNumChanged(getExportNum());
   });
-  connect(&session->progressModel, &ProgressModel::currentFrameChanged, this, [this, index]() {
+  connect(&session->progressModel, &ProgressModel::currentProgressChanged, this, [this, index]() {
     QModelIndex modelIndex = createIndex(index, 0);
     Q_EMIT dataChanged(modelIndex, modelIndex,
-                       {static_cast<int>(ProgressListModelRoles::CurrentFrameRole)});
+                       {static_cast<int>(ProgressListModelRoles::CurrentProgressRole)});
   });
-  connect(&session->progressModel, &ProgressModel::totalFramesChanged, this, [this, index]() {
+  connect(&session->progressModel, &ProgressModel::totalProgressChanged, this, [this, index]() {
     QModelIndex modelIndex = createIndex(index, 0);
     Q_EMIT dataChanged(modelIndex, modelIndex,
-                       {static_cast<int>(ProgressListModelRoles::TotalFrameRole)});
+                       {static_cast<int>(ProgressListModelRoles::TotalProgressRole)});
   });
   Q_EMIT totalExportNumChanged(index + 1);
   beginInsertRows(QModelIndex(), index, index);
@@ -104,11 +104,11 @@ QVariant ProgressListModel::data(const QModelIndex& index, int role) const {
     case static_cast<int>(ProgressListModelRoles::StatusRole): {
       return session->progressModel.getExportStatus();
     }
-    case static_cast<int>(ProgressListModelRoles::CurrentFrameRole): {
-      return session->progressModel.getCurrentFrame();
+    case static_cast<int>(ProgressListModelRoles::CurrentProgressRole): {
+      return session->progressModel.getCurrentProgress();
     }
-    case static_cast<int>(ProgressListModelRoles::TotalFrameRole): {
-      auto totalFrame = session->progressModel.getTotalFrame();
+    case static_cast<int>(ProgressListModelRoles::TotalProgressRole): {
+      auto totalFrame = session->progressModel.getTotalProgress();
       return totalFrame == 0.0 ? 1.0 : totalFrame;
     }
     default: {
@@ -121,8 +121,8 @@ QHash<int, QByteArray> ProgressListModel::roleNames() const {
   static QHash<int, QByteArray> roles = {
       {static_cast<int>(ProgressListModelRoles::NameRole), "name"},
       {static_cast<int>(ProgressListModelRoles::StatusRole), "exportStatus"},
-      {static_cast<int>(ProgressListModelRoles::CurrentFrameRole), "currentFrame"},
-      {static_cast<int>(ProgressListModelRoles::TotalFrameRole), "totalFrame"},
+      {static_cast<int>(ProgressListModelRoles::CurrentProgressRole), "currentProgress"},
+      {static_cast<int>(ProgressListModelRoles::TotalProgressRole), "totalProgress"},
   };
   return roles;
 }

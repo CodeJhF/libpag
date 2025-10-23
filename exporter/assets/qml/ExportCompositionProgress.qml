@@ -45,8 +45,8 @@ PAGWindow {
             anchors.leftMargin: 12
             anchors.right: parent.right
             anchors.rightMargin: 12
-            to: progressModel ? progressModel.totalFrame : 1.0
-            value: progressModel ? progressModel.currentFrame : 0.0
+            to: progressModel ? progressModel.totalProgress : 1.0
+            value: progressModel ? progressModel.currentProgress : 0.0
             height: 8
 
             background: Rectangle {

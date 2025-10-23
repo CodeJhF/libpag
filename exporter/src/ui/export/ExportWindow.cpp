@@ -67,7 +67,8 @@ std::string ExportWindow::getOutputPath() {
 
   QDir dir(AEHelper::GetProjectPath());
   QString defaultPath = dir.filePath(itemName.data());
-  QFileDialog dialog(QApplication::topLevelWidgets().value(0), QObject::tr("Select Storage Path"), defaultPath);
+  QFileDialog dialog(QApplication::topLevelWidgets().value(0), QObject::tr("Select Storage Path"),
+                     defaultPath);
   dialog.setAcceptMode(QFileDialog::AcceptSave);
   dialog.setDefaultSuffix("pag");
 

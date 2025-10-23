@@ -77,7 +77,7 @@ void GetCompositionAttributes(const std::shared_ptr<PAGExportSession>& session,
   if (composition->type() != pag::CompositionType::Vector) {
     auto frames =
         static_cast<double>(composition->duration * session->frameRate / composition->frameRate);
-    session->progressModel.addTotalFrame(frames);
+    session->progressModel.addTotalProgress(frames);
   }
 }
 
@@ -131,7 +131,7 @@ void ExportVectorComposition(const std::shared_ptr<PAGExportSession>& session,
   composition->layers = ExportLayers(session, compH);
   session->compositions.push_back(composition);
 
-  session->progressModel.addTotalFrame(static_cast<double>(session->imageBytesList.size()));
+  session->progressModel.addTotalProgress(static_cast<double>(session->imageBytesList.size()));
 }
 
 void ExportBitmapCompositionActually(const std::shared_ptr<PAGExportSession>& session,

@@ -160,6 +160,20 @@ static bool ValidatePAGFile(uint8_t* data, size_t size) {
   return res;
 }
 
+static void AdjustmentPreComposeLayerForVideoComposition(
+    const std::shared_ptr<exporter::PAGExportSession>& session, pag::Layer* layer, void* ctx) {
+  auto videoComposition = static_cast<pag::VideoComposition*>(ctx);
+  auto preComposeLayer = static_cast<pag::PreComposeLayer*>(layer);
+  if (preComposeLayer->composition != nullptr &&
+      preComposeLayer->composition->uniqueID == videoComposition->uniqueID) {
+    if (session->videoCompositionStartTime.find(videoComposition->uniqueID) !=
+        session->videoCompositionStartTime.end()) {
+      preComposeLayer->compositionStartTime +=
+          session->videoCompositionStartTime[videoComposition->uniqueID];
+    }
+  }
+}
+
 PAGExport::PAGExport(const PAGExportConfigParam& configParam)
     : itemH(configParam.activeItemH),
       session(std::make_shared<PAGExportSession>(configParam.activeItemH, configParam.outputPath)),
@@ -437,22 +451,8 @@ void PAGExport::exportRescaleVideoCompositions(std::vector<pag::Composition*>& c
 
       ExportVideoCompositionActually(session, compositions,
                                      static_cast<pag::VideoComposition*>(composition), factor);
-      for (const auto& pair : session->videoCompositionStartTime) {
-        auto id = pair.first;
-        auto time = pair.second;
-        LOGI("map id: %u, time: %lld", id, time);
-      }
-      auto layerHelper = [] (const std::shared_ptr<exporter::PAGExportSession>& session,
-                              pag::Layer* layer, void* ctx) {
-        auto videoComposition = static_cast<pag::VideoComposition*>(ctx);
-        auto preComposeLayer = static_cast<pag::PreComposeLayer*>(layer);
-        if (preComposeLayer->composition != nullptr && preComposeLayer->composition->uniqueID == videoComposition->uniqueID) {
-          if (session->videoCompositionStartTime.find(videoComposition->uniqueID) != session->videoCompositionStartTime.end()) {
-            preComposeLayer->compositionStartTime += session->videoCompositionStartTime[videoComposition->uniqueID];
-          }
-        }
-      };
-      Helper::TraversalLayers(session, mainComposition, pag::LayerType::PreCompose, layerHelper, composition);
+      Helper::TraversalLayers(session, mainComposition, pag::LayerType::PreCompose,
+                              AdjustmentPreComposeLayerForVideoComposition, composition);
       AdjustCompositionFrameRate<pag::VideoComposition*>(composition);
     }
   }

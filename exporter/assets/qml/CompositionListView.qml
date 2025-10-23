@@ -168,6 +168,7 @@ ListView {
 
                     Text {
                         text: savePath
+                        width: parent.width
                         font.pixelSize: 13
                         font.family: "PingFang SC"
                         elide: Text.ElideRight

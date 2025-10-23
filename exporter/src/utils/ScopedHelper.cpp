@@ -31,7 +31,6 @@ ScopedTimeSetter::ScopedTimeSetter(const AEGP_ItemH& itemHandle, float time)
 
   A_Time newTime = {static_cast<A_long>(time * 100), 100};
   suites->ItemSuite8()->AEGP_SetItemCurrentTime(itemHandle, &newTime);
-
 }
 
 ScopedTimeSetter::~ScopedTimeSetter() {

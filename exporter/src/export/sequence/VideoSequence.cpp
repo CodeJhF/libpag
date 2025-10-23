@@ -72,7 +72,8 @@ static bool IsFrameVisible(std::vector<pag::TimeRange>& ranges, pag::Frame frame
 static bool IsFrameExport(const pag::TimeRange& range, pag::Frame frame, float frameRateFactor) {
   auto frame1 = static_cast<pag::Frame>(frame * frameRateFactor);
   auto frame2 = static_cast<pag::Frame>(ceil(frame * frameRateFactor));
-  return (frame1 >= range.start && frame1 <= range.end) || (frame2 >= range.start && frame2 <= range.end);
+  return (frame1 >= range.start && frame1 <= range.end) ||
+         (frame2 >= range.start && frame2 <= range.end);
 }
 
 static void ClipVideoComposition(const std::shared_ptr<PAGExportSession>& session,
@@ -127,7 +128,7 @@ static void ClipVideoComposition(const std::shared_ptr<PAGExportSession>& sessio
       session->pushWarning(AlertInfoType::ExportRenderError);
     }
 
-    session->progressModel.addTotalFrame(0.25);
+    session->progressModel.addTotalProgress(0.25);
     session->progressModel.addProgress(0.25);
   }
 

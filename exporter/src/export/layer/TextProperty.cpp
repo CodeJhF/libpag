@@ -524,7 +524,7 @@ static void ModififyAnimatorKeyFrames(std::vector<pag::TextAnimator*>* animators
 }
 
 static void AdjustFirstBaseLine(pag::TextDocumentHandle textDocument, bool hasBias) {
-  if (textDocument->boxTextPos.x <=  0.001f || textDocument->boxTextPos.y <= 0.001f) {
+  if (textDocument->boxTextPos.x <= 0.001f || textDocument->boxTextPos.y <= 0.001f) {
     textDocument->firstBaseLine = 0.0f;
     return;
   }
@@ -533,15 +533,16 @@ static void AdjustFirstBaseLine(pag::TextDocumentHandle textDocument, bool hasBi
     auto rightLine = textDocument->boxTextPos.x + textDocument->boxTextSize.x;
     float fontHeight = rightLine + textDocument->firstBaseLine;
 
-    bool needToAdjust = hasBias || fontHeight < textDocument->fontSize / 3.0f || fontHeight > textDocument->fontSize;
+    bool needToAdjust = hasBias || fontHeight < textDocument->fontSize / 3.0f ||
+                        fontHeight > textDocument->fontSize;
     if (needToAdjust) {
       float newHeight = textDocument->fontSize * 0.4f;
       textDocument->fontSize = rightLine - newHeight;
     }
-  }
-  else {
+  } else {
     float fontHeight = textDocument->firstBaseLine - textDocument->boxTextPos.y;
-    bool needToAdjust = hasBias || fontHeight < textDocument->fontSize * 0.2f || fontHeight > textDocument->fontSize;
+    bool needToAdjust = hasBias || fontHeight < textDocument->fontSize * 0.2f ||
+                        fontHeight > textDocument->fontSize;
     if (needToAdjust) {
       float ascend = 0.0f;
       float descent = 0.0f;
@@ -557,7 +558,8 @@ static void AdjustFirstBaseLine(pag::TextDocumentHandle textDocument, bool hasBi
 static void GetFirstBaseLineByPos(pag::TextDocumentHandle textDocument,
                                   std::vector<pag::TextAnimator*>* animators, pag::Frame frame) {
   bool hasBias = false;
-  auto position = pag::TextAnimatorRenderer::GetPositionFromAnimators(animators, textDocument.get(), frame, 0, &hasBias);
+  auto position = pag::TextAnimatorRenderer::GetPositionFromAnimators(animators, textDocument.get(),
+                                                                      frame, 0, &hasBias);
   bool isVertical = (textDocument->direction == pag::TextDirection::Vertical);
   textDocument->firstBaseLine -= isVertical ? position.x : position.y;
   AdjustFirstBaseLine(textDocument, hasBias);
@@ -575,7 +577,8 @@ static void GetFirstBaseLinesByPos(pag::Property<pag::TextDocumentHandle>* sourc
     return;
   }
 
-  auto* animatableText = reinterpret_cast<pag::AnimatableProperty<pag::TextDocumentHandle>*>(sourceText);
+  auto* animatableText =
+      reinterpret_cast<pag::AnimatableProperty<pag::TextDocumentHandle>*>(sourceText);
   for (const auto* keyFrame : animatableText->keyframes) {
     GetFirstBaseLineByPos(keyFrame->startValue, animators, keyFrame->startTime);
     GetFirstBaseLineByPos(keyFrame->endValue, animators, keyFrame->endTime);

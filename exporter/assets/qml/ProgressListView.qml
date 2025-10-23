@@ -66,9 +66,9 @@ ListView {
 
         required property int exportStatus
 
-        required property double totalFrame
+        required property double totalProgress
 
-        required property double currentFrame
+        required property double currentProgress
 
         height: 35
         implicitWidth: ListView.view.width
@@ -125,8 +125,8 @@ ListView {
 
             ProgressBar {
                 id: progressBar
-                to: totalFrame
-                value: currentFrame
+                to: totalProgress
+                value: currentProgress
                 width: 100
                 height: 8
                 anchors.verticalCenter: parent.verticalCenter
@@ -152,7 +152,7 @@ ListView {
 
             Text {
                 id: progressText
-                text: Math.round(currentFrame / totalFrame * 100) + "%"
+                text: Math.round(currentProgress / totalProgress * 100) + "%"
                 height: 22
                 font.pixelSize: 14
                 font.family: "PingFang SC"

@@ -337,7 +337,7 @@
 <context>
     <name>QObject</name>
     <message>
-        <location filename="../../src/ui/export/ExportWindow.cpp" line="71"/>
+        <location filename="../../src/ui/export/ExportWindow.cpp" line="70"/>
         <source>Select Storage Path</source>
         <translation>选择存储路径</translation>
     </message>

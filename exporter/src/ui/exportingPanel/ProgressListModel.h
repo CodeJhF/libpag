@@ -29,8 +29,8 @@ class ProgressListModel : public QAbstractListModel {
   enum class ProgressListModelRoles {
     NameRole = Qt::UserRole + 1,
     StatusRole,
-    CurrentFrameRole,
-    TotalFrameRole
+    CurrentProgressRole,
+    TotalProgressRole
   };
 
   Q_PROPERTY(int exportNum READ getExportNum NOTIFY exportNumChanged)
