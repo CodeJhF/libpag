@@ -109,6 +109,10 @@ static void ClipVideoComposition(const std::shared_ptr<PAGExportSession>& sessio
     A_u_long dstStride = 0;
     data = nullptr;
     AEHelper::GetRenderFrameSize(renderOptions, srcStride, width, height);
+    dstStride = 4 * width;
+    if (data == nullptr) {
+      data = new uint8_t[dstStride * height];
+    }
     AEHelper::GetRenderFrame(data, srcStride, dstStride, width, height, renderOptions);
     if (compWidth == width && compHeight == height) {
       bool isVisible = IsFrameVisible(visibleRanges, frame,
