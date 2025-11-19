@@ -51,12 +51,15 @@ pag::Keyframe<T>* GetKeyframe(AEGP_StreamRefH stream, StreamParser<T> parser, in
   if (streamType != AEGP_StreamType_NO_DATA) {
     Suites->KeyframeSuite4()->AEGP_GetNewKeyframeValue(PluginID, stream, index - 1, &streamValue);
   }
-  keyframe->startValue = parser(streamValue.val, map);
+  QVariantMap mapWithKeyframe = map;
+  mapWithKeyframe["keyframeIndex"] = index - 1;
+  keyframe->startValue = parser(streamValue.val, mapWithKeyframe);
   if (streamType != AEGP_StreamType_NO_DATA) {
     Suites->StreamSuite4()->AEGP_DisposeStreamValue(&streamValue);
     Suites->KeyframeSuite4()->AEGP_GetNewKeyframeValue(PluginID, stream, index, &streamValue);
   }
-  keyframe->endValue = parser(streamValue.val, map);
+  mapWithKeyframe["keyframeIndex"] = index;
+  keyframe->endValue = parser(streamValue.val, mapWithKeyframe);
   if (streamType != AEGP_StreamType_NO_DATA) {
     Suites->StreamSuite4()->AEGP_DisposeStreamValue(&streamValue);
   }

@@ -26,6 +26,9 @@ pag::Transform2D* GetTransform2D(const AEGP_LayerH& layerH, float frameRate) {
   const auto Suites = AEHelper::GetSuites();
   auto transform = new pag::Transform2D();
 
+  QVariantMap map;
+  map["frameRate"] = frameRate;
+
   AEGP_StreamRefH streamH = nullptr;
   Suites->StreamSuite4()->AEGP_GetNewLayerStream(PluginID, layerH, AEGP_LayerStream_POSITION,
                                                  &streamH);
@@ -34,26 +37,24 @@ pag::Transform2D* GetTransform2D(const AEGP_LayerH& layerH, float frameRate) {
   if (dimensionSeparated != 0) {
     AEGP_StreamRefH xPosition;
     Suites->DynamicStreamSuite4()->AEGP_GetSeparationFollower(streamH, 0, &xPosition);
-    transform->xPosition = GetProperty(xPosition, AEStreamParser::FloatParser);
+    transform->xPosition = GetProperty(xPosition, AEStreamParser::FloatParser, map);
     Suites->StreamSuite4()->AEGP_DisposeStream(xPosition);
     AEGP_StreamRefH yPosition;
     Suites->DynamicStreamSuite4()->AEGP_GetSeparationFollower(streamH, 1, &yPosition);
-    transform->yPosition = GetProperty(yPosition, AEStreamParser::FloatParser);
+    transform->yPosition = GetProperty(yPosition, AEStreamParser::FloatParser, map);
     Suites->StreamSuite4()->AEGP_DisposeStream(yPosition);
   } else {
-    transform->position = GetProperty(streamH, AEStreamParser::PointParser);
+    transform->position = GetProperty(streamH, AEStreamParser::PointParser, map);
   }
   Suites->StreamSuite4()->AEGP_DisposeStream(streamH);
   transform->anchorPoint =
-      GetProperty(layerH, AEGP_LayerStream_ANCHORPOINT, AEStreamParser::PointParser);
-  QVariantMap map;
-  map["frameRate"] = frameRate;
+      GetProperty(layerH, AEGP_LayerStream_ANCHORPOINT, AEStreamParser::PointParser, map);
   transform->scale =
       GetProperty(layerH, AEGP_LayerStream_SCALE, AEStreamParser::ScaleParser, map, 2);
   transform->rotation =
       GetProperty(layerH, AEGP_LayerStream_ROTATION, AEStreamParser::FloatParser, map);
   transform->opacity =
-      GetProperty(layerH, AEGP_LayerStream_OPACITY, AEStreamParser::Opacity0_100Parser);
+      GetProperty(layerH, AEGP_LayerStream_OPACITY, AEStreamParser::Opacity0_100Parser, map);
   return transform;
 }
 

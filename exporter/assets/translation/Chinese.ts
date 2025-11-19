@@ -58,7 +58,7 @@
 <context>
     <name>CompositionListView</name>
     <message>
-        <location filename="../qml/CompositionListView.qml" line="302"/>
+        <location filename="../qml/CompositionListView.qml" line="303"/>
         <source>Select Save Path</source>
         <translation>选择存储路径</translation>
     </message>
@@ -106,93 +106,93 @@
     <message>
         <location filename="../qml/ConfigWindow.qml" line="214"/>
         <source>General</source>
-        <translation type="unfinished"></translation>
+        <translation>通用</translation>
     </message>
     <message>
         <location filename="../qml/ConfigWindow.qml" line="241"/>
         <source>BMP Composition</source>
-        <translation type="unfinished"></translation>
+        <translation>BMP 预合成</translation>
     </message>
     <message>
         <location filename="../qml/ConfigWindow.qml" line="284"/>
         <source>Language:</source>
-        <translation type="unfinished"></translation>
+        <translation>语言:</translation>
     </message>
     <message>
         <location filename="../qml/ConfigWindow.qml" line="298"/>
         <source>Export Use Case:</source>
-        <translation type="unfinished"></translation>
+        <translation>导出场景:</translation>
     </message>
     <message>
         <location filename="../qml/ConfigWindow.qml" line="312"/>
         <source>Export Version Control:</source>
-        <translation type="unfinished"></translation>
+        <translation>导出版本控制:</translation>
     </message>
     <message>
         <location filename="../qml/ConfigWindow.qml" line="335"/>
         <source>TAG Level:</source>
-        <translation type="unfinished"></translation>
+        <translation>TAG Level:</translation>
     </message>
     <message>
         <location filename="../qml/ConfigWindow.qml" line="365"/>
         <source>Bitmap Compression Quality:</source>
-        <translation type="unfinished"></translation>
+        <translation>位图压缩质量:</translation>
     </message>
     <message>
         <location filename="../qml/ConfigWindow.qml" line="390"/>
         <source>Bitmap Pixel Density:</source>
-        <translation type="unfinished"></translation>
+        <translation>位图像素密度:</translation>
     </message>
     <message>
         <location filename="../qml/ConfigWindow.qml" line="416"/>
         <source>Export Layer Name:</source>
-        <translation type="unfinished"></translation>
+        <translation>导出图层名字:</translation>
     </message>
     <message>
         <location filename="../qml/ConfigWindow.qml" line="430"/>
         <source>Export Fonts:</source>
-        <translation type="unfinished"></translation>
+        <translation>导出字体:</translation>
     </message>
     <message>
         <location filename="../qml/ConfigWindow.qml" line="457"/>
         <location filename="../qml/ConfigWindow.qml" line="623"/>
         <source>Reset Default</source>
-        <translation type="unfinished"></translation>
+        <translation>重置默认值</translation>
     </message>
     <message>
         <location filename="../qml/ConfigWindow.qml" line="497"/>
         <source>Bitmap Quality:</source>
-        <translation type="unfinished"></translation>
+        <translation>帧存储格式:</translation>
     </message>
     <message>
         <location filename="../qml/ConfigWindow.qml" line="511"/>
         <source>Image Quality:</source>
-        <translation type="unfinished"></translation>
+        <translation>图像质量:</translation>
     </message>
     <message>
         <location filename="../qml/ConfigWindow.qml" line="536"/>
         <source>Export Size Limit（Short Size）:</source>
-        <translation type="unfinished"></translation>
+        <translation>导出尺寸上限（短边长）:</translation>
     </message>
     <message>
         <location filename="../qml/ConfigWindow.qml" line="558"/>
         <source>Maximum Frame Rate:</source>
-        <translation type="unfinished"></translation>
+        <translation>最大帧率上限:</translation>
     </message>
     <message>
         <location filename="../qml/ConfigWindow.qml" line="584"/>
         <source>Keyframe Interval:</source>
-        <translation type="unfinished"></translation>
+        <translation>关键帧间隔:</translation>
     </message>
     <message>
         <location filename="../qml/ConfigWindow.qml" line="674"/>
         <source>Cancel</source>
-        <translation type="unfinished">取消</translation>
+        <translation>取消</translation>
     </message>
     <message>
         <location filename="../qml/ConfigWindow.qml" line="703"/>
         <source>OK</source>
-        <translation type="unfinished"></translation>
+        <translation>确定</translation>
     </message>
 </context>
 <context>

@@ -123,15 +123,19 @@ static TextAnimatorPropertiesType GetTextAnimatorPropertiesType(const AEGP_Strea
   return result->second;
 }
 
-static pag::TextRangeSelector* GetTextRangeSelector(const AEGP_StreamRefH& streamH) {
+static pag::TextRangeSelector* GetTextRangeSelector(const AEGP_StreamRefH& streamH,
+                                                     float frameRate) {
   const auto& Suites = AEHelper::GetSuites();
   const auto& PluginID = AEHelper::GetPluginID();
   auto selector = new pag::TextRangeSelector();
 
-  selector->start = GetProperty(streamH, "ADBE Text Percent Start", AEStreamParser::PercentParser);
-  selector->end = GetProperty(streamH, "ADBE Text Percent End", AEStreamParser::PercentParser);
+  QVariantMap map = {};
+  map["frameRate"] = frameRate;
+
+  selector->start = GetProperty(streamH, "ADBE Text Percent Start", AEStreamParser::PercentParser, map);
+  selector->end = GetProperty(streamH, "ADBE Text Percent End", AEStreamParser::PercentParser, map);
   selector->offset =
-      GetProperty(streamH, "ADBE Text Percent Offset", AEStreamParser::PercentParser);
+      GetProperty(streamH, "ADBE Text Percent Offset", AEStreamParser::PercentParser, map);
 
   AEGP_StreamRefH advancedStream;
   Suites->DynamicStreamSuite4()->AEGP_GetNewStreamRefByMatchname(
@@ -141,48 +145,52 @@ static pag::TextRangeSelector* GetTextRangeSelector(const AEGP_StreamRefH& strea
   selector->basedOn =
       GetValue(advancedStream, "ADBE Text Range Type2", AEStreamParser::TextSelectorBasedOnParser);
   selector->mode = GetProperty(advancedStream, "ADBE Text Selector Mode",
-                               AEStreamParser::TextSelectorModeParser);
+                               AEStreamParser::TextSelectorModeParser, map);
   selector->amount =
-      GetProperty(advancedStream, "ADBE Text Selector Max Amount", AEStreamParser::PercentParser);
+      GetProperty(advancedStream, "ADBE Text Selector Max Amount", AEStreamParser::PercentParser, map);
   selector->shape = GetValue(advancedStream, "ADBE Text Range Shape",
                              AEStreamParser::TextRangeSelectorShapeParser);
   selector->smoothness =
-      GetProperty(advancedStream, "ADBE Text Selector Smoothness", AEStreamParser::PercentParser);
+      GetProperty(advancedStream, "ADBE Text Selector Smoothness", AEStreamParser::PercentParser, map);
   selector->easeHigh =
-      GetProperty(advancedStream, "ADBE Text Levels Max Ease", AEStreamParser::PercentParser);
+      GetProperty(advancedStream, "ADBE Text Levels Max Ease", AEStreamParser::PercentParser, map);
   selector->easeLow =
-      GetProperty(advancedStream, "ADBE Text Levels Min Ease", AEStreamParser::PercentParser);
+      GetProperty(advancedStream, "ADBE Text Levels Min Ease", AEStreamParser::PercentParser, map);
   selector->randomizeOrder =
       GetValue(advancedStream, "ADBE Text Randomize Order", AEStreamParser::BooleanParser);
   selector->randomSeed =
-      GetProperty(advancedStream, "ADBE Text Random Seed", AEStreamParser::Uint16Parser);
+      GetProperty(advancedStream, "ADBE Text Random Seed", AEStreamParser::Uint16Parser, map);
 
   return selector;
 }
 
-static pag::TextWigglySelector* GetTextWigglySelector(const AEGP_StreamRefH& streamH) {
+static pag::TextWigglySelector* GetTextWigglySelector(const AEGP_StreamRefH& streamH,
+                                                      float frameRate) {
   auto selector = new pag::TextWigglySelector();
 
+  QVariantMap map = {};
+  map["frameRate"] = frameRate;
+
   selector->mode =
-      GetProperty(streamH, "ADBE Text Selector Mode", AEStreamParser::TextSelectorModeParser);
+      GetProperty(streamH, "ADBE Text Selector Mode", AEStreamParser::TextSelectorModeParser, map);
   selector->maxAmount =
-      GetProperty(streamH, "ADBE Text Wiggly Max Amount", AEStreamParser::PercentParser);
+      GetProperty(streamH, "ADBE Text Wiggly Max Amount", AEStreamParser::PercentParser, map);
   selector->minAmount =
-      GetProperty(streamH, "ADBE Text Wiggly Min Amount", AEStreamParser::PercentParser);
+      GetProperty(streamH, "ADBE Text Wiggly Min Amount", AEStreamParser::PercentParser, map);
   selector->basedOn =
       GetValue(streamH, "ADBE Text Range Type2", AEStreamParser::TextSelectorBasedOnParser);
   selector->wigglesPerSecond =
-      GetProperty(streamH, "ADBE Text Temporal Freq", AEStreamParser::FloatParser);
+      GetProperty(streamH, "ADBE Text Temporal Freq", AEStreamParser::FloatParser, map);
   selector->correlation =
-      GetProperty(streamH, "ADBE Text Character Correlation", AEStreamParser::PercentParser);
+      GetProperty(streamH, "ADBE Text Character Correlation", AEStreamParser::PercentParser, map);
   selector->temporalPhase =
-      GetProperty(streamH, "ADBE Text Temporal Phase", AEStreamParser::FloatParser);
+      GetProperty(streamH, "ADBE Text Temporal Phase", AEStreamParser::FloatParser, map);
   selector->spatialPhase =
-      GetProperty(streamH, "ADBE Text Spatial Phase", AEStreamParser::FloatParser);
+      GetProperty(streamH, "ADBE Text Spatial Phase", AEStreamParser::FloatParser, map);
   selector->lockDimensions =
-      GetProperty(streamH, "ADBE Text Wiggly Lock Dim", AEStreamParser::BooleanParser);
+      GetProperty(streamH, "ADBE Text Wiggly Lock Dim", AEStreamParser::BooleanParser, map);
   selector->randomSeed =
-      GetProperty(streamH, "ADBE Text Wiggly Random Seed", AEStreamParser::Uint16Parser);
+      GetProperty(streamH, "ADBE Text Wiggly Random Seed", AEStreamParser::Uint16Parser, map);
 
   return selector;
 }
@@ -226,7 +234,8 @@ static void CheckTextDirection(pag::Property<pag::TextDocumentHandle>* textDocum
   }
 }
 
-static std::vector<pag::TextSelector*> GetTextSelectors(const AEGP_StreamRefH& streamH) {
+static std::vector<pag::TextSelector*> GetTextSelectors(const AEGP_StreamRefH& streamH,
+                                                         float frameRate) {
   const auto& Suites = AEHelper::GetSuites();
   const auto& PluginID = AEHelper::GetPluginID();
   std::vector<pag::TextSelector*> vec = {};
@@ -242,10 +251,10 @@ static std::vector<pag::TextSelector*> GetTextSelectors(const AEGP_StreamRefH& s
       pag::TextSelector* selector = nullptr;
       switch (type) {
         case TextSelectorType::RangeSelector:
-          selector = GetTextRangeSelector(childStreamH);
+          selector = GetTextRangeSelector(childStreamH, frameRate);
           break;
         case TextSelectorType::WigglySelector:
-          selector = GetTextWigglySelector(childStreamH);
+          selector = GetTextWigglySelector(childStreamH, frameRate);
           break;
         case TextSelectorType::ExpressibleSelector:
           break;
@@ -404,7 +413,8 @@ static pag::TextAnimatorTypographyProperties* GetTextAnimatorTypographyPropertie
   return properties;
 }
 
-static pag::TextAnimator* GetTextAnimator(const AEGP_StreamRefH& streamH) {
+static pag::TextAnimator* GetTextAnimator(const AEGP_StreamRefH& streamH,
+                                           const std::shared_ptr<PAGExportSession>& session) {
   auto animator = new pag::TextAnimator();
   const auto& Suites = AEHelper::GetSuites();
   const auto& PluginID = AEHelper::GetPluginID();
@@ -418,7 +428,7 @@ static pag::TextAnimator* GetTextAnimator(const AEGP_StreamRefH& streamH) {
     if (!AEHelper::IsStreamHidden(childStreamH) && AEHelper::IsStreamActive(childStreamH)) {
       auto type = GetTextAnimatorType(childStreamH);
       if (type == TextAnimatorType::Selectors) {
-        auto selectors = GetTextSelectors(childStreamH);
+        auto selectors = GetTextSelectors(childStreamH, session->frameRate);
         animator->selectors.insert(animator->selectors.end(), selectors.begin(), selectors.end());
       } else if (type == TextAnimatorType::AnimatorProperties) {
         animator->colorProperties = GetTextAnimatorColorProperties(childStreamH);
@@ -434,7 +444,8 @@ static pag::TextAnimator* GetTextAnimator(const AEGP_StreamRefH& streamH) {
   return animator;
 }
 
-static std::vector<pag::TextAnimator*> GetTextAnimators(const AEGP_StreamRefH& streamH) {
+static std::vector<pag::TextAnimator*> GetTextAnimators(const AEGP_StreamRefH& streamH,
+                                                         const std::shared_ptr<PAGExportSession>& session) {
   const auto& Suites = AEHelper::GetSuites();
   std::vector<pag::TextAnimator*> vec = {};
 
@@ -447,7 +458,7 @@ static std::vector<pag::TextAnimator*> GetTextAnimators(const AEGP_StreamRefH& s
     if (!AEHelper::IsStreamHidden(childStreamH) && AEHelper::IsStreamActive(childStreamH)) {
       auto type = GetTextAnimatorsType(childStreamH);
       if (type == TextAnimatorsType::Animator) {
-        auto animator = GetTextAnimator(childStreamH);
+        auto animator = GetTextAnimator(childStreamH, session);
         if (animator != nullptr) {
           vec.push_back(animator);
         }
@@ -524,7 +535,7 @@ static void ModififyAnimatorKeyFrames(std::vector<pag::TextAnimator*>* animators
 }
 
 static void AdjustFirstBaseLine(pag::TextDocumentHandle textDocument, bool hasBias) {
-  if (textDocument->boxTextPos.x <= 0.001f || textDocument->boxTextPos.y <= 0.001f) {
+  if (textDocument->boxTextSize.x <= 0.001f || textDocument->boxTextSize.y <= 0.001f) {
     textDocument->firstBaseLine = 0.0f;
     return;
   }
@@ -628,7 +639,7 @@ void GetTextProperties(const std::shared_ptr<PAGExportSession>& session, const A
           break;
         }
         case TextPropertyType::Animators: {
-          auto vec = GetTextAnimators(streamH);
+          auto vec = GetTextAnimators(streamH, session);
           layer->animators.insert(layer->animators.end(), vec.begin(), vec.end());
           break;
         }

@@ -209,7 +209,30 @@ static void InitLayer(const std::shared_ptr<PAGExportSession>& session, const AE
       if (trackMatteLayerH == nullptr) {
         layer->trackMatteType = pag::TrackMatteType::None;
       } else {
-        layer->trackMatteLayer = ExportLayer(trackMatteLayerH, session);
+        int trackMatteIndex = -1;
+        AEGP_CompH compH = nullptr;
+        if (AEHelper::GetSuites()->LayerSuite6()->AEGP_GetLayerParentComp(trackMatteLayerH, &compH) == A_Err_NONE) {
+          A_long numLayers = 0;
+          if (AEHelper::GetSuites()->LayerSuite6()->AEGP_GetCompNumLayers(compH, &numLayers) == A_Err_NONE) {
+            for (int i = 0; i < numLayers; i++) {
+              AEGP_LayerH tempLayerH = nullptr;
+              if (AEHelper::GetSuites()->LayerSuite6()->AEGP_GetCompLayerByIndex(compH, i, &tempLayerH) == A_Err_NONE) {
+                if (tempLayerH == trackMatteLayerH) {
+                  trackMatteIndex = i;
+                  break;
+                }
+              }
+            }
+          }
+        }
+
+        if (trackMatteIndex >= 0) {
+          ScopedAssign<int> tempLayerIndex(session->layerIndex, trackMatteIndex);
+          layer->trackMatteLayer = ExportLayer(trackMatteLayerH, session);
+        } else {
+          layer->trackMatteLayer = ExportLayer(trackMatteLayerH, session);
+        }
+
         layer->trackMatteLayer->isActive = false;
         layer->trackMatteLayer->trackMatteType = pag::TrackMatteType::None;
       }
@@ -260,9 +283,10 @@ static pag::TextLayer* CreateTextLayer(const AEGP_LayerH& layerH,
   return layer;
 }
 
-static pag::ShapeLayer* CreateShapeLayer(const AEGP_LayerH& layerH) {
+static pag::ShapeLayer* CreateShapeLayer(const AEGP_LayerH& layerH,
+                                         const std::shared_ptr<PAGExportSession>& session) {
   auto layer = new pag::ShapeLayer();
-  layer->contents = GetShapes(layerH);
+  layer->contents = GetShapes(layerH, session);
   return layer;
 }
 
@@ -351,7 +375,7 @@ static pag::Layer* ExportLayer(const AEGP_LayerH& layerH,
       layer = CreateTextLayer(layerH, session);
       break;
     case ExportLayerType::Shape:
-      layer = CreateShapeLayer(layerH);
+      layer = CreateShapeLayer(layerH, session);
       break;
     case ExportLayerType::Image:
       layer = CreateImageLayer(layerH, session);
@@ -382,6 +406,8 @@ std::vector<pag::Layer*> ExportLayers(const std::shared_ptr<PAGExportSession>& s
   bool hasSoloLayer = false;
   std::vector<bool> soloFlags = {};
   std::vector<pag::Layer*> layers = {};
+  std::unordered_set<pag::Layer*> trackMatteCopies = {};
+  std::unordered_map<pag::Layer*, pag::Layer*> trackMatteOwners = {};
 
   A_long numLayers = 0;
   if (AEHelper::GetSuites()->LayerSuite6()->AEGP_GetCompNumLayers(compH, &numLayers) !=
@@ -420,6 +446,8 @@ std::vector<pag::Layer*> ExportLayers(const std::shared_ptr<PAGExportSession>& s
     if (layer->trackMatteLayer != nullptr) {
       soloFlags.push_back(false);
       layers.push_back(layer->trackMatteLayer);
+      trackMatteCopies.insert(layer->trackMatteLayer);
+      trackMatteOwners[layer->trackMatteLayer] = layer;
     }
     layers.push_back(layer);
 
@@ -447,11 +475,14 @@ std::vector<pag::Layer*> ExportLayers(const std::shared_ptr<PAGExportSession>& s
     auto soloFlagIter = soloFlags.begin();
     while (layerIter != layers.end() && soloFlagIter != soloFlags.end()) {
       pag::Layer* layer = *layerIter;
-      if (sets.find(layer->id) != sets.end()) {
+      bool isTrackMatteCopy = trackMatteCopies.find(layer) != trackMatteCopies.end();
+      if (!isTrackMatteCopy && sets.find(layer->id) != sets.end()) {
         layerIter = layers.erase(layerIter);
         soloFlagIter = soloFlags.erase(soloFlagIter);
       } else {
-        sets.insert(layer->id);
+        if (!isTrackMatteCopy) {
+          sets.insert(layer->id);
+        }
         ++layerIter;
         ++soloFlagIter;
       }
@@ -505,6 +536,10 @@ std::vector<pag::Layer*> ExportLayers(const std::shared_ptr<PAGExportSession>& s
     }
 
     if (!layer->isActive && !isBeReferenced) {
+      if (layer->trackMatteLayer != nullptr) {
+        layer->trackMatteLayer->isActive = false;
+      }
+
       session->layerHMap.erase(layer->id);
       layers.erase(layers.begin() + index);
       delete layer;

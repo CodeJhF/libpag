@@ -362,13 +362,23 @@ std::vector<pag::ImageBytes*> PAGExport::getRefImages(
   }
 
   std::vector<pag::ImageBytes*> images = {};
-  for (auto image : session->imageBytesList) {
+  std::vector<pag::ImageBytes*> newImageBytesList = {};
+  std::vector<std::pair<bool, AEGP_LayerH>> newImageLayerHList = {};
+  
+  for (size_t i = 0; i < session->imageBytesList.size(); ++i) {
+    auto image = session->imageBytesList[i];
     if (refImages.count(image)) {
       images.push_back(image);
+      newImageBytesList.push_back(image);
+      newImageLayerHList.push_back(session->imageLayerHList[i]);
     } else {
       delete image;
     }
   }
+
+  session->imageBytesList = std::move(newImageBytesList);
+  session->imageLayerHList = std::move(newImageLayerHList);
+  
   return images;
 }
 

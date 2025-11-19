@@ -39,9 +39,9 @@ void PAGExportSessionManager::recordWarning(AlertInfoType type, const std::strin
 }
 
 pag::GradientColorHandle PAGExportSessionManager::getGradientColors(
-    const std::vector<std::string>& matchNames, int index) {
+    const std::vector<std::string>& matchNames, int index, int keyframeIndex) {
   if (currentSession) {
-    return currentSession->GetGradientColorsFromFileBytes(matchNames, index);
+    return currentSession->GetGradientColorsFromFileBytes(matchNames, index, keyframeIndex);
   }
   return AEHelper::GetDefaultGradientColors();
 }

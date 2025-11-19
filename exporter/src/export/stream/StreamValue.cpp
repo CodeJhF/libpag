@@ -267,18 +267,21 @@ static pag::TextDocumentHandle ParseTextDocument(const AEGP_StreamVal2&, const Q
 
 pag::GradientColorHandle ParseGradientColor(const AEGP_StreamVal2&, const QVariantMap& map) {
   int index = map.value("index", 0).toInt();
+  int keyframeIndex = map.value("keyframeIndex", 0).toInt();
   return PAGExportSessionManager::GetInstance()->getGradientColors(
-      {"ADBE Vector Graphic - G-Fill", "ADBE Vector Graphic - G-Stroke"}, index);
+      {"ADBE Vector Graphic - G-Fill", "ADBE Vector Graphic - G-Stroke"}, index, keyframeIndex);
 }
 
 pag::GradientColorHandle ParseGradientOverlayColor(const AEGP_StreamVal2&, const QVariantMap& map) {
   int index = map.value("index", 0).toInt();
+  int keyframeIndex = map.value("keyframeIndex", 0).toInt();
   return PAGExportSessionManager::GetInstance()->getGradientColors({"gradientFill/gradient"},
-                                                                   index);
+                                                                   index, keyframeIndex);
 }
 
 int ParseShapeDirection(const AEGP_StreamVal2& streamValue, const QVariantMap&) {
-  return static_cast<int>(streamValue.one_d);
+  int direction = static_cast<int>(streamValue.one_d);
+  return direction == 2;
 }
 
 pag::BlendMode ParseShapeBlendMode(const AEGP_StreamVal2& streamValue, const QVariantMap&) {
@@ -297,7 +300,8 @@ pag::GradientFillType ParseGradientOverlayType(const AEGP_StreamVal2& streamValu
 pag::GradientColorHandle ParseOuterGlowGradientColor(const AEGP_StreamVal2&,
                                                      const QVariantMap& map) {
   int index = map.value("index", 0).toInt();
-  return PAGExportSessionManager::GetInstance()->getGradientColors({"outerGlow/gradient"}, index);
+  int keyframeIndex = map.value("keyframeIndex", 0).toInt();
+  return PAGExportSessionManager::GetInstance()->getGradientColors({"outerGlow/gradient"}, index, keyframeIndex);
 }
 
 pag::StrokePosition ParseStrokePosition(const AEGP_StreamVal2& streamValue, const QVariantMap&) {
