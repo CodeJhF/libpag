@@ -291,7 +291,7 @@ PAGWindow {
                                             id: languageComboBox
                                             Layout.preferredWidth: 200
                                             Layout.preferredHeight: 30
-                                            model: ["Auto", "中文（简体）", "English（US）"]
+                                            model: [qsTr("Auto"), qsTr("Chinese (Simplified)"), qsTr("English (US)")]
                                         }
 
                                         Text {
@@ -305,7 +305,7 @@ PAGWindow {
                                             id: useCaseComboBox
                                             Layout.preferredWidth: 200
                                             Layout.preferredHeight: 30
-                                            model: ["General", "UI Animation", "Video Editing"]
+                                            model: [qsTr("General"), qsTr("UI Animation"), qsTr("Video Editing")]
                                         }
 
                                         Text {
@@ -319,7 +319,7 @@ PAGWindow {
                                             id: exportVersionComboBox
                                             Layout.preferredWidth: 200
                                             Layout.preferredHeight: 30
-                                            model: ["Stable", "Beta", "Custom"]
+                                            model: [qsTr("Stable"), qsTr("Beta"), qsTr("Custom")]
 
                                             onCurrentIndexChanged: {
                                                 if (currentIndex === 0) {
@@ -423,7 +423,7 @@ PAGWindow {
                                             id: layerNameComboBox
                                             Layout.preferredWidth: 200
                                             Layout.preferredHeight: 30
-                                            model: ["Yes", "No"]
+                                            model: [qsTr("Yes"), qsTr("No")]
                                         }
 
                                         Text {
@@ -437,7 +437,7 @@ PAGWindow {
                                             id: exportFontComboBox
                                             Layout.preferredWidth: 200
                                             Layout.preferredHeight: 30
-                                            model: ["Yes", "No"]
+                                            model: [qsTr("Yes"), qsTr("No")]
                                         }
                                     }
 
@@ -504,7 +504,7 @@ PAGWindow {
                                             id: frameFormatComboBox
                                             Layout.preferredWidth: 200
                                             Layout.preferredHeight: 30
-                                            model: ["H.264", "Webp"]
+                                            model: [qsTr("H.264"), qsTr("Webp")]
                                         }
 
                                         Text {

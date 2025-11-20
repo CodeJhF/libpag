@@ -35,12 +35,16 @@ class ExportWindow : public BaseWindow {
 
   void show() override;
   void onWindowClosing() override;
+  void wait();
 
  private:
   std::string getOutputPath();
   void init();
 
   bool showAlertInfo = false;
+  bool finished = false;
+  bool initAttempted = false;  // Track if init() has been attempted
+  int iterations = 0;
   AEGP_ItemH itemH = nullptr;
   std::string outputPath = "";
   std::unique_ptr<PAGExport> pagExport = nullptr;

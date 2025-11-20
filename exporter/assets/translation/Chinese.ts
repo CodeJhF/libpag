@@ -105,6 +105,7 @@
     </message>
     <message>
         <location filename="../qml/ConfigWindow.qml" line="214"/>
+        <location filename="../qml/ConfigWindow.qml" line="308"/>
         <source>General</source>
         <translation>通用</translation>
     </message>
@@ -119,14 +120,54 @@
         <translation>语言:</translation>
     </message>
     <message>
+        <location filename="../qml/ConfigWindow.qml" line="294"/>
+        <source>Auto</source>
+        <translation>自动</translation>
+    </message>
+    <message>
+        <location filename="../qml/ConfigWindow.qml" line="294"/>
+        <source>Chinese (Simplified)</source>
+        <translation>中文（简体）</translation>
+    </message>
+    <message>
+        <location filename="../qml/ConfigWindow.qml" line="294"/>
+        <source>English (US)</source>
+        <translation>English (US)</translation>
+    </message>
+    <message>
         <location filename="../qml/ConfigWindow.qml" line="298"/>
         <source>Export Use Case:</source>
         <translation>导出场景:</translation>
     </message>
     <message>
+        <location filename="../qml/ConfigWindow.qml" line="308"/>
+        <source>UI Animation</source>
+        <translation>UI动画</translation>
+    </message>
+    <message>
+        <location filename="../qml/ConfigWindow.qml" line="308"/>
+        <source>Video Editing</source>
+        <translation>视频编辑</translation>
+    </message>
+    <message>
         <location filename="../qml/ConfigWindow.qml" line="312"/>
         <source>Export Version Control:</source>
         <translation>导出版本控制:</translation>
+    </message>
+    <message>
+        <location filename="../qml/ConfigWindow.qml" line="322"/>
+        <source>Stable</source>
+        <translation>Stable</translation>
+    </message>
+    <message>
+        <location filename="../qml/ConfigWindow.qml" line="322"/>
+        <source>Beta</source>
+        <translation>Beta</translation>
+    </message>
+    <message>
+        <location filename="../qml/ConfigWindow.qml" line="322"/>
+        <source>Custom</source>
+        <translation>Custom</translation>
     </message>
     <message>
         <location filename="../qml/ConfigWindow.qml" line="335"/>
@@ -149,6 +190,18 @@
         <translation>导出图层名字:</translation>
     </message>
     <message>
+        <location filename="../qml/ConfigWindow.qml" line="426"/>
+        <location filename="../qml/ConfigWindow.qml" line="440"/>
+        <source>Yes</source>
+        <translation>是</translation>
+    </message>
+    <message>
+        <location filename="../qml/ConfigWindow.qml" line="426"/>
+        <location filename="../qml/ConfigWindow.qml" line="440"/>
+        <source>No</source>
+        <translation>否</translation>
+    </message>
+    <message>
         <location filename="../qml/ConfigWindow.qml" line="430"/>
         <source>Export Fonts:</source>
         <translation>导出字体:</translation>
@@ -163,6 +216,16 @@
         <location filename="../qml/ConfigWindow.qml" line="497"/>
         <source>Bitmap Quality:</source>
         <translation>帧存储格式:</translation>
+    </message>
+    <message>
+        <location filename="../qml/ConfigWindow.qml" line="507"/>
+        <source>H.264</source>
+        <translation>H.264</translation>
+    </message>
+    <message>
+        <location filename="../qml/ConfigWindow.qml" line="507"/>
+        <source>Webp</source>
+        <translation>Webp</translation>
     </message>
     <message>
         <location filename="../qml/ConfigWindow.qml" line="511"/>
@@ -323,7 +386,7 @@
     <message>
         <location filename="../qml/PreCompositionItem.qml" line="33"/>
         <source>Name</source>
-        <translation>名称</translation>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -560,7 +623,7 @@
     <message>
         <location filename="../../src/utils/AlertInfo.cpp" line="210"/>
         <source>VideoTrack layer overlaps another VideoTrack layer in timeline (%1).</source>
-        <translation>VideoTrack图层在时间上的覆盖了另一个VideoTrack图层（%1）。</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../../src/utils/AlertInfo.cpp" line="212"/>
@@ -711,7 +774,7 @@
     <message>
         <location filename="../../src/utils/AlertInfo.cpp" line="325"/>
         <source>If you still want to use 3D properties, please %1</source>
-        <translation>如果您依然想要使用3D属性，请%1</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../../src/utils/AlertInfo.cpp" line="331"/>
@@ -752,7 +815,7 @@
     <message>
         <location filename="../../src/utils/AlertInfo.cpp" line="359"/>
         <source>Text layer font size is too small with excessive scaling (&quot;%1&quot;x), which may cause rendering distortion.</source>
-        <translation>文本图层的字体太小而缩放比例过大（“%1”倍），可能导致文本渲染失真。</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../../src/utils/AlertInfo.cpp" line="362"/>

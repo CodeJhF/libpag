@@ -33,8 +33,16 @@ ExportWindow::ExportWindow(QApplication* app, const std::string& outputPath, QOb
 }
 
 void ExportWindow::show() {
+  finished = false;
   if (pagExport == nullptr) {
-    return;
+    if (initAttempted) {
+      init();
+    }
+    if (pagExport == nullptr) {
+      finished = true;
+      initAttempted = true;
+      return;
+    }
   }
   BaseWindow::show();
 
@@ -50,12 +58,14 @@ void ExportWindow::show() {
   if (result) {
     FileHelper::OpenPAGFile(outputPath);
   }
+  finished = true;
 }
 
 void ExportWindow::onWindowClosing() {
   if (pagExport != nullptr && pagExport->session != nullptr) {
     pagExport->session->stopExport = true;
   }
+  finished = true;
   BaseWindow::onWindowClosing();
 }
 
@@ -67,15 +77,25 @@ std::string ExportWindow::getOutputPath() {
 
   QDir dir(AEHelper::GetProjectPath());
   QString defaultPath = dir.filePath(itemName.data());
-  QFileDialog dialog(QApplication::topLevelWidgets().value(0), QObject::tr("Select Storage Path"),
-                     defaultPath);
+
+  QWidget* parentWidget = nullptr;
+  auto topLevelWidgets = QApplication::topLevelWidgets();
+  if (!topLevelWidgets.isEmpty()) {
+    parentWidget = topLevelWidgets.value(0);
+  }
+  QFileDialog dialog(parentWidget, QObject::tr("Select Storage Path"), defaultPath);
   dialog.setAcceptMode(QFileDialog::AcceptSave);
   dialog.setDefaultSuffix("pag");
+  dialog.setOption(QFileDialog::DontUseNativeDialog, false);
 
-  if (dialog.exec() == QDialog::Accepted) {
+  int dialogResult = dialog.exec();
+
+  
+  if (dialogResult == QDialog::Accepted) {
     QStringList selectedFiles = dialog.selectedFiles();
     if (!selectedFiles.isEmpty()) {
-      return selectedFiles.first().toStdString();
+      QString selected = selectedFiles.first();
+      return selected.toStdString();
     }
   }
 
@@ -106,6 +126,8 @@ void ExportWindow::init() {
   configParam.outputPath = outputPath;
   configParam.showAlertInfo = showAlertInfo;
   pagExport = std::make_unique<PAGExport>(configParam);
+  
+  initAttempted = true;
 
   QQmlContext* context = engine->rootContext();
   QQmlEngine::setObjectOwnership(this, QQmlEngine::CppOwnership);
@@ -118,6 +140,13 @@ void ExportWindow::init() {
   window->setPersistentGraphics(true);
   window->setPersistentSceneGraph(true);
   QQuickWindow::setTextRenderType(QQuickWindow::TextRenderType::NativeTextRendering);
+}
+
+void ExportWindow::wait() {
+  while (!finished) {
+    QApplication::processEvents();
+    iterations++;
+  }
 }
 
 }  // namespace exporter

@@ -72,7 +72,7 @@ void WindowManager::showExportPreviewWindow() {
     previewWindow = std::make_unique<ExportWindow>(app.get(), outputPath);
   }
   previewWindow->show();
-  app->exec();
+  previewWindow->wait();
 }
 
 void WindowManager::showExportWindow() {
@@ -81,7 +81,7 @@ void WindowManager::showExportWindow() {
     exportWindow = std::make_unique<ExportWindow>(app.get());
   }
   exportWindow->show();
-  app->exec();
+  exportWindow->wait();
 }
 
 bool WindowManager::showWarnings(const std::vector<AlertInfo>& infos) {
