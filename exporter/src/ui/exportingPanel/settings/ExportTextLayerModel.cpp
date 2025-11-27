@@ -37,6 +37,11 @@ void ExportTextLayerModel::setAEResource(const std::shared_ptr<AEResource>& reso
 }
 
 void ExportTextLayerModel::refreshData(const std::shared_ptr<AEResource>& resource) {
+  static std::unordered_set<int> addedLayerIDs;
+  if (resource->ID == this->resource->ID) {
+    addedLayerIDs.clear();
+  }
+  
   if (resource->isExportAsBmp) {
     return;
   }
@@ -45,8 +50,15 @@ void ExportTextLayerModel::refreshData(const std::shared_ptr<AEResource>& resour
     if (session != nullptr && session->layerHMap.find(layer.layerID) == session->layerHMap.end()) {
       continue;
     }
+
+    if (addedLayerIDs.find(layer.layerID) != addedLayerIDs.end()) {
+      continue;
+    }
+    
     Data item = {layer.layerID, layer.name.data()};
     items.push_back(item);
+    addedLayerIDs.insert(layer.layerID);
+    
     if (this->resource->composition.textLayerFlagMap.find(layer.layerID) ==
         this->resource->composition.textLayerFlagMap.end()) {
       bool isEditable = Marker::GetLayerEditable(resource->itemH, layer.layerID);

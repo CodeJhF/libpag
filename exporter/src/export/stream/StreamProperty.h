@@ -234,4 +234,10 @@ pag::Property<T>* GetProperty(const AEGP_MaskRefH& maskH, AEGP_MaskStream maskSt
   return result;
 }
 
+inline QVariantMap CreatePropertyMap(float frameRate) {
+  QVariantMap map;
+  map["frameRate"] = frameRate;
+  return map;
+}
+
 }  // namespace exporter

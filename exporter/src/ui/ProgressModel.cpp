@@ -41,6 +41,10 @@ double ProgressModel::getCurrentProgress() const {
 
 void ProgressModel::setExportStatus(ExportStatus status) {
   if (status == ExportStatus::Success) {
+    if (totalProgress == 0) {
+      totalProgress = 1.0;
+      Q_EMIT totalProgressChanged(totalProgress);
+    }
     currentProgress = totalProgress;
     Q_EMIT currentProgressChanged(currentProgress);
     Q_EMIT exportFinished();

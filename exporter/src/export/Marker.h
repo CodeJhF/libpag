@@ -134,7 +134,7 @@ class Marker {
 
   static void ExportTimeStretch(std::shared_ptr<pag::File>& file,
                                 const std::shared_ptr<PAGExportSession>& session,
-                                const AEGP_ItemH& itemH);
+                                const AEGP_ItemH& itemHandle);
 
   static void ExportImageLayerEditable(std::shared_ptr<pag::File>& file,
                                        const std::shared_ptr<PAGExportSession>& session,

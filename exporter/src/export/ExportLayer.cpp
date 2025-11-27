@@ -19,6 +19,7 @@
 #include "ExportLayer.h"
 #include "ExportComposition.h"
 #include "Marker.h"
+#include "base/utils/Log.h"
 #include "layer/CameraOption.h"
 #include "layer/Effect.h"
 #include "layer/ImageBytes.h"
@@ -35,6 +36,9 @@
 namespace exporter {
 
 ExportLayerType GetLayerType(const AEGP_LayerH& layerH) {
+  if (layerH == nullptr) {
+    return ExportLayerType::Unknown;
+  }
   AEGP_LayerFlags layerFlags = AEHelper::GetLayerFlags(layerH);
   if (layerFlags &
       (AEGP_LayerFlag_NULL_LAYER | AEGP_LayerFlag_GUIDE_LAYER | AEGP_LayerFlag_ADJUSTMENT_LAYER)) {
@@ -427,6 +431,10 @@ std::vector<pag::Layer*> ExportLayers(const std::shared_ptr<PAGExportSession>& s
     if (AEHelper::GetSuites()->LayerSuite6()->AEGP_GetCompLayerByIndex(compH, index, &layerH) !=
         A_Err_NONE) {
       session->pushWarning(AlertInfoType::ExportAEError);
+      continue;
+    }
+
+    if (layerH == nullptr) {
       continue;
     }
 

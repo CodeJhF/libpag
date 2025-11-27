@@ -55,8 +55,7 @@ static pag::ShapeElement* GetShapeGroup(const AEGP_StreamRefH& streamH,
   const auto& PluginID = AEHelper::GetPluginID();
   auto element = new pag::ShapeGroupElement();
   float frameRate = session->frameRate;
-  QVariantMap map = {};
-  map["frameRate"] = frameRate;
+  auto map = CreatePropertyMap(frameRate);
 
   element->blendMode =
       GetValue(streamH, "ADBE Vector Blend Mode", AEStreamParser::ShapeBlendModeParser);
@@ -103,8 +102,7 @@ static pag::ShapeElement* GetShapeGroup(const AEGP_StreamRefH& streamH,
 
 static pag::ShapeElement* GetRectangle(const AEGP_StreamRefH& streamH, float frameRate) {
   auto element = new pag::RectangleElement();
-  QVariantMap map = {};
-  map["frameRate"] = frameRate;
+  auto map = CreatePropertyMap(frameRate);
 
   element->reversed =
       GetValue(streamH, "ADBE Vector Shape Direction", AEStreamParser::ShapeDirectionParser);
@@ -118,8 +116,7 @@ static pag::ShapeElement* GetRectangle(const AEGP_StreamRefH& streamH, float fra
 
 static pag::ShapeElement* GetEllipse(const AEGP_StreamRefH& streamH, float frameRate) {
   auto element = new pag::EllipseElement();
-  QVariantMap map = {};
-  map["frameRate"] = frameRate;
+  auto map = CreatePropertyMap(frameRate);
 
   element->reversed =
       GetValue(streamH, "ADBE Vector Shape Direction", AEStreamParser::ShapeDirectionParser);
@@ -132,8 +129,7 @@ static pag::ShapeElement* GetEllipse(const AEGP_StreamRefH& streamH, float frame
 
 static pag::ShapeElement* GetPolyStar(const AEGP_StreamRefH& streamH, float frameRate) {
   auto element = new pag::PolyStarElement();
-  QVariantMap map = {};
-  map["frameRate"] = frameRate;
+  auto map = CreatePropertyMap(frameRate);
 
   element->reversed =
       GetValue(streamH, "ADBE Vector Shape Direction", AEStreamParser::ShapeDirectionParser);
@@ -157,8 +153,7 @@ static pag::ShapeElement* GetPolyStar(const AEGP_StreamRefH& streamH, float fram
 
 static pag::ShapeElement* GetShapePath(const AEGP_StreamRefH& streamH, float frameRate) {
   auto element = new pag::ShapePathElement();
-  QVariantMap map = {};
-  map["frameRate"] = frameRate;
+  auto map = CreatePropertyMap(frameRate);
 
   auto reversed =
       GetValue(streamH, "ADBE Vector Shape Direction", AEStreamParser::ShapeDirectionParser);
@@ -179,8 +174,7 @@ static pag::ShapeElement* GetShapePath(const AEGP_StreamRefH& streamH, float fra
 
 static pag::ShapeElement* GetFill(const AEGP_StreamRefH& streamH, float frameRate) {
   auto element = new pag::FillElement();
-  QVariantMap map = {};
-  map["frameRate"] = frameRate;
+  auto map = CreatePropertyMap(frameRate);
 
   element->blendMode =
       GetValue(streamH, "ADBE Vector Blend Mode", AEStreamParser::ShapeBlendModeParser);
@@ -232,8 +226,7 @@ static void GetDashes(const AEGP_StreamRefH& streamH, pag::ShapeElement* element
 
 static pag::ShapeElement* GetStroke(const AEGP_StreamRefH& streamH, float frameRate) {
   auto element = new pag::StrokeElement();
-  QVariantMap map = {};
-  map["frameRate"] = frameRate;
+  auto map = CreatePropertyMap(frameRate);
 
   element->blendMode =
       GetValue(streamH, "ADBE Vector Blend Mode", AEStreamParser::ShapeBlendModeParser);
@@ -257,8 +250,7 @@ static pag::ShapeElement* GetStroke(const AEGP_StreamRefH& streamH, float frameR
 static pag::ShapeElement* GetGradientFill(const AEGP_StreamRefH& streamH, int& gradientIndex,
                                           float frameRate) {
   auto element = new pag::GradientFillElement();
-  QVariantMap map = {};
-  map["frameRate"] = frameRate;
+  auto map = CreatePropertyMap(frameRate);
   map["index"] = gradientIndex;
 
   element->blendMode =
@@ -282,8 +274,7 @@ static pag::ShapeElement* GetGradientFill(const AEGP_StreamRefH& streamH, int& g
 static pag::ShapeElement* GetGradientStroke(const AEGP_StreamRefH& streamH, int& gradientIndex,
                                             float frameRate) {
   auto element = new pag::GradientStrokeElement();
-  QVariantMap map = {};
-  map["frameRate"] = frameRate;
+  auto map = CreatePropertyMap(frameRate);
 
   element->blendMode =
       GetValue(streamH, "ADBE Vector Blend Mode", AEStreamParser::ShapeBlendModeParser);
@@ -319,8 +310,7 @@ static pag::ShapeElement* GetMergePaths(const AEGP_StreamRefH& streamH) {
 
 static pag::ShapeElement* GetTrimPaths(const AEGP_StreamRefH& streamH, float frameRate) {
   auto element = new pag::TrimPathsElement();
-  QVariantMap map = {};
-  map["frameRate"] = frameRate;
+  auto map = CreatePropertyMap(frameRate);
 
   element->start = GetProperty(streamH, "ADBE Vector Trim Start", AEStreamParser::PercentParser, map);
   element->end = GetProperty(streamH, "ADBE Vector Trim End", AEStreamParser::PercentParser, map);
@@ -332,8 +322,7 @@ static pag::ShapeElement* GetTrimPaths(const AEGP_StreamRefH& streamH, float fra
 
 static pag::RepeaterTransform* GetRepeaterTransform(const AEGP_StreamRefH& streamH, float frameRate) {
   auto transform = new pag::RepeaterTransform();
-  QVariantMap map = {};
-  map["frameRate"] = frameRate;
+  auto map = CreatePropertyMap(frameRate);
 
   transform->anchorPoint =
       GetProperty(streamH, "ADBE Vector Repeater Anchor", AEStreamParser::PointParser, map);
@@ -354,8 +343,7 @@ static pag::ShapeElement* GetRepeater(const AEGP_StreamRefH& streamH, float fram
   const auto& Suites = AEHelper::GetSuites();
   const auto& PluginID = AEHelper::GetPluginID();
   auto element = new pag::RepeaterElement();
-  QVariantMap map = {};
-  map["frameRate"] = frameRate;
+  auto map = CreatePropertyMap(frameRate);
 
   element->copies =
       GetProperty(streamH, "ADBE Vector Repeater Copies", AEStreamParser::FloatParser, map);
@@ -373,8 +361,7 @@ static pag::ShapeElement* GetRepeater(const AEGP_StreamRefH& streamH, float fram
 
 static pag::ShapeElement* GetRoundCorners(const AEGP_StreamRefH& streamH, float frameRate) {
   auto element = new pag::RoundCornersElement();
-  QVariantMap map = {};
-  map["frameRate"] = frameRate;
+  auto map = CreatePropertyMap(frameRate);
 
   element->radius =
       GetProperty(streamH, "ADBE Vector RoundCorner Radius", AEStreamParser::FloatParser, map);

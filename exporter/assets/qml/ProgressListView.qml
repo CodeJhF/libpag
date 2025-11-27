@@ -152,7 +152,13 @@ ListView {
 
             Text {
                 id: progressText
-                text: Math.round(currentProgress / totalProgress * 100) + "%"
+                text: {
+                    if (totalProgress === 0) {
+                        return exportStatus === 1 ? "100%" : "0%";
+                    }
+                    var percent = Math.round(currentProgress / totalProgress * 100);
+                    return (isNaN(percent) || !isFinite(percent)) ? "0%" : percent + "%";
+                }
                 height: 22
                 font.pixelSize: 14
                 font.family: "PingFang SC"

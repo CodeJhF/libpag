@@ -26,8 +26,7 @@ pag::Transform2D* GetTransform2D(const AEGP_LayerH& layerH, float frameRate) {
   const auto Suites = AEHelper::GetSuites();
   auto transform = new pag::Transform2D();
 
-  QVariantMap map;
-  map["frameRate"] = frameRate;
+  auto map = CreatePropertyMap(frameRate);
 
   AEGP_StreamRefH streamH = nullptr;
   Suites->StreamSuite4()->AEGP_GetNewLayerStream(PluginID, layerH, AEGP_LayerStream_POSITION,

@@ -426,6 +426,9 @@ pag::Frame GetLayerDuration(const AEGP_LayerH& layerH, float frameRate) {
 
 AEGP_LayerFlags GetLayerFlags(const AEGP_LayerH& layerH) {
   AEGP_LayerFlags flags;
+  if (layerH == nullptr) {
+    return 0;
+  }
   Suites->LayerSuite6()->AEGP_GetLayerFlags(layerH, &flags);
   return flags;
 }

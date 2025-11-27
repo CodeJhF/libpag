@@ -129,8 +129,7 @@ static pag::TextRangeSelector* GetTextRangeSelector(const AEGP_StreamRefH& strea
   const auto& PluginID = AEHelper::GetPluginID();
   auto selector = new pag::TextRangeSelector();
 
-  QVariantMap map = {};
-  map["frameRate"] = frameRate;
+  auto map = CreatePropertyMap(frameRate);
 
   selector->start = GetProperty(streamH, "ADBE Text Percent Start", AEStreamParser::PercentParser, map);
   selector->end = GetProperty(streamH, "ADBE Text Percent End", AEStreamParser::PercentParser, map);
@@ -168,8 +167,7 @@ static pag::TextWigglySelector* GetTextWigglySelector(const AEGP_StreamRefH& str
                                                       float frameRate) {
   auto selector = new pag::TextWigglySelector();
 
-  QVariantMap map = {};
-  map["frameRate"] = frameRate;
+  auto map = CreatePropertyMap(frameRate);
 
   selector->mode =
       GetProperty(streamH, "ADBE Text Selector Mode", AEStreamParser::TextSelectorModeParser, map);

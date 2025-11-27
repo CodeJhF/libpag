@@ -450,18 +450,19 @@ void Marker::SetTimeStretchInfo(const TimeStretchInfo& info, const AEGP_ItemH& i
 
 void Marker::ExportTimeStretch(std::shared_ptr<pag::File>& file,
                                const std::shared_ptr<PAGExportSession>& session,
-                               const AEGP_ItemH& itemH) {
-  if (file == nullptr || itemH == nullptr) {
+                               const AEGP_ItemH& itemHandle) {
+  if (file == nullptr || itemHandle == nullptr) {
     return;
   }
 
   const auto& suites = AEHelper::GetSuites();
 
   A_Time durationTime = {};
-  suites->ItemSuite6()->AEGP_GetItemDuration(itemH, &durationTime);
+  AEGP_CompH compHandle = AEHelper::GetItemCompH(itemHandle);
+  suites->CompSuite6()->AEGP_GetCompWorkAreaDuration(compHandle, &durationTime);
   auto compositionDuration = AEHelper::AETimeToTime(durationTime, session->frameRate);
 
-  auto optInfo = GetTimeStretchInfo(itemH);
+  auto optInfo = GetTimeStretchInfo(itemHandle);
   if (optInfo.has_value()) {
     const auto& info = *optInfo;
     pag::Frame timeStretchStart =
@@ -529,6 +530,10 @@ bool Marker::IsTextLayerNonReplaceable(const pag::TextLayer* layer, const AEGP_I
                                        const std::shared_ptr<PAGExportSession>& session) {
   if (!layer) {
     return false;
+  }
+
+  if (!layer->isActive) {
+    return true;
   }
 
   auto keyString = GetKeyStringWithId("noReplace", layer->id);
