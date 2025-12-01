@@ -231,9 +231,15 @@ std::vector<char> GetProjectFileBytes() {
       return fileBytes;
     }
 
+    // AEGP_SaveProjectToPath can complete asynchronously, and there might be a delay
+    // before the file is fully written to disk by the file system.
+    // Therefore, we need a retry loop to wait for the file to become accessible
+    // before attempting to read it.
     int maxRetries = 50;
     int retryCount = 0;
     std::ifstream testFile(filePath, std::ios::binary);
+
+    // Loop to check if the file has been created and can be opened.
     while (!testFile.is_open() && retryCount < maxRetries) {
       std::this_thread::sleep_for(std::chrono::milliseconds(100));
       retryCount++;
